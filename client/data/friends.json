@@ -1,0 +1,12 @@
+[
+    {
+        "display_name": "User1",
+        "public_key": "<base64>",
+        "public_key_id": "<hex_string>"
+    },
+    {
+        "display_name": "User2",
+        "public_key": "<base64>",
+        "public_key_id": "<hex_string>"
+    }
+]

@@ -1,0 +1,6 @@
+{
+    "server": {
+        "address": "barium.chat",
+        "port": 55555
+    }
+}
