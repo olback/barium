@@ -42,7 +42,7 @@ impl Identity {
 
         let path = Self::file()?;
 
-        let content = serde_json::to_string(&self)?;
+        let content = serde_json::to_string_pretty(&self)?;
         std::fs::write(&path, &content)?;
 
         Ok(())

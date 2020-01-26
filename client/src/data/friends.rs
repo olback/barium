@@ -60,12 +60,30 @@ impl Friends {
     pub fn add_friend(&mut self, friend: Friend) -> BariumResult<&Friend> {
 
         self.friends.push(friend);
+        self.save()?;
 
-        // Ok(self.friends.last().unwrap())
+        Ok(self.friends.last().unwrap())
 
-        // TODO: Write to file!
+    }
 
-        unimplemented!()
+    pub fn save(&self) -> BariumResult<()> {
+
+        let mut json_friends = Vec::<JsonFriend>::new();
+        for f in &self.friends {
+            let key = base64::encode(&bincode::serialize(&f.public_key)?);
+            json_friends.push(JsonFriend {
+                display_name: f.display_name.clone(),
+                public_key: key,
+                public_key_id: f.public_key_id.clone()
+            });
+
+        }
+
+        let path = Self::file()?;
+        let content = serde_json::to_string_pretty(&json_friends)?;
+        std::fs::write(&path, &content)?;
+
+        Ok(())
 
     }
 
