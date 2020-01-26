@@ -3,6 +3,8 @@ use base64;
 use bincode;
 
 mod data;
+mod error;
+mod macros;
 
 fn main() {
 
