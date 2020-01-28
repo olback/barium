@@ -42,3 +42,4 @@ impl_from!(std::io::Error);
 impl_from!(serde_json::error::Error);
 impl_from!(base64::DecodeError);
 impl_from!(Box<bincode::ErrorKind>);
+impl_from!(rsa::errors::Error);

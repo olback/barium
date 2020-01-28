@@ -1,35 +1,87 @@
+use std::{
+    net::{
+        TcpStream,
+        Shutdown
+    },
+    io::{
+        Read,
+        Write
+    }
+};
 use rsa::{PublicKey, RSAPrivateKey, PaddingScheme};
-use base64;
 use bincode;
 
 mod data;
 mod error;
 mod macros;
+mod message;
 
-fn main() {
+use error::BariumResult;
+use message::Message;
 
-    let mut rng = rand::thread_rng();
+fn main() -> BariumResult<()> {
 
-    // rsa key
-    let priv_key = RSAPrivateKey::new(&mut rng, 4096).unwrap();
-    println!("{:?}", priv_key);
+    // let message = Message::text("Hello gais! d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d");
+    // let key_size = 4096;
+    // let max_data_len = u32::pow(2, (f32::log2(key_size as f32) - 3f32) as u32);
 
-    let priv_key_b64 = base64::encode(&bincode::serialize(&priv_key).unwrap());
-    println!("{}", priv_key_b64);
+    // println!("Key size: {}, Max data len: {}", key_size, max_data_len - 11);
 
-    let pub_key = priv_key.to_public_key();
-    println!("{:?}", pub_key);
+    // let mut rng = rand::thread_rng();
 
-    let pub_key_b64 = base64::encode(&bincode::serialize(&pub_key).unwrap());
-    println!("{:?}", pub_key_b64);
-    let pub_key_2: rsa::RSAPublicKey = bincode::deserialize(&base64::decode(&pub_key_b64).unwrap()).unwrap();
+    // // rsa key
+    // let priv_key = RSAPrivateKey::new(&mut rng, key_size)?;
+    // let pub_key = priv_key.to_public_key();
 
-    assert_eq!(pub_key, pub_key_2);
+    // let message_bytes = bincode::serialize(&message)?;
+    // println!("Pub key len: {}, Bytes len: {}", pub_key.size(), message_bytes.len());
+    // let encrypted = pub_key.encrypt(&mut rng, PaddingScheme::PKCS1v15, &message_bytes)?;
+    // println!("[{}] {:?}", encrypted.len(), encrypted);
 
-    let encrypted = pub_key_2.encrypt(&mut rng, PaddingScheme::PKCS1v15, &[65, 65]).unwrap();
-    println!("{:?}", encrypted);
+    // let mut stream = TcpStream::connect(("0.0.0.0", 8080))?;
+    // stream.write_all(&encrypted[..])?;
 
-    let decrypted = priv_key.decrypt(PaddingScheme::PKCS1v15, &encrypted).unwrap();
-    println!("{:?}", decrypted);
+    // let mut buf = [0u8; 4096];
+    // let len = stream.read(&mut buf[..])?;
+
+    // let decrypted = priv_key.decrypt(PaddingScheme::PKCS1v15, &buf[0..len])?;
+    // let recv_message: Message = bincode::deserialize(&decrypted[..])?;
+    // println!("{:?}", recv_message);
+
+    // stream.shutdown(Shutdown::Both)?;
+
+    // Ok(())
+
+    let mut stream = TcpStream::connect(("127.0.0.1", 8080))?;
+
+    let stream_clone = stream.try_clone()?;
+    std::thread::spawn(|| {
+        let mut stream_clone = stream_clone;
+        let mut buf = [0u8; 1024];
+        loop {
+            match stream_clone.read(&mut buf[..]) {
+                Ok(len) if len == 0 => {
+                    stream_clone.shutdown(Shutdown::Both)?;
+                    break;
+                },
+                Ok(len) => println!("{:?}", &buf[0..len]),
+                Err(e) => {
+                    eprintln!("{}", e);
+                    return Err(e)
+                }
+            }
+        }
+        Ok(())
+    });
+
+    std::thread::sleep(std::time::Duration::from_secs(1));
+
+    stream.write_all(&mut [65, 65])?;
+
+    std::thread::sleep(std::time::Duration::from_secs(1));
+
+    stream.shutdown(Shutdown::Both)?;
+
+    Ok(())
 
 }
