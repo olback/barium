@@ -1,5 +1,7 @@
 // https://github.com/jonhoo/rust-evmap
 
+// FIXME: Fix these definitions...
+
 // [0][1..n]
 // [0] Message type id
 // [1..n] Data
@@ -13,6 +15,10 @@
 // Message type id: 2
 // Data [1..33]: destination (32 bytes)
 // Data [33..n]: message (n - 33 bytes)
+
+// Get users status
+// Message type id: 3
+// Data [1..n]: Vec<[u8; 32]>
 
 mod config;
 mod error;
