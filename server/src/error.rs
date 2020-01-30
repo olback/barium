@@ -40,3 +40,4 @@ impl std::fmt::Display for BariumError {
 impl_from!(std::io::Error);
 impl_from!(std::net::AddrParseError);
 impl_from!(serde_json::Error);
+impl_from!(native_tls::Error);

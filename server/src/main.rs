@@ -30,7 +30,8 @@ use error::BariumResult;
 use std::{
     env,
     net::{
-        Shutdown
+        Shutdown,
+        SocketAddr
     }
 };
 use tokio::{
@@ -44,16 +45,17 @@ use tokio::{
     }
 };
 
-async fn handle_client(mut stream: TcpStream) -> BariumResult<()> {
+async fn handle_client(mut stream: tokio_tls::TlsStream<tokio::net::TcpStream>/*stream: TcpStream, tls_acceptor: tokio_tls::TlsAcceptor*/) -> BariumResult<()> {
 
     let mut buf = [0u8; 8192];
+    // let mut tls_stream = tls_acceptor.accept(stream).await?;
 
     loop {
 
         match stream.read(&mut buf[..]).await {
 
             Ok(len) if len == 0 => {
-                stream.shutdown(Shutdown::Both)?;
+                stream.shutdown();
                 return Ok(())
             },
 
@@ -80,19 +82,42 @@ async fn main() -> BariumResult<()> {
 
     println!("Starting Barium Server...");
 
+    // Load config
     let config = Config::load(env::args().nth(1))?;
     println!("{:#?}", config);
 
-    let addr = config.address.parse::<std::net::IpAddr>()?;
-    let port = config.port;
+    // Listener variables
+    let addr = config.server.address.parse::<std::net::IpAddr>()?;
+    let port = config.server.port;
 
+    // Listener
     let mut listener = TcpListener::bind((addr, port)).await?;
+
+    // TLS
+    let der = std::fs::read(config.cert.path)?;
+    let cert = native_tls::Identity::from_pkcs12(&der, config.cert.password.as_str())?;
+    let tls_acceptor = tokio_tls::TlsAcceptor::from(native_tls::TlsAcceptor::builder(cert).build()?);
 
     loop {
 
-        let (stream, _) = listener.accept().await?;
+        let (stream, remote_addr) = listener.accept().await?;
+
+        // Block blacklisted ips. Drop incoming connections.
+        let addr = remote_addr.ip().to_string();
+        if config.blacklist.contains(&addr) {
+            println!("[blacklist] Dropping connection from {}", addr);
+            drop(stream.shutdown(Shutdown::Both));
+            drop(stream);
+            drop(remote_addr);
+            continue;
+        }
+
+        let tls_acceptor = tls_acceptor.clone();
         tokio::spawn(async move {
-            let _ = handle_client(stream).await;
+            let _ = match tls_acceptor.accept(stream).await {
+                Ok(stream) => handle_client(stream).await,
+                Err(e) => Err(new_err!(e))
+            };
         });
 
     }

@@ -1,5 +1,12 @@
 {
-    "address": "0.0.0.0",
-    "port": 8080,
-    "password": null
+    "server": {
+        "address": "0.0.0.0",
+        "port": 13337,
+        "password": null
+    },
+    "cert": {
+        "password": "1234",
+        "path": "server/cert/certificate.p12"
+    },
+    "blacklist": []
 }
