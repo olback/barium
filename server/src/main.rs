@@ -29,23 +29,31 @@ use error::BariumResult;
 
 use std::{
     env,
-    net::{
-        Shutdown,
-        SocketAddr
+    net::Shutdown,
+    collections::HashMap,
+    sync::{
+        Arc,
+        Mutex,
+        RwLock,
+        mpsc
     }
 };
 use tokio::{
-    net::{
-        TcpListener,
-        TcpStream
-    },
+    net::TcpListener,
     io::{
         AsyncReadExt,
         AsyncWriteExt
     }
 };
 
-async fn handle_client(mut stream: tokio_tls::TlsStream<tokio::net::TcpStream>/*stream: TcpStream, tls_acceptor: tokio_tls::TlsAcceptor*/) -> BariumResult<()> {
+struct Client {
+    idle: RwLock<u32>,
+    sender: Mutex<mpsc::Sender<Vec<u8>>>
+}
+
+type Clients = Arc<RwLock<HashMap<[u8; 32], Client>>>;
+
+async fn handle_client(mut stream: tokio_tls::TlsStream<tokio::net::TcpStream>, clients: Clients) -> BariumResult<()> {
 
     let mut buf = [0u8; 8192];
     // let mut tls_stream = tls_acceptor.accept(stream).await?;
@@ -61,7 +69,7 @@ async fn handle_client(mut stream: tokio_tls::TlsStream<tokio::net::TcpStream>/*
 
             Ok(len) => {
                 // parse data
-                stream.write(&buf[0..len]).await?;
+                stream.write(&[&[0xff], &buf[0..len]].concat()).await?;
                 println!("{:?}", &buf[0..len]);
             },
 
@@ -98,6 +106,8 @@ async fn main() -> BariumResult<()> {
     let cert = native_tls::Identity::from_pkcs12(&der, config.cert.password.as_str())?;
     let tls_acceptor = tokio_tls::TlsAcceptor::from(native_tls::TlsAcceptor::builder(cert).build()?);
 
+    let clients: Clients = Arc::new(RwLock::new(HashMap::new()));
+
     loop {
 
         let (stream, remote_addr) = listener.accept().await?;
@@ -113,9 +123,10 @@ async fn main() -> BariumResult<()> {
         }
 
         let tls_acceptor = tls_acceptor.clone();
+        let clients_clone = Arc::clone(&clients);
         tokio::spawn(async move {
             let _ = match tls_acceptor.accept(stream).await {
-                Ok(stream) => handle_client(stream).await,
+                Ok(stream) => handle_client(stream, clients_clone).await,
                 Err(e) => Err(new_err!(e))
             };
         });

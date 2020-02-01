@@ -2,7 +2,7 @@
 
 Generate private key and public certificate. Enter your domain as Common Name (CN).
 ```
-openssl req -newkey rsa:8192 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
+openssl req -newkey rsa:4096 -nodes -keyout key.pem -x509 -days 365 -out certificate.pem
 ```
 
 Review the certificate. (optional)
@@ -12,7 +12,7 @@ openssl x509 -text -noout -in certificate.pem
 
 Bundle your certificate in a PKCS#12 (P12) bundle. (also known as .pfx)
 ```
- openssl pkcs12 -inkey key.pem -in certificate.pem -export -out certificate.p12
+openssl pkcs12 -inkey key.pem -in certificate.pem -export -out certificate.p12
 ```
 
 Validate your P12 file. (optional)
