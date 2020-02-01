@@ -6,10 +6,12 @@ use std::{
     io::{
         Read,
         Write
-    }
+    },
+    sync::Arc
 };
 use rsa::{PublicKey, RSAPrivateKey, PaddingScheme};
 use bincode;
+use native_tls;
 
 mod data;
 mod error;
@@ -52,35 +54,66 @@ fn main() -> BariumResult<()> {
 
     // Ok(())
 
-    let mut stream = TcpStream::connect(("127.0.0.1", 8080))?;
+    // let tls_connector = native_tls::TlsConnector::new().unwrap();
+    let mut tls_connector = native_tls::TlsConnector::builder();
+    tls_connector.danger_accept_invalid_certs(true);
+    tls_connector.danger_accept_invalid_hostnames(true);
+    tls_connector.use_sni(false);
+    tls_connector.min_protocol_version(Some(native_tls::Protocol::Tlsv12));
+    let tls_connector = tls_connector.build().unwrap();
 
-    let stream_clone = stream.try_clone()?;
-    std::thread::spawn(|| {
-        let mut stream_clone = stream_clone;
-        let mut buf = [0u8; 1024];
-        loop {
-            match stream_clone.read(&mut buf[..]) {
-                Ok(len) if len == 0 => {
-                    stream_clone.shutdown(Shutdown::Both)?;
-                    break;
-                },
-                Ok(len) => println!("{:?}", &buf[0..len]),
-                Err(e) => {
-                    eprintln!("{}", e);
-                    return Err(e)
-                }
-            }
-        }
-        Ok(())
+    let tcp_stream = TcpStream::connect(("localhost", 13337)).unwrap();
+    // tcp_stream.set_nonblocking(true).unwrap();
+    tcp_stream.set_read_timeout(Some(std::time::Duration::from_millis(10))).unwrap();
+    let mut stream = tls_connector.connect("localhost", tcp_stream).unwrap();
+
+    let (tx, rx) = std::sync::mpsc::channel::<Vec<u8>>();
+
+    std::thread::spawn(move || {
+        connection(stream, rx)
     });
 
-    std::thread::sleep(std::time::Duration::from_secs(1));
+    loop {
 
-    stream.write_all(&mut [65, 65])?;
+        tx.send(vec![1, 2, 3, 4]).unwrap();
 
-    std::thread::sleep(std::time::Duration::from_secs(1));
+        std::thread::sleep(std::time::Duration::from_secs(1));
 
-    stream.shutdown(Shutdown::Both)?;
+    }
+
+    Ok(())
+
+}
+
+fn connection(mut stream: native_tls::TlsStream<std::net::TcpStream>, rx: std::sync::mpsc::Receiver<Vec<u8>>) -> BariumResult<()> {
+
+    let mut buf = [0u8; 2048];
+
+    loop {
+
+        match rx.try_recv() {
+            Ok(msg) => stream.write_all(&msg[..])?,
+            Err(e) if e == std::sync::mpsc::TryRecvError::Empty => (),
+            Err(e) => return Err(new_err!(e))
+        }
+
+        match stream.read(&mut buf[..]) {
+            Ok(len) if len == 0 => {
+                stream.shutdown()?;
+                break;
+            },
+            Ok(len) => println!("{:?}", &buf[0..len]),
+            Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => (),
+            Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => (),
+            Err(ref e) => {
+                eprintln!("{}", e);
+                return Err(new_err!(e));
+            }
+        }
+
+        std::thread::sleep(std::time::Duration::from_millis(100))
+
+    }
 
     Ok(())
 
