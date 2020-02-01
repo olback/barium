@@ -1,0 +1,17 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Server Debug",
+            "type": "shell",
+            "command": "cargo build --bin barium-server",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Client Debug",
+            "type": "shell",
+            "command": "cargo build --bin barium-client",
+            "problemMatcher": []
+        }
+    ]
+}
