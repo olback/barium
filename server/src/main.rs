@@ -23,9 +23,11 @@
 mod config;
 mod error;
 mod macros;
+mod client;
 
 use config::Config;
 use error::BariumResult;
+use client::Clients;
 
 use std::{
     env,
@@ -33,7 +35,6 @@ use std::{
     collections::HashMap,
     sync::{
         Arc,
-        Mutex,
         RwLock,
         mpsc
     }
@@ -45,13 +46,6 @@ use tokio::{
         AsyncWriteExt
     }
 };
-
-struct Client {
-    idle: RwLock<u32>,
-    sender: Mutex<mpsc::Sender<Vec<u8>>>
-}
-
-type Clients = Arc<RwLock<HashMap<[u8; 32], Client>>>;
 
 async fn handle_client(mut stream: tokio_tls::TlsStream<tokio::net::TcpStream>, clients: Clients) -> BariumResult<()> {
 
