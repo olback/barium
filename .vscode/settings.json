@@ -1,0 +1,15 @@
+{
+    "es6-css-minify.minifyOnSave": "exists",
+    "es6-css-minify.genJSmap": true,
+    "liveSassCompile.settings.formats": [
+        {
+            "format": "compressed",
+            "extensionName": ".min.css",
+            "savePath": "/docs/assets/css"
+        }
+    ],
+    "liveSassCompile.settings.autoprefix": [
+        "> 1%"
+    ],
+    "liveSassCompile.settings.excludeList": []
+}

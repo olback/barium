@@ -62,7 +62,7 @@ dependencies = [
  "barium-shared 0.1.0",
  "bincode 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "native-tls 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "padlock 0.1.2-alpha",
+ "padlock 0.1.1-alpha",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.45 (registry+https://github.com/rust-lang/crates.io-index)",
  "sha3 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -499,7 +499,7 @@ dependencies = [
 
 [[package]]
 name = "padlock"
-version = "0.1.2-alpha"
+version = "0.1.1-alpha"
 
 [[package]]
 name = "pin-project-lite"
