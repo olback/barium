@@ -12,6 +12,8 @@ use std::{
 use rsa::{PublicKey, RSAPrivateKey, PaddingScheme};
 use bincode;
 use native_tls;
+use barium_shared::{AfkStatus, ToClient, ToServer};
+use rand::Rng;
 
 mod data;
 mod error;
@@ -73,9 +75,17 @@ fn main() -> BariumResult<()> {
         connection(stream, rx)
     });
 
+    // let mut rng = rand::thread_rng();
+    // let id = rng.gen::<[u8; 32]>();
+    let id = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let friends = vec![[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]];
+
     loop {
 
-        tx.send(vec![1, 2, 3, 4]).unwrap();
+        let to_server = ToServer::KeepAlive(id, friends.clone(), AfkStatus::Available);
+        let data = bincode::serialize(&to_server).unwrap();
+
+        tx.send(data).unwrap();
 
         std::thread::sleep(std::time::Duration::from_secs(1));
 
@@ -102,7 +112,13 @@ fn connection(mut stream: native_tls::TlsStream<std::net::TcpStream>, rx: std::s
                 stream.shutdown()?;
                 break;
             },
-            Ok(len) => println!("{:?}", &buf[0..len]),
+            Ok(len) => {
+                // println!("{:?}", &buf[0..len])
+                match bincode::deserialize::<ToClient>(&buf[0..len]) {
+                    Ok(data) => println!("{:#?}", data),
+                    Err(e) => eprintln!("{:#?}", e)
+                }
+            },
             Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => (),
             Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => (),
             Err(ref e) => {
