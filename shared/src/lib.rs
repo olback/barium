@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum AfkStatus {
     Available,
-    Away(u32),
+    Away(Option<u32>),
     DoNotDisturb
 }
 
