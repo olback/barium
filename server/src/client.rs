@@ -1,40 +1,38 @@
 use std::{
     collections::HashMap,
+    net::TcpStream,
+    io::Write,
     sync::{
         Arc,
         Mutex,
         RwLock
     }
 };
-use tokio::sync::mpsc;
+// use tokio::net::TcpStream;
 use padlock;
 use barium_shared::{AfkStatus, ToClient};
-use crate::utils::sha3_256;
+use crate::error::BariumResult;
 use bincode;
 
 pub type Clients = Arc<RwLock<HashMap<[u8; 32], Client>>>;
 
 #[derive(Debug)]
 pub struct Client {
-    hash: [u8; 32],
+    id: [u8; 32],
     idle: RwLock<AfkStatus>,
-    sender: Mutex<mpsc::Sender<Vec<u8>>>
+    stream: Mutex<TcpStream>
 }
 
 impl Client {
 
-    pub fn new(id: [u8; 32], idle: AfkStatus, sender: mpsc::Sender<Vec<u8>>) -> Self {
+    pub fn new(id: [u8; 32], idle: AfkStatus, stream: &TcpStream) -> BariumResult<Self> {
 
-        Self {
-            hash: sha3_256(id),
+        Ok(Self {
+            id: id,
             idle: RwLock::new(idle),
-            sender: Mutex::new(sender)
-        }
+            stream: Mutex::new(stream.try_clone()?)
+        })
 
-    }
-
-    pub fn get_hash(&self) -> [u8; 32] {
-        self.hash
     }
 
     pub fn set_idle(&self, idle: AfkStatus) {
@@ -53,13 +51,15 @@ impl Client {
 
     }
 
-    pub fn send_data(&self, to_client: ToClient) {
+    pub fn send_data(&self, to_client: ToClient) -> BariumResult<()> {
 
         let data = bincode::serialize(&to_client).unwrap();
 
-        padlock::mutex_lock(&self.sender, |lock| {
-            lock.send(data);
-        })
+        padlock::mutex_lock(&self.stream, |lock| {
+            lock.write_all(&data[..])
+        })?;
+
+        Ok(())
 
     }
 

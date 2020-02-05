@@ -6,7 +6,8 @@ pub type BariumResult<T> = Result<T, BariumError>;
 pub struct BariumError {
     cause: String,
     file: String,
-    line: u32
+    line: u32,
+    from: String
 }
 
 impl BariumError {
@@ -16,7 +17,19 @@ impl BariumError {
         Self {
             cause: cause.into(),
             file: String::from(file),
-            line: line
+            line: line,
+            from: String::from("error::BariumError")
+        }
+
+    }
+
+    pub fn new_with_module<C: Into<String>>(cause: C, file: &str, line: u32, module: &str) -> Self {
+
+        Self {
+            cause: cause.into(),
+            file: String::from(file),
+            line: line,
+            from: String::from(module)
         }
 
     }
@@ -40,4 +53,4 @@ impl std::fmt::Display for BariumError {
 impl_from!(std::io::Error);
 impl_from!(std::net::AddrParseError);
 impl_from!(serde_json::Error);
-impl_from!(native_tls::Error);
+impl_from!(fern::InitError);

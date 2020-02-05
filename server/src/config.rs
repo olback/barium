@@ -1,6 +1,7 @@
 use serde::{Serialize, Deserialize};
 use serde_json;
 use crate::error::BariumResult;
+use log::{info, warn};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Server {
@@ -10,15 +11,8 @@ pub struct Server {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Cert {
-    pub password: String,
-    pub path: String
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     pub server: Server,
-    pub cert: Cert,
     pub blacklist: Vec<String>
 }
 
@@ -33,25 +27,46 @@ impl Config {
 
     }
 
+    pub fn log(&self) {
+
+        // Server address/port
+        info!("Listening on {}:{}", self.server.address, self.server.port);
+
+        // Password
+        match &self.server.password {
+            Some(p) => info!("Connection password '{}' set", p),
+            None => info!("No password set")
+        };
+
+        // Blacklist
+        if self.blacklist.is_empty() {
+            info!("Blacklist empty");
+        } else {
+            info!("Blocking {} remotes:", self.blacklist.len());
+            for b in &self.blacklist {
+                info!("=> {}", b);
+            }
+        }
+
+    }
+
 }
 
-// impl Default for Config {
+impl Default for Config {
 
-//     fn default() -> Self {
+    fn default() -> Self {
 
-//         Self {
-//             server: Server {
-//                 address: String::from("0.0.0.0"),
-//                 port: 13337,
-//                 password: None
-//             },
-//             cert: Cert {
-//                 path: String::from("cert/certificate.p12"),
-//                 password: String::new()
-//             },
-//             blacklist: Vec::new()
-//         }
+        warn!("No configuration specified. Using default!");
 
-//     }
+        Self {
+            server: Server {
+                address: String::from("0.0.0.0"),
+                port: 13337,
+                password: None
+            },
+            blacklist: Vec::new()
+        }
 
-// }
+    }
+
+}

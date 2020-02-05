@@ -4,9 +4,5 @@
         "port": 13337,
         "password": null
     },
-    "cert": {
-        "password": "1234",
-        "path": "server/cert/certificate.p12"
-    },
     "blacklist": []
 }

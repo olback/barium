@@ -21,7 +21,8 @@ macro_rules! impl_from {
     ($t:ty) => {
         impl From<$t> for BariumError {
             fn from(err: $t) -> BariumError {
-                super::new_err!(format!("{}", err))
+                // super::new_err!(format!("{}", err))
+                $crate::error::BariumError::new_with_module(format!("{}", err), std::file!(), std::line!(), stringify!($t))
             }
         }
     };

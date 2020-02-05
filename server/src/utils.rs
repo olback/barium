@@ -11,8 +11,6 @@ pub fn sha3_256(input: [u8; 32]) -> [u8; 32] {
         output[i] = result[i];
     }
 
-    println!("{}: {:?}", std::file!(), &output[..]);
-
     output
 
 }
