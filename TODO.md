@@ -1,8 +1,8 @@
 # Client
 
 * [ ] Limit input based on public key size
-* [ ] Add 'Add user' dialog
-
+* [x] Add 'Add user' dialog
+* [ ] MessageDialog alerting when fingerprint is not set/invalid
 
 # Server
 
