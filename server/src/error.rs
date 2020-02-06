@@ -12,6 +12,7 @@ pub struct BariumError {
 
 impl BariumError {
 
+    #[allow(dead_code)]
     pub fn new<C: Into<String>>(cause: C, file: &str, line: u32) -> Self {
 
         Self {
