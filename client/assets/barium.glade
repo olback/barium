@@ -29,34 +29,6 @@ Author: Edwin Svensson
   <!-- interface-description Barium is a end-to-end encrypted chat application written in Rust! -->
   <!-- interface-copyright Edwin Svensson -->
   <!-- interface-authors Edwin Svensson -->
-  <object class="GtkMenu">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <child>
-      <object class="GtkMenuItem" id="status_icon_menu">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="action_name">app.show</property>
-        <property name="label" translatable="yes">Show Barium</property>
-        <property name="use_underline">True</property>
-      </object>
-    </child>
-    <child>
-      <object class="GtkSeparatorMenuItem">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-      </object>
-    </child>
-    <child>
-      <object class="GtkMenuItem">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="action_name">app.quit</property>
-        <property name="label" translatable="yes">Quit</property>
-        <property name="use_underline">True</property>
-      </object>
-    </child>
-  </object>
   <object class="GtkDialog">
     <property name="can_focus">False</property>
     <property name="resizable">False</property>
@@ -2121,5 +2093,33 @@ Edwin Svensson</property>
   <object class="GtkStatusIcon" id="status_icon">
     <property name="icon_name">net.olback.Barium</property>
     <property name="title" translatable="yes">Barium</property>
+  </object>
+  <object class="GtkMenu" id="status_icon_menu">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkMenuItem">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="action_name">app.show</property>
+        <property name="label" translatable="yes">Show Barium</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparatorMenuItem">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="action_name">app.quit</property>
+        <property name="label" translatable="yes">Quit</property>
+        <property name="use_underline">True</property>
+      </object>
+    </child>
   </object>
 </interface>

@@ -1,29 +1,28 @@
-use std::{
-    net::{
-        TcpStream,
-        Shutdown
-    },
-    io::{
-        Read,
-        Write
-    },
-    sync::Arc
-};
-use rsa::{PublicKey, RSAPrivateKey, PaddingScheme};
-use bincode;
-use native_tls;
-use barium_shared::{AfkStatus, ToClient, ToServer};
-use rand::Rng;
+// use std::{
+//     net::{
+//         TcpStream,
+//         Shutdown
+//     },
+//     io::{
+//         Read,
+//         Write
+//     },
+//     sync::Arc
+// };
+// use rsa::{PublicKey, RSAPrivateKey, PaddingScheme};
+// use bincode;
+// use barium_shared::{AfkStatus, ToClient, ToServer};
+// use rand::Rng;
 
-mod data;
-mod error;
-mod macros;
-mod message;
+// mod data;
+// mod error;
+// mod macros;
+// mod message;
 
-use error::BariumResult;
-use message::Message;
+// use error::BariumResult;
+// use message::Message;
 
-fn main() -> BariumResult<()> {
+// fn main() -> BariumResult<()> {
 
     // let message = Message::text("Hello gais! d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d");
     // let key_size = 4096;
@@ -56,80 +55,39 @@ fn main() -> BariumResult<()> {
 
     // Ok(())
 
-    // let tls_connector = native_tls::TlsConnector::new().unwrap();
-    let mut tls_connector = native_tls::TlsConnector::builder();
-    tls_connector.danger_accept_invalid_certs(true);
-    tls_connector.danger_accept_invalid_hostnames(true);
-    tls_connector.use_sni(false);
-    tls_connector.min_protocol_version(Some(native_tls::Protocol::Tlsv12));
-    let tls_connector = tls_connector.build().unwrap();
+// }
 
-    let tcp_stream = TcpStream::connect(("localhost", 13337)).unwrap();
-    // tcp_stream.set_nonblocking(true).unwrap();
-    tcp_stream.set_read_timeout(Some(std::time::Duration::from_millis(10))).unwrap();
-    let mut stream = tls_connector.connect("localhost", tcp_stream).unwrap();
+use gtk::prelude::*;
+use gio::prelude::*;
+use std::env::args;
 
-    let (tx, rx) = std::sync::mpsc::channel::<Vec<u8>>();
+mod error;
+mod macros;
+mod resources;
+mod ui;
+use ui::Ui;
 
-    std::thread::spawn(move || {
-        connection(stream, rx)
+fn main() -> error::BariumResult<()> {
+
+    // Load resources
+    resources::load();
+
+    // Create application
+    let application = gtk::Application::new(Some("net.olback.barium"), Default::default())?;
+    application.set_flags(gio::ApplicationFlags::HANDLES_OPEN);
+
+    // Create builder
+    let builder = gtk::Builder::new_from_resource("/net/olback/barium/ui");
+
+    application.connect_activate(move |app| {
+        let ui = Ui::build(&app, &builder);
     });
 
-    // let mut rng = rand::thread_rng();
-    // let id = rng.gen::<[u8; 32]>();
-    let id = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    let friends = vec![[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]];
+    application.connect_open(|app, files, file| {
+        println!("{:#?} {:#?}", files[0], file);
+    });
 
-    loop {
-
-        let to_server = ToServer::KeepAlive(id, friends.clone(), AfkStatus::Available);
-        let data = bincode::serialize(&to_server).unwrap();
-
-        tx.send(data).unwrap();
-
-        std::thread::sleep(std::time::Duration::from_secs(1));
-
-    }
-
-    Ok(())
-
-}
-
-fn connection(mut stream: native_tls::TlsStream<std::net::TcpStream>, rx: std::sync::mpsc::Receiver<Vec<u8>>) -> BariumResult<()> {
-
-    let mut buf = [0u8; 2048];
-
-    loop {
-
-        match rx.try_recv() {
-            Ok(msg) => stream.write_all(&msg[..])?,
-            Err(e) if e == std::sync::mpsc::TryRecvError::Empty => (),
-            Err(e) => return Err(new_err!(e))
-        }
-
-        match stream.read(&mut buf[..]) {
-            Ok(len) if len == 0 => {
-                stream.shutdown()?;
-                break;
-            },
-            Ok(len) => {
-                // println!("{:?}", &buf[0..len])
-                match bincode::deserialize::<ToClient>(&buf[0..len]) {
-                    Ok(data) => println!("{:#?}", data),
-                    Err(e) => eprintln!("{:#?}", e)
-                }
-            },
-            Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => (),
-            Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => (),
-            Err(ref e) => {
-                eprintln!("{}", e);
-                return Err(new_err!(e));
-            }
-        }
-
-        std::thread::sleep(std::time::Duration::from_millis(100))
-
-    }
+    application.run(&args().collect::<Vec<String>>());
 
     Ok(())
 
