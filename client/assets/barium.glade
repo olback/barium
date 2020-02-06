@@ -1848,6 +1848,35 @@ Edwin Svensson</property>
       </object>
     </child>
   </object>
+  <object class="GtkMessageDialog" id="accept_fingerprint_dialog">
+    <property name="can_focus">False</property>
+    <property name="type_hint">dialog</property>
+    <property name="transient_for">main_window</property>
+    <property name="attached_to">main_window</property>
+    <property name="message_type">question</property>
+    <property name="buttons">yes-no</property>
+    <property name="text" translatable="yes">Verify fingerprint</property>
+    <property name="secondary_text" translatable="yes">Allow &lt;user&gt; with &lt;fingerprint&gt; to send you messages?</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox">
+            <property name="can_focus">False</property>
+            <property name="homogeneous">True</property>
+            <property name="layout_style">expand</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkDialog" id="add_friend_dialog">
     <property name="width_request">400</property>
     <property name="height_request">200</property>
@@ -2065,6 +2094,8 @@ Edwin Svensson</property>
     <property name="type_hint">dialog</property>
     <property name="transient_for">main_window</property>
     <property name="attached_to">main_window</property>
+    <property name="message_type">question</property>
+    <property name="buttons">yes-no</property>
     <property name="text" translatable="yes">Remove friend</property>
     <property name="secondary_text" translatable="yes">Are you sure you want to remove friend &lt;friend&gt;?</property>
     <child internal-child="vbox">
@@ -2076,17 +2107,11 @@ Edwin Svensson</property>
           <object class="GtkButtonBox">
             <property name="can_focus">False</property>
             <property name="homogeneous">True</property>
-            <property name="layout_style">center</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
+            <property name="layout_style">expand</property>
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="fill">False</property>
+            <property name="fill">True</property>
             <property name="position">0</property>
           </packing>
         </child>
