@@ -4,7 +4,7 @@ pub fn generate_resources() {
 
     const COMMAND: &str = "glib-compile-resources";
     const INPUT: &str = "assets/barium.gresource.xml";
-    const TARGET: &str = "resources.bin";
+    const TARGET: &str = "barium.gresource";
 
     let exists = Command::new("which").arg(COMMAND).output().unwrap();
     if !exists.status.success() {

@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
     <gresource prefix="/net/olback/barium">
+        <!-- UI -->
         <file alias="ui" preprocess="xml-stripblanks">out/barium.glade</file>
+
+        <!-- CSS -->
+        <file alias="css/app.css">assets/barium.css</file>
+
+        <!-- Logo / Icon -->
+        <!-- <file alias="net.olback.Barium.svg" preprocess="xml-stripblanks">assets/icons/apps/net.olback.Barium.svg</file> -->
+        <file alias="icons/net.olback.Barium.svg" preprocess="xml-stripblanks">assets/icons/apps/net.olback.Barium.svg</file>
+
+        <!-- Emblems -->
+        <file alias="icons/barium-user.svg" preprocess="xml-stripblanks">assets/icons/emblems/barium-user.svg</file>
+
+        <!-- Status -->
+        <file alias="icons/barium-alert.svg" preprocess="xml-stripblanks">assets/icons/status/barium-alert.svg</file>
+        <file alias="icons/barium-clock.svg" preprocess="xml-stripblanks">assets/icons/status/barium-clock.svg</file>
+        <file alias="icons/barium-dnd.svg" preprocess="xml-stripblanks">assets/icons/status/barium-dnd.svg</file>
+        <file alias="icons/barium-offline.svg" preprocess="xml-stripblanks">assets/icons/status/barium-offline.svg</file>
+        <file alias="icons/barium-online.svg" preprocess="xml-stripblanks">assets/icons/status/barium-online.svg</file>
     </gresource>
 </gresources>

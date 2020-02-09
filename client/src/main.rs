@@ -76,6 +76,9 @@ fn main() -> error::BariumResult<()> {
     let application = gtk::Application::new(Some("net.olback.barium"), Default::default())?;
     application.set_flags(gio::ApplicationFlags::HANDLES_OPEN);
 
+    // Set default icon
+    gtk::Window::set_default_icon_name("net.olback.Barium");
+
     // Create builder
     let builder = gtk::Builder::new_from_resource("/net/olback/barium/ui");
 
