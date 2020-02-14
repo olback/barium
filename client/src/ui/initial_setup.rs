@@ -1,5 +1,8 @@
 use crate::get_obj;
 use gtk::prelude::*;
+use gio::prelude::*;
+
+use crate::notification;
 
 pub struct InitialSetup {
     // Welcome
@@ -21,7 +24,7 @@ pub struct InitialSetup {
 
 impl InitialSetup {
 
-    pub fn build(builder: &gtk::Builder) -> Self {
+    pub fn build(app: &gtk::Application, builder: &gtk::Builder) -> Self {
 
         let setup = Self {
             // Welcome
@@ -41,36 +44,77 @@ impl InitialSetup {
             connect_error_label: get_obj!(builder, "connect_error_label")
         };
 
-        let identity_continue_clone = setup.identity_continue.clone();
-        setup.identity_username.connect_changed(move |entry| {
-            let input = entry.get_text().map_or(String::new(), |val| {
-                val.to_string()
-            });
-            if input.trim().is_empty() {
-                identity_continue_clone.set_sensitive(false);
-            } else {
-                identity_continue_clone.set_sensitive(true);
-            }
+        let app_clone = app.clone();
+        setup.welcome_continue.connect_clicked(move |_| {
+            let notif = notification::new("This is a title", "This is a little longer body...");
+            app_clone.send_notification(Some("Barium: <from user>"), &notif);
         });
 
-        let identity_key_size_clone = setup.identity_key_size.clone();
+        let identity_continue_clone = setup.identity_continue.clone();
+        let identity_key_size = setup.identity_key_size.clone();
         let identity_error = setup.identity_error.clone();
         let identity_error_label = setup.identity_error_label.clone();
-        setup.identity_continue.connect_clicked(move |btn| {
-            let value = identity_key_size_clone.get_active_text().map_or(None, |val| {
-                val.to_string().parse::<u32>().ok()
-            });
-            if let Some(v) = value {
-                println!("{}", v);
-                // continue
-            } else {
+        setup.identity_username.connect_changed(move |entry| {
+
+            let valid_username = validate_username(entry);
+            let valid_key_size = validate_key_size(&identity_key_size);
+
+            if valid_username && valid_key_size {
+                identity_error.set_visible(false);
+                identity_continue_clone.set_sensitive(true);
+            } else if !valid_username {
+                identity_continue_clone.set_sensitive(false);
+            } else if !valid_key_size {
+                identity_continue_clone.set_sensitive(false);
                 identity_error_label.set_text("Invalid key size");
                 identity_error.set_visible(true);
             }
+
+        });
+
+        let identity_continue_clone = setup.identity_continue.clone();
+        let identity_username = setup.identity_username.clone();
+        let identity_error = setup.identity_error.clone();
+        let identity_error_label = setup.identity_error_label.clone();
+        setup.identity_key_size.connect_changed(move |key_size| {
+
+            let valid_username = validate_username(&identity_username);
+            let valid_key_size = validate_key_size(key_size);
+
+            if valid_username && valid_key_size {
+                identity_error.set_visible(false);
+                identity_continue_clone.set_sensitive(true);
+            } else if !valid_username {
+                identity_continue_clone.set_sensitive(false);
+            } else if !valid_key_size {
+                identity_continue_clone.set_sensitive(false);
+                identity_error_label.set_text("Invalid key size");
+                identity_error.set_visible(true);
+            }
+
+        });
+
+        setup.identity_continue.connect_clicked(move |btn| {
         });
 
         setup
 
     }
+
+}
+
+fn validate_username(entry: &gtk::Entry) -> bool {
+
+    !entry.get_text().map_or(String::new(), |val| {
+        val.to_string().trim().to_string()
+    }).is_empty()
+
+}
+
+fn validate_key_size(combo_box: &gtk::ComboBoxText) -> bool {
+
+    combo_box.get_active_text().map_or(None, |val| {
+        val.to_string().parse::<u32>().ok()
+    }).is_some()
 
 }

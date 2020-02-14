@@ -230,17 +230,7 @@ Author: Edwin Svensson
       </object>
     </child>
   </object>
-  <object class="GtkImage" id="back_icon">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">back</property>
-  </object>
-  <object class="GtkImage" id="poke_icon">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">emblem-important</property>
-  </object>
-  <object class="GtkPopoverMenu" id="popovermenu1">
+  <object class="GtkPopoverMenu" id="app_menu">
     <property name="can_focus">False</property>
     <property name="border_width">6</property>
     <child>
@@ -297,6 +287,16 @@ Author: Edwin Svensson
       </packing>
     </child>
   </object>
+  <object class="GtkImage" id="back_icon">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">back</property>
+  </object>
+  <object class="GtkImage" id="poke_icon">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">emblem-important</property>
+  </object>
   <object class="GtkApplicationWindow" id="main_window">
     <property name="can_focus">False</property>
     <property name="default_width">1200</property>
@@ -324,7 +324,7 @@ Author: Edwin Svensson
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
-            <property name="popover">popovermenu1</property>
+            <property name="popover">app_menu</property>
             <child>
               <object class="GtkImage">
                 <property name="visible">True</property>
@@ -523,7 +523,6 @@ Recomended key size is 4096.</property>
                           <item translatable="yes">8192</item>
                           <item translatable="yes">16384</item>
                           <item translatable="yes">32768</item>
-                          <item translatable="yes">invalid</item>
                         </items>
                       </object>
                       <packing>

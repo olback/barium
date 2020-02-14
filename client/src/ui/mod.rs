@@ -1,4 +1,5 @@
 use gtk::prelude::*;
+use gio::prelude::*;
 use glib;
 use crate::get_obj;
 
@@ -7,6 +8,7 @@ use initial_setup::InitialSetup;
 
 pub struct Ui {
     pub main_window: gtk::ApplicationWindow,
+    pub about_dialog: gtk::AboutDialog,
     setup: InitialSetup
 }
 
@@ -26,14 +28,55 @@ impl Ui {
         glib::set_application_name("barium");
         glib::set_prgname(Some("barium"));
 
+        // Main window
         let main_window: gtk::ApplicationWindow = get_obj!(builder, "main_window");
         main_window.set_application(Some(app));
+        main_window.hide_on_delete();
         main_window.show();
+        // Clicking the exit/close button (X) should hide the window, not destroy it
+        // main_window.connect_delete_event(move |window, _| {
+        //     window.hide();
+        //     glib::signal::Inhibit(true)
+        // });
 
-        Self {
+        // About dialog
+        let about_dialog: gtk::AboutDialog = get_obj!(builder, "about_dialog");
+
+        let ui = Self {
             main_window: main_window,
-            setup: InitialSetup::build(builder)
-        }
+            about_dialog: about_dialog,
+            setup: InitialSetup::build(app, builder)
+        };
+
+        Self::connect_actions(app, &ui);
+
+        ui
+
+    }
+
+    fn connect_actions(app: &gtk::Application, ui: &Self) {
+
+        // Top-level actions
+        let actions = gio::SimpleActionGroup::new();
+        ui.main_window.insert_action_group("app", Some(&actions));
+
+        // About dialog
+        let about_dialog_clone = ui.about_dialog.clone();
+        let open_about_action = gio::SimpleAction::new("open-about", None);
+        open_about_action.connect_activate(move |_, _| {
+            match about_dialog_clone.run() {
+                _ => about_dialog_clone.hide()
+            }
+        });
+        actions.add_action(&open_about_action);
+
+        // Quit action
+        let app_clone = app.clone();
+        let quit_action = gio::SimpleAction::new("quit", None);
+        quit_action.connect_activate(move |_, _| {
+            app_clone.quit();
+        });
+        actions.add_action(&quit_action);
 
     }
 

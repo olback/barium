@@ -65,6 +65,7 @@ mod error;
 mod macros;
 mod resources;
 mod ui;
+mod notification;
 use ui::Ui;
 
 fn main() -> error::BariumResult<()> {
@@ -74,7 +75,6 @@ fn main() -> error::BariumResult<()> {
 
     // Create application
     let application = gtk::Application::new(Some("net.olback.barium"), Default::default())?;
-    application.set_flags(gio::ApplicationFlags::HANDLES_OPEN);
 
     // Set default icon
     gtk::Window::set_default_icon_name("net.olback.Barium");
@@ -84,10 +84,6 @@ fn main() -> error::BariumResult<()> {
 
     application.connect_activate(move |app| {
         let ui = Ui::build(&app, &builder);
-    });
-
-    application.connect_open(|app, files, file| {
-        println!("{:#?} {:#?}", files[0], file);
     });
 
     application.run(&args().collect::<Vec<String>>());
