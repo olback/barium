@@ -1,12 +1,15 @@
 use crate::get_obj;
 use gtk::prelude::*;
 use gio::prelude::*;
+use super::utils::StackSwitcher;
 
 use crate::notification;
 
 pub struct InitialSetup {
     // Welcome
     welcome_continue: gtk::Button,
+    // Stack
+    stack: gtk::Stack,
     // Identity
     identity_continue: gtk::Button,
     identity_username: gtk::Entry,
@@ -24,11 +27,13 @@ pub struct InitialSetup {
 
 impl InitialSetup {
 
-    pub fn build(app: &gtk::Application, builder: &gtk::Builder) -> Self {
+    pub fn build(app: &gtk::Application, builder: &gtk::Builder, stack: &gtk::Stack) -> Self {
 
         let setup = Self {
             // Welcome
             welcome_continue: get_obj!(builder, "welcome_continue"),
+            // Stack
+            stack: stack.clone(),
             // Identity
             identity_continue: get_obj!(builder, "identity_continue"),
             identity_username: get_obj!(builder, "identity_username"),
@@ -45,9 +50,9 @@ impl InitialSetup {
         };
 
         let app_clone = app.clone();
+        let stack_clone = setup.stack.clone();
         setup.welcome_continue.connect_clicked(move |_| {
-            let notif = notification::new("This is a title", "This is a little longer body...");
-            app_clone.send_notification(Some("Barium: <from user>"), &notif);
+            StackSwitcher::new(&stack_clone, "identity").left();
         });
 
         let identity_continue_clone = setup.identity_continue.clone();

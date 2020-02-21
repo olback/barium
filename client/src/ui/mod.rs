@@ -3,11 +3,13 @@ use gio::prelude::*;
 use glib;
 use crate::get_obj;
 
+mod utils;
 mod initial_setup;
 use initial_setup::InitialSetup;
 
 pub struct Ui {
     pub main_window: gtk::ApplicationWindow,
+    pub stack: gtk::Stack,
     pub about_dialog: gtk::AboutDialog,
     setup: InitialSetup
 }
@@ -34,18 +36,22 @@ impl Ui {
         main_window.hide_on_delete();
         main_window.show();
         // Clicking the exit/close button (X) should hide the window, not destroy it
-        // main_window.connect_delete_event(move |window, _| {
-        //     window.hide();
-        //     glib::signal::Inhibit(true)
-        // });
+        main_window.connect_delete_event(move |window, _| {
+            window.hide();
+            glib::signal::Inhibit(true)
+        });
+
+        // Stack of views
+        let stack: gtk::Stack = get_obj!(builder, "stack1");
 
         // About dialog
         let about_dialog: gtk::AboutDialog = get_obj!(builder, "about_dialog");
 
         let ui = Self {
             main_window: main_window,
+            stack: stack.clone(),
             about_dialog: about_dialog,
-            setup: InitialSetup::build(app, builder)
+            setup: InitialSetup::build(app, builder, &stack)
         };
 
         Self::connect_actions(app, &ui);
