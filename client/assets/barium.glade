@@ -431,7 +431,7 @@ Author: Edwin Svensson
             </child>
           </object>
           <packing>
-            <property name="name">page4</property>
+            <property name="name">start</property>
             <property name="title" translatable="yes">Welcome</property>
           </packing>
         </child>
@@ -626,7 +626,7 @@ Recomended key size is 4096.</property>
             </child>
           </object>
           <packing>
-            <property name="name">page2</property>
+            <property name="name">identity</property>
             <property name="title" translatable="yes">Identity</property>
             <property name="position">1</property>
           </packing>
@@ -846,7 +846,7 @@ Recomended key size is 4096.</property>
             </child>
           </object>
           <packing>
-            <property name="name">page0</property>
+            <property name="name">connect</property>
             <property name="title" translatable="yes">Connect</property>
             <property name="position">2</property>
           </packing>
@@ -1447,7 +1447,7 @@ Recomended key size is 4096.</property>
             </child>
           </object>
           <packing>
-            <property name="name">page1</property>
+            <property name="name">main</property>
             <property name="title" translatable="yes">Chat</property>
             <property name="position">3</property>
           </packing>
@@ -1727,7 +1727,7 @@ Recomended key size is 4096.</property>
             </child>
           </object>
           <packing>
-            <property name="name">page3</property>
+            <property name="name">settings</property>
             <property name="title" translatable="yes">Settings</property>
             <property name="position">4</property>
           </packing>
@@ -1785,8 +1785,8 @@ Recomended key size is 4096.</property>
             </child>
           </object>
           <packing>
-            <property name="name">page5</property>
-            <property name="title" translatable="yes">Network Error</property>
+            <property name="name">error</property>
+            <property name="title" translatable="yes">Error</property>
             <property name="position">5</property>
           </packing>
         </child>
@@ -2106,10 +2106,6 @@ Edwin Svensson</property>
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkStatusIcon" id="status_icon">
-    <property name="icon_name">net.olback.Barium</property>
-    <property name="title" translatable="yes">Barium</property>
   </object>
   <object class="GtkMenu" id="status_icon_menu">
     <property name="visible">True</property>
