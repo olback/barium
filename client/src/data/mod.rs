@@ -2,8 +2,8 @@ use serde::{Serialize, Deserialize};
 use crate::error::BariumResult;
 use std::path::PathBuf;
 
-pub(super) mod friend;
-mod server;
+pub mod friend;
+pub mod server;
 mod utils;
 use server::Server;
 
@@ -21,7 +21,11 @@ impl Config {
 
     }
 
-    pub fn servers(&mut self) -> &mut Vec<Server> {
+    pub fn servers(&self) -> &Vec<Server> {
+        &self.servers
+    }
+
+    pub fn servers_mut(&mut self) -> &mut Vec<Server> {
         &mut self.servers
     }
 

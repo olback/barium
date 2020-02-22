@@ -7,7 +7,7 @@ pub struct Server {
     pub address: String,
     pub port: u16,
     pub password: Option<String>,
-    pub key_size: u32,
+    pub key_size: usize,
     pub friends: Vec<Friend>
 }
 

@@ -67,15 +67,21 @@ use padlock;
 mod data;
 mod error;
 mod macros;
+mod keys;
 mod resources;
 mod ui;
 mod notification;
-use ui::Ui;
+use ui::{
+    Ui,
+    startup_keygen::StartupKeygenStatus
+};
 
 fn main() -> error::BariumResult<()> {
 
     let config = Arc::new(RwLock::new(data::Config::load()?));
+    let keys = Arc::new(RwLock::new(keys::KeyStore::new()));
     println!("{:#?}", config);
+    println!("{:#?}", keys);
 
     // Load resources
     resources::load();
@@ -100,8 +106,10 @@ fn main() -> error::BariumResult<()> {
     // Create builder
     let builder = gtk::Builder::new_from_resource("/net/olback/barium/ui");
 
+    let config_clone = Arc::clone(&config);
     application.connect_activate(move |app| {
 
+        // Show action
         let app_clone = app.clone();
         show_action.connect_activate(move |_| {
             let windows = app_clone.get_windows();
@@ -112,12 +120,28 @@ fn main() -> error::BariumResult<()> {
             }
         });
 
+        // Quit action
         let app_clone = app.clone();
         quit_action.connect_activate(move |_| {
             app_clone.quit();
         });
 
+        // Build Ui
         let ui = Ui::build(&app, &builder);
+
+        // Generate keys
+        let keys_clone = Arc::clone(&keys);
+        let servers_clone = padlock::rw_read_lock(&config_clone, |lock| { lock.servers().clone() });
+        let tx = ui.startup_keygen.get_tx();
+        std::thread::spawn(move || {
+            for s in servers_clone {
+                padlock::rw_write_lock(&keys_clone, |lock| {
+                    tx.send(StartupKeygenStatus::Generating(s.key_size, format!("{}:{}", s.address, s.port))).unwrap();
+                    lock.add(&s).unwrap();
+                })
+            }
+            tx.send(StartupKeygenStatus::Done).unwrap();
+        });
 
     });
 

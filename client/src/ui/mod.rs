@@ -4,12 +4,17 @@ use glib;
 use crate::get_obj;
 
 mod utils;
-mod initial_setup;
+
+pub mod startup_keygen;
+use startup_keygen::StartupKeygen;
+
+pub mod initial_setup;
 use initial_setup::InitialSetup;
 
 pub struct Ui {
     pub main_window: gtk::ApplicationWindow,
     pub stack: gtk::Stack,
+    pub startup_keygen: StartupKeygen,
     pub about_dialog: gtk::AboutDialog,
     setup: InitialSetup
 }
@@ -50,6 +55,7 @@ impl Ui {
         let ui = Self {
             main_window: main_window,
             stack: stack.clone(),
+            startup_keygen: StartupKeygen::build(builder, &stack),
             about_dialog: about_dialog,
             setup: InitialSetup::build(app, builder, &stack)
         };
