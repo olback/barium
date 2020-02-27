@@ -2,7 +2,6 @@ mod config;
 mod error;
 mod macros;
 mod client;
-mod utils;
 mod logger;
 
 use config::Config;
@@ -17,7 +16,7 @@ use std::{
 };
 use padlock;
 use bincode;
-use barium_shared::{AfkStatus, ToClient, ToServer};
+use barium_shared::{AfkStatus, ToClient, ToServer, hash::sha3_256};
 use log::{debug, info, warn};
 
 async fn handle_client(mut stream: TcpStream, clients: Clients) -> BariumResult<()> {
@@ -37,6 +36,7 @@ async fn handle_client(mut stream: TcpStream, clients: Clients) -> BariumResult<
                     None => ()
                 }
                 let _ = stream.shutdown(Shutdown::Both);
+                // debug!("{:#?}", clients);
                 break;
             },
 
@@ -48,11 +48,51 @@ async fn handle_client(mut stream: TcpStream, clients: Clients) -> BariumResult<
 
                         match data {
 
+                            ToServer::Hello(sender, user_public_key) => {
+
+                                let hash = sha3_256(&sender);
+
+                                let exists = padlock::rw_read_lock(&clients, |lock| {
+                                    lock.get(&hash).is_some()
+                                });
+
+                                if exists {
+
+                                    match stream.peer_addr() {
+                                        Ok(addr) => {
+                                            warn!("User from {} tried to recreate a session!", addr);
+                                        },
+                                        Err(_) => ()
+                                    };
+
+                                    let _ = stream.shutdown(Shutdown::Both);
+                                    // debug!("{:#?}", clients);
+                                    break;
+
+                                } else {
+
+                                    client_hash = Some(hash);
+
+                                    // let new_client = Client::new(sender, AfkStatus::Away(None), &stream)?;
+                                    let new_client = Client::new(&stream, user_public_key, AfkStatus::Away(None))?;
+
+                                    padlock::rw_write_lock(&clients, |lock| {
+
+                                        lock.insert(hash, new_client);
+
+                                    });
+
+                                    debug!("{:#?}", clients);
+
+                                }
+
+                            },
+
                             ToServer::KeepAlive(sender, friends, status) => {
 
-                                let hash = utils::sha3_256(sender);
+                                let hash = sha3_256(&sender);
 
-                                let new_user = padlock::rw_read_lock(&clients, |lock| {
+                                padlock::rw_read_lock(&clients, |lock| {
 
                                     match lock.get(&hash) {
 
@@ -70,51 +110,34 @@ async fn handle_client(mut stream: TcpStream, clients: Clients) -> BariumResult<
 
                                             let _ = user.send_data(ToClient::FriendsOnline(friends_online));
 
-                                            false
                                         },
 
-                                        None => true
+                                        None => {}
 
                                     }
 
                                 });
 
-                                if new_user {
-
-                                    client_hash = Some(hash);
-
-                                    let new_client = Client::new(sender, status, &stream)?;
-
-                                    padlock::rw_write_lock(&clients, |lock| {
-
-                                        lock.insert(hash, new_client);
-                                        let user = lock.get(&hash).unwrap(); // Safe unwrap since we JUST inserted the value.
-
-                                        let mut friends_online = Vec::<([u8; 32], AfkStatus)>::new();
-                                        for friend in &friends {
-                                            match lock.get(friend) {
-                                                Some(fc) => friends_online.push((friend.clone(), fc.get_idle())),
-                                                None => ()
-                                            }
-                                        }
-
-                                        let _ = user.send_data(ToClient::FriendsOnline(friends_online));
-
-
-                                    });
-
-                                }
-
                             },
 
-                            ToServer::Message(message) => {
+                            ToServer::Message(sender, message) => {
 
-                                padlock::rw_read_lock(&clients, |lock| {
-                                    match lock.get(&message.to) {
-                                        Some(user) => user.send_data(ToClient::Message(message.data)),
-                                        None => Ok(())
-                                    }
-                                })?;
+                                let hash = sha3_256(&sender);
+
+                                let exists = padlock::rw_read_lock(&clients, |lock| {
+                                    lock.get(&hash).is_some()
+                                });
+
+                                if exists {
+
+                                    padlock::rw_read_lock(&clients, |lock| {
+                                        match lock.get(&message.to) {
+                                            Some(user) => user.send_data(ToClient::Message(message.data)),
+                                            None => Ok(())
+                                        }
+                                    })?;
+
+                                }
 
                             }
 
@@ -146,6 +169,8 @@ async fn handle_client(mut stream: TcpStream, clients: Clients) -> BariumResult<
             }
 
         } // end of match read
+
+        // debug!("{:#?}", clients);
 
     } // end of loop
 
@@ -181,11 +206,11 @@ async fn main() -> BariumResult<()> {
         let (stream, remote_addr) = listener.accept()?;
 
         // Block blacklisted ips. Drop incoming connections.
-        let addr = remote_addr.ip().to_string();
-        debug!("New connection from {}", addr);
+        debug!("New connection from {}", remote_addr);
 
+        let addr = remote_addr.ip().to_string();
         if config.blacklist.contains(&addr) {
-            warn!("Blacklist dropping connection from {}", addr);
+            warn!("Blacklist dropping connection from {}", remote_addr);
             drop(stream.shutdown(Shutdown::Both));
             drop(stream);
             drop(remote_addr);

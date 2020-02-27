@@ -13,7 +13,7 @@ tokio = { version = "0.2", features = [ "rt-core", "rt-threaded", "macros" ] }
 padlock = "0.1.1-alpha"
 barium-shared = { path = "../shared" }
 bincode = "1.2"
-sha3 = "0.8"
 log = "0.4"
 fern = { version = "0.5", features = [ "colored" ] }
 chrono = "0.4"
+rsa = "0.2"

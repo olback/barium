@@ -22,6 +22,7 @@ gio = "0.8"
 glib = "0.9"
 libappindicator = "0.5" # Tray icon
 padlock = "0.1.1-alpha"
+bincode = "1.2"
 
 [build-dependencies]
 regex = "1.3"

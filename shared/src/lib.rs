@@ -1,4 +1,7 @@
 use serde::{Serialize, Deserialize};
+use rsa;
+
+pub mod hash;
 
 pub type UserHash = [u8; 32];
 pub type UserId = [u8; 32];
@@ -18,8 +21,9 @@ pub struct Message {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ToServer {
+    Hello(UserId, rsa::RSAPublicKey),
     KeepAlive(UserId, Vec<UserHash>, AfkStatus), // My id, Vec<Friend hash>
-    Message(Message)
+    Message(UserId, Message)
 }
 
 #[derive(Debug, Serialize, Deserialize)]

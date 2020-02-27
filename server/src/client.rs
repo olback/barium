@@ -10,27 +10,28 @@ use std::{
 };
 // use tokio::net::TcpStream;
 use padlock;
-use barium_shared::{AfkStatus, ToClient};
+use barium_shared::{AfkStatus, ToClient, UserHash};
 use crate::error::BariumResult;
 use bincode;
+use rsa;
 
-pub type Clients = Arc<RwLock<HashMap<[u8; 32], Client>>>;
+pub type Clients = Arc<RwLock<HashMap<UserHash, Client>>>;
 
 #[derive(Debug)]
 pub struct Client {
-    id: [u8; 32],
-    idle: RwLock<AfkStatus>,
-    stream: Mutex<TcpStream>
+    stream: Mutex<TcpStream>,
+    key: rsa::RSAPublicKey,
+    idle: RwLock<AfkStatus>
 }
 
 impl Client {
 
-    pub fn new(id: [u8; 32], idle: AfkStatus, stream: &TcpStream) -> BariumResult<Self> {
+    pub fn new(stream: &TcpStream, key: rsa::RSAPublicKey, idle: AfkStatus) -> BariumResult<Self> {
 
         Ok(Self {
-            id: id,
-            idle: RwLock::new(idle),
-            stream: Mutex::new(stream.try_clone()?)
+            stream: Mutex::new(stream.try_clone()?),
+            key: key,
+            idle: RwLock::new(idle)
         })
 
     }
