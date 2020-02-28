@@ -55,3 +55,4 @@ impl_from!(std::io::Error);
 impl_from!(std::net::AddrParseError);
 impl_from!(serde_json::Error);
 impl_from!(fern::InitError);
+impl_from!(Box<bincode::ErrorKind>);

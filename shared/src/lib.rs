@@ -21,6 +21,7 @@ pub struct Message {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ToServer {
+    Ping,
     Hello(UserId, rsa::RSAPublicKey),
     KeepAlive(UserId, Vec<UserHash>, AfkStatus), // My id, Vec<Friend hash>
     Message(UserId, Message)
@@ -28,6 +29,7 @@ pub enum ToServer {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ToClient {
+    Pong,
     FriendsOnline(Vec<(UserHash, AfkStatus)>), //  Vec<Freind hash>
     Message(Vec<u8>)
 }

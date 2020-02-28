@@ -54,7 +54,7 @@ impl Client {
 
     pub fn send_data(&self, to_client: ToClient) -> BariumResult<()> {
 
-        let data = bincode::serialize(&to_client).unwrap();
+        let data = bincode::serialize(&to_client)?;
 
         padlock::mutex_lock(&self.stream, |lock| {
             lock.write_all(&data[..])

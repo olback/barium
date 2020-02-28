@@ -10,7 +10,7 @@ use client::{Client, Clients};
 use std::{
     env,
     net::{Shutdown, TcpStream, TcpListener},
-    io::Read,
+    io::{Read, Write},
     collections::HashMap,
     sync::{Arc, RwLock}
 };
@@ -47,6 +47,17 @@ async fn handle_client(mut stream: TcpStream, clients: Clients) -> BariumResult<
                     Ok(data) => {
 
                         match data {
+
+                            ToServer::Ping => {
+
+                                let pong = ToClient::Pong;
+                                let data = bincode::serialize(&pong)?;
+
+                                debug!("{:?}", data);
+
+                                stream.write_all(&data[..])?;
+
+                            },
 
                             ToServer::Hello(sender, user_public_key) => {
 
