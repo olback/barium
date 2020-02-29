@@ -1,1 +1,0 @@
-username:hash:base64(public key)
