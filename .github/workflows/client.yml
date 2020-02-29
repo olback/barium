@@ -10,6 +10,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install dependencies
-      run: sudo apt install rustc cargo libcairo2-dev libpango1.0-dev libgtk-3-dev libappindicator3-dev libappindicator3-dev libclang-6.0-dev libclang-dev llvm clang -y
+      run: |
+        sudo apt update -y
+        sudo apt install rustc cargo libcairo2-dev libpango1.0-dev libgtk-3-dev libappindicator3-dev libappindicator3-dev libclang-6.0-dev libclang-dev llvm clang -y
     - name: Build
       run: cargo build --verbose barium-client
