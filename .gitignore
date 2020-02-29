@@ -1,5 +1,25 @@
-/target
+### Rust ###
+target/
 **/*.rs.bk
+
+### VS Code ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+### Jetbrains ###
+.idea/
+
+### GTK ###
 *.glade~
 \#*.glade\#
+
+### Barium ###
 client/out
+
+### Windows ###
+Thumbs.db
+[Dd]esktop.ini
