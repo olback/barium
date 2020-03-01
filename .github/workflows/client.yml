@@ -5,10 +5,12 @@ on:
     paths:
       - /client
       - /Cargo.*
+      - /shared
   pull_request:
     paths:
       - /client
       - /Cargo.*
+      - /shared
 
 jobs:
   build:
