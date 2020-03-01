@@ -1,6 +1,14 @@
 name: Client tests
 
-on: [push]
+on:
+  push:
+    paths:
+      - /client
+      - /Cargo.*
+  pull_request:
+    paths:
+      - /client
+      - /Cargo.*
 
 jobs:
   build:
