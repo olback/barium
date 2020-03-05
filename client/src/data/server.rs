@@ -8,7 +8,8 @@ pub struct Server {
     pub port: u16,
     pub password: Option<String>,
     pub key_size: usize,
-    pub friends: Vec<Friend>
+    pub friends: Vec<Friend>,
+    pub unsafe_allow_invalid_cert: Option<bool>
 }
 
 impl Server {
