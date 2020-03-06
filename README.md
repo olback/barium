@@ -1,5 +1,7 @@
 # Barium Chat
 
+[![dependency status](https://deps.rs/repo/github/olback/barium/status.svg)](https://deps.rs/repo/github/olback/barium)
+
 ## Introduction
 
 ## Installation
