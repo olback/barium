@@ -22,7 +22,7 @@ pub struct Message {
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ToServer {
     Ping,
-    Hello(UserId, rsa::RSAPublicKey),
+    Hello(UserId, rsa::RSAPublicKey, Option<String>),
     KeepAlive(UserId, Vec<UserHash>, AfkStatus), // My id, Vec<Friend hash>
     Message(UserId, Message)
 }

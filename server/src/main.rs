@@ -19,7 +19,7 @@ use bincode;
 use barium_shared::{AfkStatus, ToClient, ToServer, hash::sha3_256};
 use log::{debug, info, warn};
 
-async fn handle_client(mut stream: TcpStream, clients: Clients) -> BariumResult<()> {
+async fn handle_client(mut stream: TcpStream, clients: Clients, server_password: Option<String>) -> BariumResult<()> {
 
     let mut buf = [0u8; 8192];
     let mut client_hash: Option<[u8; 32]> = None;
@@ -59,7 +59,12 @@ async fn handle_client(mut stream: TcpStream, clients: Clients) -> BariumResult<
 
                             },
 
-                            ToServer::Hello(sender, user_public_key) => {
+                            ToServer::Hello(sender, user_public_key, password) => {
+
+                                if password != server_password {
+                                    drop(stream.shutdown(Shutdown::Both));
+                                    break;
+                                }
 
                                 let hash = sha3_256(&sender);
 
@@ -123,7 +128,8 @@ async fn handle_client(mut stream: TcpStream, clients: Clients) -> BariumResult<
 
                                         },
 
-                                        None => {}
+                                        // Sender not authenticated
+                                        None => {} // TODO: Drop connection
 
                                     }
 
@@ -135,20 +141,46 @@ async fn handle_client(mut stream: TcpStream, clients: Clients) -> BariumResult<
 
                                 let hash = sha3_256(&sender);
 
-                                let exists = padlock::rw_read_lock(&clients, |lock| {
-                                    lock.get(&hash).is_some()
+                                padlock::rw_read_lock(&clients, |lock| {
+
+                                    match lock.get(&hash) {
+
+                                        Some(_) => {
+
+                                            match lock.get(&message.to) {
+
+                                                Some(client) => {
+                                                    let _ = client.send_data(ToClient::Message(message.data));
+                                                },
+
+                                                // Recipient is not connected
+                                                None => {} // Do nothing
+
+                                            }
+
+                                        },
+
+                                        // Sender not authenticated
+                                        None => {} // TODO: Drop connection
+
+                                    }
+
                                 });
 
-                                if exists {
+                                // let exists = padlock::rw_read_lock(&clients, |lock| {
+                                //     lock.get(&hash).is_some()
+                                // });
 
-                                    padlock::rw_read_lock(&clients, |lock| {
-                                        match lock.get(&message.to) {
-                                            Some(user) => user.send_data(ToClient::Message(message.data)),
-                                            None => Ok(())
-                                        }
-                                    })?;
+                                // if exists {
 
-                                }
+                                //     padlock::rw_read_lock(&clients, |lock| {
+                                //         match lock.get(&message.to) {
+                                //             Some(user) => user.send_data(ToClient::Message(message.data)),
+                                //             None => Ok(())
+                                //         }
+                                //     })?;
+
+                                // }
 
                             }
 
@@ -229,8 +261,9 @@ async fn main() -> BariumResult<()> {
         }
 
         let clients_clone = Arc::clone(&clients);
+        let password = config.server.password.clone();
         tokio::spawn(async move {
-            let _ = handle_client(stream, clients_clone).await;
+            let _ = handle_client(stream, clients_clone, password).await;
         });
 
     }
