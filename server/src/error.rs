@@ -56,3 +56,5 @@ impl_from!(std::net::AddrParseError);
 impl_from!(serde_json::Error);
 impl_from!(fern::InitError);
 impl_from!(Box<bincode::ErrorKind>);
+impl_from!(native_tls::Error);
+impl_from!(std::sync::mpsc::SendError<Vec<u8>>);

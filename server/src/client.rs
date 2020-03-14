@@ -1,14 +1,12 @@
 use std::{
     collections::HashMap,
-    net::TcpStream,
-    io::Write,
     sync::{
         Arc,
         Mutex,
-        RwLock
+        RwLock,
+        mpsc
     }
 };
-// use tokio::net::TcpStream;
 use padlock;
 use barium_shared::{AfkStatus, ToClient, UserHash};
 use crate::error::BariumResult;
@@ -19,20 +17,20 @@ pub type Clients = Arc<RwLock<HashMap<UserHash, Client>>>;
 
 #[derive(Debug)]
 pub struct Client {
-    stream: Mutex<TcpStream>,
+    stream: Mutex<mpsc::Sender<Vec<u8>>>,
     key: rsa::RSAPublicKey,
     idle: RwLock<AfkStatus>
 }
 
 impl Client {
 
-    pub fn new(stream: &TcpStream, key: rsa::RSAPublicKey, idle: AfkStatus) -> BariumResult<Self> {
+    pub fn new(stream: &mpsc::Sender<Vec<u8>>, key: rsa::RSAPublicKey, idle: AfkStatus) -> Self {
 
-        Ok(Self {
-            stream: Mutex::new(stream.try_clone()?),
+        Self {
+            stream: Mutex::new(stream.clone()),
             key: key,
             idle: RwLock::new(idle)
-        })
+        }
 
     }
 
@@ -57,7 +55,7 @@ impl Client {
         let data = bincode::serialize(&to_client)?;
 
         padlock::mutex_lock(&self.stream, |lock| {
-            lock.write_all(&data[..])
+            lock.send(data)
         })?;
 
         Ok(())

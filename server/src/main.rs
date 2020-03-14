@@ -9,22 +9,40 @@ use error::BariumResult;
 use client::{Client, Clients};
 use std::{
     env,
+    time::Duration,
     net::{Shutdown, TcpStream, TcpListener},
     io::{Read, Write},
     collections::HashMap,
-    sync::{Arc, RwLock}
+    sync::{Arc, RwLock, mpsc}
 };
 use padlock;
 use bincode;
 use barium_shared::{AfkStatus, ToClient, ToServer, hash::sha3_256};
 use log::{debug, info, warn};
+use lazy_static::lazy_static;
+use native_tls::{Identity, TlsAcceptor, TlsStream};
 
-async fn handle_client(mut stream: TcpStream, clients: Clients, server_password: Option<String>) -> BariumResult<()> {
+lazy_static! {
+    static ref CONF: Config = Config::load(env::args().nth(1)).unwrap_or_default();
+}
+
+async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> BariumResult<()> {
 
     let mut buf = [0u8; 8192];
     let mut client_hash: Option<[u8; 32]> = None;
 
+    let (tx, rx) = mpsc::channel::<Vec<u8>>();
+
     loop {
+
+        match rx.try_recv() {
+
+            Ok(data) => {
+                stream.write(&data[..])?;
+            },
+            Err(_) => {}
+
+        };
 
         match stream.read(&mut buf[..]) {
 
@@ -35,8 +53,7 @@ async fn handle_client(mut stream: TcpStream, clients: Clients, server_password:
                     }),
                     None => ()
                 }
-                let _ = stream.shutdown(Shutdown::Both);
-                // debug!("{:#?}", clients);
+                let _ = stream.shutdown();
                 break;
             },
 
@@ -53,16 +70,14 @@ async fn handle_client(mut stream: TcpStream, clients: Clients, server_password:
                                 let pong = ToClient::Pong;
                                 let data = bincode::serialize(&pong)?;
 
-                                debug!("{:?}", data);
-
                                 stream.write_all(&data[..])?;
 
                             },
 
                             ToServer::Hello(sender, user_public_key, password) => {
 
-                                if password != server_password {
-                                    drop(stream.shutdown(Shutdown::Both));
+                                if password != CONF.server.password {
+                                    drop(stream.shutdown());
                                     break;
                                 }
 
@@ -74,31 +89,25 @@ async fn handle_client(mut stream: TcpStream, clients: Clients, server_password:
 
                                 if exists {
 
-                                    match stream.peer_addr() {
+                                    match stream.get_ref().peer_addr() {
                                         Ok(addr) => {
                                             warn!("User from {} tried to recreate a session!", addr);
                                         },
                                         Err(_) => ()
                                     };
 
-                                    let _ = stream.shutdown(Shutdown::Both);
-                                    // debug!("{:#?}", clients);
+                                    let _ = stream.shutdown();
                                     break;
 
                                 } else {
 
                                     client_hash = Some(hash);
 
-                                    // let new_client = Client::new(sender, AfkStatus::Away(None), &stream)?;
-                                    let new_client = Client::new(&stream, user_public_key, AfkStatus::Away(None))?;
+                                    let new_client = Client::new(&tx, user_public_key, AfkStatus::Away(None));
 
                                     padlock::rw_write_lock(&clients, |lock| {
-
                                         lock.insert(hash, new_client);
-
                                     });
-
-                                    debug!("{:#?}", clients);
 
                                 }
 
@@ -191,7 +200,7 @@ async fn handle_client(mut stream: TcpStream, clients: Clients, server_password:
                     Err(e) => {
                         // Recv invalid data
                         warn!("{}", e);
-                        stream.shutdown(Shutdown::Both)?;
+                        stream.shutdown()?;
                         break;
                     }
 
@@ -199,21 +208,25 @@ async fn handle_client(mut stream: TcpStream, clients: Clients, server_password:
 
             },
 
+            Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {}, // Do nothing
+
             Err(e) => {
-                warn!("{}", e);
+                warn!("{:#?}", e);
                 match client_hash {
                     Some(ref ch) => padlock::rw_write_lock(&clients, |lock| {
                         lock.remove(ch);
                     }),
                     None => ()
                 }
-                stream.shutdown(Shutdown::Both)?;
+                stream.shutdown()?;
                 break;
             }
 
         } // end of match read
 
-        // debug!("{:#?}", clients);
+        debug!("{:#?}", clients);
+
+        tokio::time::delay_for(Duration::from_millis(100u64)).await;
 
     } // end of loop
 
@@ -230,13 +243,17 @@ async fn main() -> BariumResult<()> {
 
     info!("Starting Barium Server...");
 
-    // Load config
-    let config = Config::load(env::args().nth(1)).unwrap_or_default();
-    config.log();
+    // Log config
+    CONF.log();
+
+    // Get cert
+    let cert_bytes = std::fs::read(&CONF.cert.path)?;
+    let cert_pkcs12 = Identity::from_pkcs12(&cert_bytes, CONF.cert.password.as_str())?;
+    let tls_acceptor = Arc::new(TlsAcceptor::new(cert_pkcs12)?);
 
     // Listener variables
-    let addr = config.server.address.parse::<std::net::IpAddr>()?;
-    let port = config.server.port;
+    let addr = CONF.server.address.parse::<std::net::IpAddr>()?;
+    let port = CONF.server.port;
 
     // Listener
     let listener = TcpListener::bind((addr, port))?;
@@ -252,7 +269,7 @@ async fn main() -> BariumResult<()> {
         debug!("New connection from {}", remote_addr);
 
         let addr = remote_addr.ip().to_string();
-        if config.blacklist.contains(&addr) {
+        if CONF.blacklist.contains(&addr) {
             warn!("Blacklist dropping connection from {}", remote_addr);
             drop(stream.shutdown(Shutdown::Both));
             drop(stream);
@@ -261,9 +278,22 @@ async fn main() -> BariumResult<()> {
         }
 
         let clients_clone = Arc::clone(&clients);
-        let password = config.server.password.clone();
+        let acceptor_clone = Arc::clone(&tls_acceptor);
         tokio::spawn(async move {
-            let _ = handle_client(stream, clients_clone, password).await;
+
+            match acceptor_clone.accept(stream) {
+
+                Ok(mut tls_stream) => {
+
+                    tls_stream.get_mut().set_nonblocking(true).unwrap();
+                    let _ = handle_client(tls_stream, clients_clone).await;
+
+                },
+
+                Err(_) => {}
+
+            }
+
         });
 
     }

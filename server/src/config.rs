@@ -2,6 +2,13 @@ use serde::{Serialize, Deserialize};
 use serde_json;
 use crate::error::BariumResult;
 use log::{info, warn};
+use std::path::PathBuf;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Cert {
+    pub path: PathBuf,
+    pub password: String
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Server {
@@ -12,6 +19,7 @@ pub struct Server {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
+    pub cert: Cert,
     pub server: Server,
     pub blacklist: Vec<String>
 }
@@ -31,6 +39,9 @@ impl Config {
 
         // Server address/port
         info!("Listening on {}:{}", self.server.address, self.server.port);
+
+        // Cert info
+        info!("Using certificate at {}", self.cert.path.to_str().unwrap());
 
         // Password
         match &self.server.password {
@@ -59,6 +70,10 @@ impl Default for Config {
         warn!("No configuration specified. Using default!");
 
         Self {
+            cert: Cert {
+                path: PathBuf::from("cert.p12"),
+                password: String::from("")
+            },
             server: Server {
                 address: String::from("0.0.0.0"),
                 port: 13337,
