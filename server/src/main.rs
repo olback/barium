@@ -23,7 +23,7 @@ use lazy_static::lazy_static;
 use native_tls::{Identity, TlsAcceptor, TlsStream};
 
 lazy_static! {
-    static ref CONF: Config = Config::load(env::args().nth(1)).unwrap_or_default();
+    static ref CONF: Config = Config::load(env::args().nth(1).expect("specify config file as the first argument")).unwrap();
 }
 
 async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> BariumResult<()> {
@@ -249,7 +249,9 @@ async fn main() -> BariumResult<()> {
     // Get cert
     let cert_bytes = std::fs::read(&CONF.cert.path)?;
     let cert_pkcs12 = Identity::from_pkcs12(&cert_bytes, CONF.cert.password.as_str())?;
-    let tls_acceptor = Arc::new(TlsAcceptor::new(cert_pkcs12)?);
+    let mut tls_acceptor_builder = TlsAcceptor::builder(cert_pkcs12);
+    tls_acceptor_builder.min_protocol_version(Some(native_tls::Protocol::Tlsv12));
+    let tls_acceptor = Arc::new(tls_acceptor_builder.build()?);
 
     // Listener variables
     let addr = CONF.server.address.parse::<std::net::IpAddr>()?;
@@ -268,8 +270,8 @@ async fn main() -> BariumResult<()> {
         // Block blacklisted ips. Drop incoming connections.
         debug!("New connection from {}", remote_addr);
 
-        let addr = remote_addr.ip().to_string();
-        if CONF.blacklist.contains(&addr) {
+        let addr = remote_addr.ip();
+        if CONF.is_blacklisted(&addr) {
             warn!("Blacklist dropping connection from {}", remote_addr);
             drop(stream.shutdown(Shutdown::Both));
             drop(stream);
