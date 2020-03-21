@@ -1,7 +1,22 @@
 use serde::{Serialize, Deserialize};
 use serde_json;
 use crate::error::BariumResult;
-use log::{info, warn};
+use log::info;
+use std::{
+    path::PathBuf,
+    net::IpAddr
+};
+use ipnet::IpNet;
+use either::Either;
+
+type BlacklistEntry = Either<IpAddr, IpNet>;
+type Blacklist = Vec<BlacklistEntry>;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Cert {
+    pub path: PathBuf,
+    pub password: String
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Server {
@@ -12,18 +27,35 @@ pub struct Server {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
+    pub cert: Cert,
     pub server: Server,
-    pub blacklist: Vec<String>
+    #[serde(deserialize_with = "deserialize_blacklist")]
+    pub blacklist: Blacklist
 }
 
 impl Config {
 
-    pub fn load(path: Option<String>) -> BariumResult<Self> {
+    pub fn load(path: String) -> BariumResult<Self> {
 
-        let content = std::fs::read_to_string(path.unwrap_or("config.json".to_string()))?;
+        let content = std::fs::read_to_string(path)?;
         let this: Self = serde_json::from_str(&content)?;
 
         Ok(this)
+
+    }
+
+    pub fn is_blacklisted(&self, addr: &IpAddr) -> bool {
+
+        for b in &self.blacklist {
+            if match b {
+                Either::Left(ref baddr) => addr == baddr,
+                Either::Right(ref bnet) => bnet.contains(addr),
+            } {
+                return true
+            }
+        }
+
+        false
 
     }
 
@@ -32,41 +64,81 @@ impl Config {
         // Server address/port
         info!("Listening on {}:{}", self.server.address, self.server.port);
 
+        // Cert info
+        info!("Certificate: {}", self.cert.path.canonicalize().unwrap().to_str().unwrap());
+
         // Password
         match &self.server.password {
-            Some(p) => info!("Connection password '{}' set", p),
-            None => info!("No password set")
+            Some(p) => info!("Connection password: \"{}\"", p),
+            None => info!("Connection password: <not set>")
         };
 
         // Blacklist
         if self.blacklist.is_empty() {
-            info!("Blacklist empty");
+
+            info!("Blacklist: Empty");
+
         } else {
-            info!("Blocking {} remotes:", self.blacklist.len());
+
+            let mut count = 0usize;
+            for b in &self.blacklist {
+                match b {
+                    Either::Left(_) => count += 1,
+                    Either::Right(ref net) => count += net.hosts().count()
+                }
+            }
+
+            info!("Blocking {} remotes:", count);
             for b in &self.blacklist {
                 info!("=> {}", b);
             }
+
         }
 
     }
 
 }
 
-impl Default for Config {
+fn deserialize_blacklist<'de, D>(de: D) -> Result<Blacklist, D::Error>
+    where D: serde::Deserializer<'de>
+{
 
-    fn default() -> Self {
+    let raw_s_v: Vec<&str> = serde::de::Deserialize::deserialize(de)?;
 
-        warn!("No configuration specified. Using default!");
+    let mut ret = Vec::<BlacklistEntry>::new();
 
-        Self {
-            server: Server {
-                address: String::from("0.0.0.0"),
-                port: 13337,
-                password: None
+    for e in raw_s_v {
+
+        let mut errors = 0u8;
+
+        match e.parse::<IpAddr>() {
+            Ok(addr) => {
+                ret.push(Either::Left(addr));
+                continue;
             },
-            blacklist: Vec::new()
-        }
+            Err(_) => {
+                errors += 1;
+            }
+        };
+
+        match e.parse::<IpNet>() {
+            Ok(net) => {
+                ret.push(Either::Right(net));
+                continue;
+            },
+            Err(_) => {
+                errors += 1;
+            }
+        };
+
+        if errors == 2 {
+
+            let err: Result<Blacklist, String> = Err(format!("Could not parse \"{}\" as std::net::IpAddr or ipnet::IpNet", e));
+            return err.map_err(serde::de::Error::custom)
+
+        } // else, no error
 
     }
 
+    Ok(ret)
 }
