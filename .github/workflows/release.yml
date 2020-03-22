@@ -1,0 +1,41 @@
+name: Publish release builds
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/cache@v1
+      with:
+        path: target
+        key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Install dependencies
+      run: |
+        sudo apt remove clang-6.0 libclang-common-6.0-dev libclang1-6.0 libllvm6.0 -y
+        sudo apt install rustc cargo libcairo2-dev libpango1.0-dev libgtk-3-dev libappindicator3-dev libclang-dev llvm clang -y
+
+    - name: Build client & server
+      run: cargo build --release
+
+    - name: Move output file
+      run: |
+        mkdir out
+        mv target/release/barium-client out/barium-client-linux
+        mv target/release/barium-server out/barium-server-linux
+
+    - uses: "marvinpinto/action-automatic-releases@v1.0.0"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: false
+        files: |
+            out/barium-*
