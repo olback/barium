@@ -1,10 +1,11 @@
-use serde::{Serialize, Deserialize};
+use serde::Deserialize;
 use serde_json;
 use crate::error::BariumResult;
 use log::info;
 use std::{
     path::PathBuf,
-    net::IpAddr
+    net::IpAddr,
+    str::FromStr
 };
 use ipnet::IpNet;
 use either::Either;
@@ -12,25 +13,28 @@ use either::Either;
 type BlacklistEntry = Either<IpAddr, IpNet>;
 type Blacklist = Vec<BlacklistEntry>;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Cert {
     pub path: PathBuf,
     pub password: String
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Server {
     pub address: String,
     pub port: u16,
     pub password: Option<String>
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Deserialize)]
 pub struct Config {
     pub cert: Cert,
     pub server: Server,
     #[serde(deserialize_with = "deserialize_blacklist")]
-    pub blacklist: Blacklist
+    pub blacklist: Blacklist,
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_log_level")]
+    pub log_level: Option<log::LevelFilter>
 }
 
 impl Config {
@@ -141,4 +145,16 @@ fn deserialize_blacklist<'de, D>(de: D) -> Result<Blacklist, D::Error>
     }
 
     Ok(ret)
+}
+
+fn deserialize_log_level<'de, D>(de: D) -> Result<Option<log::LevelFilter>, D::Error>
+where D: serde::Deserializer<'de> {
+
+    let level: Option<&str> = serde::de::Deserialize::deserialize(de)?;
+
+    match level {
+        Some(l) => Ok(Some(log::LevelFilter::from_str(l).map_err(serde::de::Error::custom)?)),
+        None => Ok(None)
+    }
+
 }

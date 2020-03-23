@@ -239,7 +239,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 #[tokio::main]
 async fn main() -> BariumResult<()> {
 
-    logger::configure()?;
+    logger::configure(CONF.log_level)?;
 
     info!("Starting Barium Server...");
 
