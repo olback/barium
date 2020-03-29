@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 serde = "1.0"
 serde_json = "1.0"
-tokio = { version = "0.2", features = [ "rt-core", "rt-threaded", "macros", "time" ] }
+tokio = { version = "0.2", features = [ "rt-core", "rt-threaded", "macros", "time", "io-driver" ] }
 padlock = "0.1.1-alpha"
 barium-shared = { path = "../shared" }
 bincode = "1.2"
