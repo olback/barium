@@ -2,9 +2,8 @@ use serde::{Serialize, Deserialize};
 use rsa;
 
 pub mod hash;
-
-pub type UserHash = [u8; 32];
-pub type UserId = [u8; 32];
+mod types;
+pub use types::*;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum AfkStatus {
