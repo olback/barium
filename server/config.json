@@ -8,6 +8,10 @@
         "port": 13337,
         "password": "hello"
     },
+    "runtime": {
+        "core_threads": null,
+        "max_threads": null
+    },
     "blacklist": [
         "10.8.0.0/24",
         "187.63.59.237"

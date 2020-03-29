@@ -3,7 +3,9 @@ mod error;
 mod macros;
 mod client;
 mod logger;
+mod tokio_runtime_builder;
 
+use tokio::{self, runtime};
 use config::Config;
 use error::BariumResult;
 use client::{Client, Clients};
@@ -13,20 +15,24 @@ use std::{
     net::{Shutdown, TcpStream, TcpListener},
     io::{Read, Write},
     collections::HashMap,
-    sync::{Arc, RwLock, mpsc}
+    sync::{Arc, RwLock, mpsc, atomic::{AtomicU16, Ordering}}
 };
 use padlock;
 use bincode;
-use barium_shared::{AfkStatus, ToClient, ToServer, hash::sha3_256};
+use barium_shared::{AfkStatus, ToClient, ToServer, ToHex, hash::sha3_256};
 use log::{debug, info, warn};
 use lazy_static::lazy_static;
 use native_tls::{Identity, TlsAcceptor, TlsStream};
+use tokio_runtime_builder::TokioRuntimeBuilder;
 
 lazy_static! {
     static ref CONF: Config = Config::load(env::args().nth(1).expect("specify config file as the first argument")).unwrap();
+    static ref CLIENT_COUNT: AtomicU16 = AtomicU16::new(0);
 }
 
 async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> BariumResult<()> {
+
+    CLIENT_COUNT.fetch_add(1, Ordering::SeqCst);
 
     let mut buf = [0u8; 8192];
     let mut client_hash: Option<[u8; 32]> = None;
@@ -53,11 +59,12 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
                     }),
                     None => ()
                 }
-                let _ = stream.shutdown();
                 break;
             },
 
             Ok(len) => {
+
+                debug!("{}:{:?}", len, &buf[0..len]);
 
                 match bincode::deserialize::<ToServer>(&buf[0..len]) {
 
@@ -77,7 +84,6 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
                             ToServer::Hello(sender, user_public_key, password) => {
 
                                 if password != CONF.server.password {
-                                    drop(stream.shutdown());
                                     break;
                                 }
 
@@ -96,12 +102,13 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
                                         Err(_) => ()
                                     };
 
-                                    let _ = stream.shutdown();
                                     break;
 
                                 } else {
 
                                     client_hash = Some(hash);
+
+                                    debug!("New client: hash:{} id:{}", client_hash.unwrap().to_hex(), sender.to_hex());
 
                                     let new_client = Client::new(&tx, user_public_key, AfkStatus::Away(None));
 
@@ -163,7 +170,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
                                                 },
 
                                                 // Recipient is not connected
-                                                None => {} // Do nothing
+                                                None => {} // TODO: Respond with error
 
                                             }
 
@@ -176,21 +183,6 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                                 });
 
-                                // let exists = padlock::rw_read_lock(&clients, |lock| {
-                                //     lock.get(&hash).is_some()
-                                // });
-
-                                // if exists {
-
-                                //     padlock::rw_read_lock(&clients, |lock| {
-                                //         match lock.get(&message.to) {
-                                //             Some(user) => user.send_data(ToClient::Message(message.data)),
-                                //             None => Ok(())
-                                //         }
-                                //     })?;
-
-                                // }
-
                             }
 
                         }
@@ -200,7 +192,6 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
                     Err(e) => {
                         // Recv invalid data
                         warn!("{}", e);
-                        stream.shutdown()?;
                         break;
                     }
 
@@ -218,28 +209,37 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
                     }),
                     None => ()
                 }
-                stream.shutdown()?;
                 break;
             }
 
         } // end of match read
 
-        debug!("{:#?}", clients);
-
         tokio::time::delay_for(Duration::from_millis(100u64)).await;
 
     } // end of loop
 
-    debug!("Connection closed");
+    CLIENT_COUNT.fetch_sub(1, Ordering::SeqCst);
+
+    stream.shutdown()?;
+
+    if client_hash.is_some() {
+        debug!("Connection closed");
+    } else {
+        debug!("Connection closed without authentication");
+    }
+    debug!("Total clients connected: {}", CLIENT_COUNT.load(Ordering::SeqCst));
 
     Ok(())
 
 }
 
-#[tokio::main]
-async fn main() -> BariumResult<()> {
+fn main() -> BariumResult<()> {
 
+    // Configure logger
     logger::configure(CONF.log_level)?;
+
+    // Create our own runtime
+    let rt = TokioRuntimeBuilder::from_config(&CONF).build()?;
 
     info!("Starting Barium Server...");
 
@@ -267,9 +267,9 @@ async fn main() -> BariumResult<()> {
 
         let (stream, remote_addr) = listener.accept()?;
 
-        // Block blacklisted ips. Drop incoming connections.
         debug!("New connection from {}", remote_addr);
 
+        // Block blacklisted ips. Drop incoming connections.
         let addr = remote_addr.ip();
         if CONF.is_blacklisted(&addr) {
             warn!("Blacklist dropping connection from {}", remote_addr);
@@ -281,7 +281,7 @@ async fn main() -> BariumResult<()> {
 
         let clients_clone = Arc::clone(&clients);
         let acceptor_clone = Arc::clone(&tls_acceptor);
-        tokio::spawn(async move {
+        rt.spawn(async move {
 
             match acceptor_clone.accept(stream) {
 

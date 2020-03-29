@@ -27,12 +27,20 @@ pub struct Server {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct Runtime {
+    /// The amount of native threads to use. Set to null to use all available.
+    pub core_threads: Option<usize>,
+    /// Max green threads to spawn.
+    pub max_threads: Option<usize>
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Config {
     pub cert: Cert,
     pub server: Server,
+    pub runtime: Runtime,
     #[serde(deserialize_with = "deserialize_blacklist")]
     pub blacklist: Blacklist,
-    #[serde(default)]
     #[serde(deserialize_with = "deserialize_log_level")]
     pub log_level: Option<log::LevelFilter>
 }
