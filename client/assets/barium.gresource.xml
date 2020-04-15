@@ -2,7 +2,7 @@
 <gresources>
     <gresource prefix="/net/olback/barium">
         <!-- UI -->
-        <file alias="ui" preprocess="xml-stripblanks">out/barium.glade</file>
+        <file alias="ui" preprocess="xml-stripblanks">out/ui/barium.glade</file>
 
         <!-- CSS -->
         <file alias="css/app.css">assets/barium.css</file>
