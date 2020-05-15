@@ -77,7 +77,10 @@ impl Config {
         info!("Listening on {}:{}", self.server.address, self.server.port);
 
         // Cert info
-        info!("Certificate: {}", self.cert.path.canonicalize().unwrap().to_str().unwrap());
+        match self.cert.path.canonicalize() {
+            Ok(p) => info!("Certificate: {}", p.to_str().unwrap()),
+            Err(_) => panic!("Certificate at {} not found", self.cert.path.to_string_lossy())
+        }
 
         // Password
         match &self.server.password {

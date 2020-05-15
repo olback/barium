@@ -4,8 +4,9 @@ mod macros;
 mod client;
 mod logger;
 mod tokio_runtime_builder;
+mod utils;
 
-use tokio::{self, runtime};
+use tokio;
 use config::Config;
 use error::BariumResult;
 use client::{Client, Clients};
@@ -18,8 +19,7 @@ use std::{
     sync::{Arc, RwLock, mpsc, atomic::{AtomicU16, Ordering}}
 };
 use padlock;
-use bincode;
-use barium_shared::{AfkStatus, ToClient, ToServer, ToHex, hash::sha3_256};
+use barium_shared::{AfkStatus, ToClient, ToServer, ServerProperties, ToHex, hash::sha3_256};
 use log::{debug, info, warn};
 use lazy_static::lazy_static;
 use native_tls::{Identity, TlsAcceptor, TlsStream};
@@ -28,6 +28,7 @@ use tokio_runtime_builder::TokioRuntimeBuilder;
 lazy_static! {
     static ref CONF: Config = Config::load(env::args().nth(1).expect("specify config file as the first argument")).unwrap();
     static ref CLIENT_COUNT: AtomicU16 = AtomicU16::new(0);
+    static ref PROPERTIES: ServerProperties = utils::get_server_properties(&CONF);
 }
 
 async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> BariumResult<()> {
@@ -66,7 +67,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                 debug!("{}:{:?}", len, &buf[0..len]);
 
-                match bincode::deserialize::<ToServer>(&buf[0..len]) {
+                match rmp_serde::from_slice::<ToServer>(&buf[0..len]) {
 
                     Ok(data) => {
 
@@ -75,9 +76,56 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
                             ToServer::Ping => {
 
                                 let pong = ToClient::Pong;
-                                let data = bincode::serialize(&pong)?;
+                                let data = rmp_serde::to_vec(&pong)?;
 
                                 stream.write_all(&data[..])?;
+
+                            },
+
+                            ToServer::GetProperties => {
+
+                                let props = ToClient::Properties(PROPERTIES.clone());
+                                let data = rmp_serde::to_vec(&props)?;
+
+                                stream.write_all(&data[..])?;
+
+                            },
+
+                            ToServer::GetPublicKey(sender, user) => {
+
+                                let hash = sha3_256(&sender);
+
+                                let authenticated = padlock::rw_read_lock(&clients, |lock| {
+                                    lock.get(&hash).is_some()
+                                });
+
+                                if authenticated {
+
+                                    let pubkey = padlock::rw_read_lock(&clients, |lock| {
+                                        match lock.get(&user) {
+                                            Some(u) => Some(u.get_public_key()),
+                                            None => None
+                                        }
+                                    });
+
+                                    match pubkey {
+
+                                        Some(key) => {
+                                            let pubkey = ToClient::PublicKey(user, key);
+                                            let mut data = rmp_serde::to_vec(&pubkey)?;
+                                            stream.write_all(&mut data[..])?;
+                                        },
+
+                                        None => {} // TODO: What happens here?
+
+                                    }
+
+                                } else {
+
+                                    // Sender not authenticated
+                                    // TODO: Drop connection
+
+                                }
 
                             },
 
@@ -140,6 +188,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
                                                 }
                                             }
 
+                                            // TODO: Use stream directly to avoid aquiring a mutex lock
                                             let _ = user.send_data(ToClient::FriendsOnline(friends_online));
 
                                         },
@@ -153,7 +202,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                             },
 
-                            ToServer::Message(sender, message) => {
+                            ToServer::Message(sender, reciever, message) => {
 
                                 let hash = sha3_256(&sender);
 
@@ -163,10 +212,10 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                                         Some(_) => {
 
-                                            match lock.get(&message.to) {
+                                            match lock.get(&reciever) {
 
                                                 Some(client) => {
-                                                    let _ = client.send_data(ToClient::Message(message.data));
+                                                    let _ = client.send_data(ToClient::Message(message));
                                                 },
 
                                                 // Recipient is not connected
