@@ -10,7 +10,7 @@ use std::{
 use padlock;
 use barium_shared::{AfkStatus, ToClient, UserHash};
 use crate::error::BariumResult;
-use bincode;
+use rmp_serde;
 use rsa;
 
 pub type Clients = Arc<RwLock<HashMap<UserHash, Client>>>;
@@ -52,13 +52,19 @@ impl Client {
 
     pub fn send_data(&self, to_client: ToClient) -> BariumResult<()> {
 
-        let data = bincode::serialize(&to_client)?;
+        let data = rmp_serde::to_vec(&to_client)?;
 
         padlock::mutex_lock(&self.stream, |lock| {
             lock.send(data)
         })?;
 
         Ok(())
+
+    }
+
+    pub fn get_public_key(&self) -> rsa::RSAPublicKey {
+
+        self.key.clone()
 
     }
 

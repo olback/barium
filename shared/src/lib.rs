@@ -2,8 +2,10 @@ use serde::{Serialize, Deserialize};
 use rsa;
 
 pub mod hash;
+mod structs;
 mod types;
 pub use types::*;
+pub use structs::*;
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum AfkStatus {
@@ -13,22 +15,20 @@ pub enum AfkStatus {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Message {
-    pub to: UserHash, // Friend Hash
-    pub data: Vec<u8> // RSA(enum MessageData { Message(String), Poke })
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub enum ToServer {
     Ping,
-    Hello(UserId, rsa::RSAPublicKey, Option<String>),
-    KeepAlive(UserId, Vec<UserHash>, AfkStatus), // My id, Vec<Friend hash>
-    Message(UserId, Message)
+    GetProperties,
+    GetPublicKey(UserId, UserHash),
+    Hello(UserId, rsa::RSAPublicKey, Option<String>), // My ID, Public Key, Server Password
+    KeepAlive(UserId, Vec<UserHash>, AfkStatus), // My ID, Vec<Friend hash>
+    Message(UserId, UserHash, Vec<u8>) // My ID, Reciever Hash, Message data
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ToClient {
     Pong,
-    FriendsOnline(Vec<(UserHash, AfkStatus)>), //  Vec<Freind hash>
+    Properties(ServerProperties),
+    PublicKey(UserHash, rsa::RSAPublicKey),
+    FriendsOnline(Vec<(UserHash, AfkStatus)>), // Vec<(Freind Hash, AFK Status)>
     Message(Vec<u8>)
 }
