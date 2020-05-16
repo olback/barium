@@ -100,6 +100,7 @@ fn main() -> error::BariumResult<()> {
 
         // Create tray indicator
         let mut tray = TrayIndicator::new("Barium", "net.olback.Barium");
+        tray.set_attention_icon("net.olback.BariumAttention");
 
         let app_clone = app.clone();
         tray.add_menu_item("Show", move |_| {
@@ -116,7 +117,7 @@ fn main() -> error::BariumResult<()> {
             app_clone.quit();
         });
 
-        tray.show();
+        tray.show(false);
 
         // Build Ui
         let ui = Ui::build(&app, &builder);

@@ -10,6 +10,7 @@
         <!-- Logo / Icon -->
         <!-- <file alias="net.olback.Barium.svg" preprocess="xml-stripblanks">assets/icons/apps/net.olback.Barium.svg</file> -->
         <file alias="icons/net.olback.Barium.svg" preprocess="xml-stripblanks">assets/icons/apps/net.olback.Barium.svg</file>
+        <file alias="icons/net.olback.BariumAttention.svg" preprocess="xml-stripblanks">assets/icons/apps/net.olback.BariumAttention.svg</file>
 
         <!-- Emblems -->
         <file alias="icons/barium-user.svg" preprocess="xml-stripblanks">assets/icons/emblems/barium-user.svg</file>

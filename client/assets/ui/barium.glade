@@ -2395,6 +2395,7 @@ Recomended key size is 4096.</property>
     <property name="version">{version}</property>
     <property name="copyright" translatable="yes">Edwin Svensson</property>
     <property name="website">http://github.com/olback/barium</property>
+    <property name="website_label" translatable="yes">Barium on Github</property>
     <property name="authors">{authors}</property>
     <property name="artists">FontAwesome
 Edwin Svensson</property>
