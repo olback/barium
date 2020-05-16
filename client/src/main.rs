@@ -60,9 +60,9 @@
 use gtk::prelude::*;
 use gio::prelude::*;
 use std::env::args;
-use libappindicator::{AppIndicator, AppIndicatorStatus};
 use std::sync::{Arc, RwLock};
 use padlock;
+use tray_indicator::TrayIndicator;
 
 mod data;
 mod error;
@@ -89,17 +89,6 @@ fn main() -> error::BariumResult<()> {
     // Create application
     let application = gtk::Application::new(Some("net.olback.barium"), Default::default())?;
 
-    // Create tray indicator
-    let mut tray = AppIndicator::new("Barium", "net.olback.Barium");
-    tray.set_status(AppIndicatorStatus::Active);
-    let mut menu = gtk::Menu::new();
-    let show_action = gtk::MenuItem::new_with_label("Show");
-    let quit_action = gtk::MenuItem::new_with_label("Quit");
-    menu.append(&show_action);
-    menu.append(&quit_action);
-    menu.show_all();
-    tray.set_menu(&mut menu);
-
     // Set default icon
     gtk::Window::set_default_icon_name("net.olback.Barium");
 
@@ -109,9 +98,11 @@ fn main() -> error::BariumResult<()> {
     let config_clone = Arc::clone(&config);
     application.connect_activate(move |app| {
 
-        // Show action
+        // Create tray indicator
+        let mut tray = TrayIndicator::new("Barium", "net.olback.Barium");
+
         let app_clone = app.clone();
-        show_action.connect_activate(move |_| {
+        tray.add_menu_item("Show", move |_| {
             let windows = app_clone.get_windows();
             if windows.len() > 0 {
                 // Probably not ideal to assume that the first entry is the main window
@@ -120,11 +111,12 @@ fn main() -> error::BariumResult<()> {
             }
         });
 
-        // Quit action
         let app_clone = app.clone();
-        quit_action.connect_activate(move |_| {
+        tray.add_menu_item("Quit", move |_| {
             app_clone.quit();
         });
+
+        tray.show();
 
         // Build Ui
         let ui = Ui::build(&app, &builder);
