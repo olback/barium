@@ -67,7 +67,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                 debug!("{}:{:?}", len, &buf[0..len]);
 
-                match rmp_serde::from_slice::<ToServer>(&buf[0..len]) {
+                match rmp_serde::from_read_ref::<_, ToServer>(&buf[0..len]) {
 
                     Ok(data) => {
 

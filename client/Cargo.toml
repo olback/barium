@@ -21,7 +21,7 @@ gdk = "0.12"
 gio = "0.8"
 glib = "0.9"
 padlock = "0.2"
-bincode = "1.2"
+rmp-serde = "0.14"
 native-tls = "0.2"
 # openssl = "0.10" # Used to inspect certificate, not yet implemented
 tray-indicator = { path = "../../tray-indicator" }
