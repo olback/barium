@@ -1,15 +1,12 @@
 use std::fs;
-use last_git_commit::{
-    LastGitCommit,
-    Id
-};
+use last_git_commit::LastGitCommit;
 
 pub fn get_version() -> String {
 
-    let commit = LastGitCommit::new(Some("../"), Some("master")).unwrap().id.short();
+    let lgc = LastGitCommit::new().set_path("../").build().unwrap();
     let cargo_version = env!("CARGO_PKG_VERSION");
 
-    format!("{}-{}", cargo_version, commit)
+    format!("{}-{}-{}", cargo_version, lgc.branch(), lgc.id().short())
 
 }
 
