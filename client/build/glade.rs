@@ -1,6 +1,30 @@
 use regex::Regex;
 use std::{io, fs::{self, DirEntry}, path::{Path, PathBuf}};
 
+pub struct GladeData<'a> {
+    pub version: &'a String,
+    pub authors: &'static str
+}
+
+impl<'a> GladeData<'a> {
+
+    pub fn get_version_string(&self) -> &'a String {
+
+        self.version
+
+    }
+
+    pub fn get_authors_string(&self) -> String {
+
+        self.authors.clone()
+            .replace(":", "\n")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+
+    }
+
+}
+
 // Mostly stolen from the rust docs
 // https://doc.rust-lang.org/std/fs/fn.read_dir.html
 
@@ -16,7 +40,7 @@ fn visit_dirs(dir: &Path, cb: &dyn Fn(&DirEntry,)) -> io::Result<()> {
 
             if path.is_dir() {
                 visit_dirs(&path, cb)?;
-            } else {
+            } else if !path.to_string_lossy().contains("~") {
                 cb(&entry);
             }
 
@@ -28,11 +52,12 @@ fn visit_dirs(dir: &Path, cb: &dyn Fn(&DirEntry,)) -> io::Result<()> {
 
 }
 
-pub fn process(version: &String) {
+pub fn process(data: &GladeData) {
 
     let path = PathBuf::from("assets/ui");
-    let re_re = Regex::new(r"(?P<r>resource:/)(?P<p>[a-z])").unwrap();
-    let re_ve = Regex::new(r"(?P<r>\{version\})").unwrap();
+    let re_resource = Regex::new(r"(?P<r>resource:/)(?P<p>[a-z])").unwrap();
+    let re_version = Regex::new(r"(?P<r>\{version\})").unwrap();
+    let re_authors = Regex::new(r"(?P<r>\{authors\})").unwrap();
 
     visit_dirs(&path, &|entry| {
 
@@ -42,8 +67,9 @@ pub fn process(version: &String) {
 
         // Fix resource paths & version
         let glade_xml_data = fs::read_to_string(&in_path).unwrap();
-        let after = re_re.replace_all(&glade_xml_data, "$r//$p");
-        let after = re_ve.replace_all(&after, version.as_str());
+        let after = re_resource.replace_all(&glade_xml_data, "$r//$p");
+        let after = re_version.replace_all(&after, data.get_version_string().as_str());
+        let after = re_authors.replace_all(&after, data.get_authors_string().as_str());
 
         let out_path = PathBuf::from("out").join(in_path.strip_prefix("assets").unwrap());
         let mut out_path_dir = out_path.clone();
