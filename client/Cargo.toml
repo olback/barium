@@ -20,11 +20,11 @@ gtk_resources = "0.1.5"
 gdk = "0.12"
 gio = "0.8"
 glib = "0.9"
-libappindicator = "0.5" # Tray icon
-padlock = "0.1.1-alpha"
+padlock = "0.2"
 bincode = "1.2"
-# openssl = "0.10" # Used to inspect certificate, not yet implemented
 native-tls = "0.2"
+# openssl = "0.10" # Used to inspect certificate, not yet implemented
+tray-indicator = { path = "../../tray-indicator" }
 
 [build-dependencies]
 regex = "1.3"
