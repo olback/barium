@@ -29,7 +29,7 @@ impl<'a> GladeData<'a> {
 // https://doc.rust-lang.org/std/fs/fn.read_dir.html
 
 // one possible implementation of walking a directory only visiting files
-fn visit_dirs(dir: &Path, cb: &dyn Fn(&DirEntry,)) -> io::Result<()> {
+fn visit_dirs(processed: &mut Vec<PathBuf>, dir: &Path, cb: &dyn Fn(&DirEntry, &mut Vec<PathBuf>)) -> io::Result<()> {
 
     if dir.is_dir() {
 
@@ -39,9 +39,9 @@ fn visit_dirs(dir: &Path, cb: &dyn Fn(&DirEntry,)) -> io::Result<()> {
             let path = entry.path();
 
             if path.is_dir() {
-                visit_dirs(&path, cb)?;
+                visit_dirs(processed, &path, cb)?;
             } else if !path.to_string_lossy().contains("~") {
-                cb(&entry);
+                cb(&entry, processed);
             }
 
         }
@@ -52,16 +52,18 @@ fn visit_dirs(dir: &Path, cb: &dyn Fn(&DirEntry,)) -> io::Result<()> {
 
 }
 
-pub fn process(data: &GladeData) {
+pub fn process(data: &GladeData) -> Vec<PathBuf> {
 
     let path = PathBuf::from("assets/ui");
     let re_resource = Regex::new(r"(?P<r>resource:/)(?P<p>[a-z])").unwrap();
     let re_version = Regex::new(r"(?P<r>\{version\})").unwrap();
     let re_authors = Regex::new(r"(?P<r>\{authors\})").unwrap();
 
-    visit_dirs(&path, &|entry| {
+    let mut processed_files = Vec::<PathBuf>::new();
 
-        println!("{:#?} {:#?}", path, entry);
+    visit_dirs(&mut processed_files, &path, &|entry, processed| {
+
+        println!("{}", entry.path().to_string_lossy());
 
         let in_path = entry.path();
 
@@ -79,8 +81,12 @@ pub fn process(data: &GladeData) {
             fs::create_dir_all(&out_path_dir).unwrap();
         }
 
-        fs::write(out_path, after.to_owned().as_bytes()).unwrap();
+        fs::write(&out_path, after.to_owned().as_bytes()).unwrap();
+
+        processed.push(out_path);
 
     });
+
+    processed_files
 
 }

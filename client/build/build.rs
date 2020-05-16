@@ -3,6 +3,8 @@ mod resources;
 mod glade;
 mod version;
 
+use std::path::PathBuf;
+
 fn main() {
 
     println!("cargo:rerun-if-changed=.git/HEAD");
@@ -16,7 +18,9 @@ fn main() {
 
     out::output_dir();
     version::write_version(&version);
-    glade::process(&glade_data);
+
+    let glade_files = glade::process(&glade_data);
+    resources::generate_xml(&glade_files);
     resources::generate_resources();
 
 }

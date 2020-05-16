@@ -111,7 +111,7 @@ dependencies = [
  "rsa 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.105 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.50 (registry+https://github.com/rust-lang/crates.io-index)",
- "tray-indicator 0.1.0",
+ "tray-indicator 0.1.1-alpha",
 ]
 
 [[package]]
@@ -1492,7 +1492,7 @@ dependencies = [
 
 [[package]]
 name = "tray-indicator"
-version = "0.1.0"
+version = "0.1.1-alpha"
 dependencies = [
  "gtk 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "libappindicator 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
