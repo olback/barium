@@ -40,7 +40,7 @@ fn visit_dirs(processed: &mut Vec<PathBuf>, dir: &Path, cb: &dyn Fn(&DirEntry, &
 
             if path.is_dir() {
                 visit_dirs(processed, &path, cb)?;
-            } else if !path.to_string_lossy().contains("~") {
+            } else if !path.to_string_lossy().contains("~") && !path.to_string_lossy().contains("#") {
                 cb(&entry, processed);
             }
 
@@ -85,7 +85,7 @@ pub fn process(data: &GladeData) -> Vec<PathBuf> {
 
         processed.push(out_path);
 
-    });
+    }).unwrap();
 
     processed_files
 

@@ -3,8 +3,6 @@ mod resources;
 mod glade;
 mod version;
 
-use std::path::PathBuf;
-
 fn main() {
 
     println!("cargo:rerun-if-changed=.git/HEAD");
