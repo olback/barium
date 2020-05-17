@@ -8,17 +8,21 @@
         <file alias="css/app.css">assets/app.css</file>
 
         <!-- Logo / Icon -->
-        <file alias="icons/net.olback.Barium.svg" preprocess="xml-stripblanks">assets/icons/apps/net.olback.Barium.svg</file>
-        <file alias="icons/net.olback.BariumAttention.svg" preprocess="xml-stripblanks">assets/icons/apps/net.olback.BariumAttention.svg</file>
+        <file alias="icons/net.olback.Barium512.svg" preprocess="xml-stripblanks,to-pixdata">assets/icons/apps/net.olback.Barium512.svg</file>
+        <file alias="icons/net.olback.Barium256.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.Barium256.svg</file>
+        <file alias="icons/net.olback.Barium128.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.Barium128.svg</file>
+        <file alias="icons/net.olback.BariumAttention512.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.BariumAttention512.svg</file>
+        <file alias="icons/net.olback.BariumAttention256.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.BariumAttention256.svg</file>
+        <file alias="icons/net.olback.BariumAttention128.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.BariumAttention128.svg</file>
 
         <!-- Emblems -->
-        <file alias="icons/barium-user.svg" preprocess="xml-stripblanks">assets/icons/emblems/barium-user.svg</file>
-        <file alias="icons/barium-alert.svg" preprocess="xml-stripblanks">assets/icons/emblems/barium-alert.svg</file>
+        <file alias="icons/barium-user.svg" preprocess="to-pixdata">assets/icons/emblems/barium-user.svg</file>
+        <file alias="icons/barium-alert.svg" preprocess="to-pixdata">assets/icons/emblems/barium-alert.svg</file>
 
         <!-- Status -->
-        <file alias="icons/barium-online.svg" preprocess="xml-stripblanks">assets/icons/status/barium-online.svg</file>
-        <file alias="icons/barium-clock.svg" preprocess="xml-stripblanks">assets/icons/status/barium-clock.svg</file>
-        <file alias="icons/barium-dnd.svg" preprocess="xml-stripblanks">assets/icons/status/barium-dnd.svg</file>
-        <file alias="icons/barium-offline.svg" preprocess="xml-stripblanks">assets/icons/status/barium-offline.svg</file>
+        <file alias="icons/barium-online.svg" preprocess="to-pixdata">assets/icons/status/barium-online.svg</file>
+        <file alias="icons/barium-clock.svg" preprocess="to-pixdata">assets/icons/status/barium-clock.svg</file>
+        <file alias="icons/barium-dnd.svg" preprocess="to-pixdata">assets/icons/status/barium-dnd.svg</file>
+        <file alias="icons/barium-offline.svg" preprocess="to-pixdata">assets/icons/status/barium-offline.svg</file>
     </gresource>
 </gresources>
