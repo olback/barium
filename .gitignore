@@ -20,6 +20,7 @@ target/
 ### Barium ###
 client/out
 *.log
+/dist
 
 ### Windows ###
 Thumbs.db
