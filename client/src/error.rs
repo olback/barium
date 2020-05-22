@@ -44,3 +44,4 @@ impl_from!(base64::DecodeError);
 // impl_from!(Box<bincode::ErrorKind>);
 impl_from!(rsa::errors::Error);
 impl_from!(glib::error::BoolError);
+impl_from!(tray_item::TIError);

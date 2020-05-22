@@ -8,9 +8,11 @@
         <file alias="css/app.css">assets/app.css</file>
 
         <!-- Logo / Icon -->
-        <file alias="icons/net.olback.Barium512.svg" preprocess="xml-stripblanks,to-pixdata">assets/icons/apps/net.olback.Barium512.svg</file>
+        <file alias="icons/net.olback.Barium.svg" preprocess="xml-stripblanks">assets/icons/apps/net.olback.Barium512.svg</file>
+        <file alias="icons/net.olback.Barium512.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.Barium512.svg</file>
         <file alias="icons/net.olback.Barium256.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.Barium256.svg</file>
         <file alias="icons/net.olback.Barium128.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.Barium128.svg</file>
+        <file alias="icons/net.olback.BariumAttention.svg" preprocess="xml-stripblanks">assets/icons/apps/net.olback.BariumAttention512.svg</file>
         <file alias="icons/net.olback.BariumAttention512.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.BariumAttention512.svg</file>
         <file alias="icons/net.olback.BariumAttention256.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.BariumAttention256.svg</file>
         <file alias="icons/net.olback.BariumAttention128.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.BariumAttention128.svg</file>

@@ -2,6 +2,7 @@ mod out;
 mod resources;
 mod glade;
 mod version;
+mod windows;
 
 fn main() {
 
@@ -20,5 +21,10 @@ fn main() {
     let glade_files = glade::process(&glade_data);
     resources::generate_xml(&glade_files);
     resources::generate_resources();
+
+    if std::env::var("CARGO_CFG_TARGET_OS").unwrap() == "windows" {
+        windows::generate_rc(&version);
+        windows::compile_rc();
+    }
 
 }
