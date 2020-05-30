@@ -1,0 +1,6 @@
+# GKT
+*.glade~
+\#*.glade\#
+
+# Build
+out

@@ -13,14 +13,9 @@ target/
 ### Jetbrains ###
 .idea/
 
-### GTK ###
-*.glade~
-\#*.glade\#
-
 ### Barium ###
-client/out
 *.log
-/dist
+dist
 
 ### Windows ###
 Thumbs.db

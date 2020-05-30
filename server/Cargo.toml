@@ -3,6 +3,8 @@ name = "barium-server"
 version = "0.1.0"
 authors = ["Edwin Svensson <barium@olback.net>"]
 edition = "2018"
+description = "Barium Chat Server"
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -21,3 +23,6 @@ lazy_static = "1.4"
 native-tls = "0.2"
 ipnet = { version = "2.3", features = [ "serde" ] }
 either = { version = "1.5", features = [ "serde" ] }
+
+[build-dependencies]
+last-git-commit = "0.2"
