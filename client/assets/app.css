@@ -1,4 +1,25 @@
-.message-invalid-fingerprint {
+.message-invalid-fingerprint, .poke-row {
     background-color: #fc0;
     color: #555;
+}
+
+.light-gray-bg {
+    background-color: #f5f5f5;
+}
+
+.light-gray-bg:hover {
+    background-color: #eee;
+}
+
+.no-border {
+    border: none;
+}
+
+.no-border-sides {
+    border-left: none;
+    border-right: none;
+}
+
+.no-border-bottom {
+    border-bottom: none;
 }
