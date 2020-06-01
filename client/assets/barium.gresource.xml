@@ -19,12 +19,12 @@
 
         <!-- Emblems -->
         <file alias="icons/barium-user.svg" preprocess="to-pixdata">assets/icons/emblems/barium-user.svg</file>
-        <file alias="icons/barium-alert.svg" preprocess="to-pixdata">assets/icons/emblems/barium-alert.svg</file>
+        <file alias="icons/server-online.svg" preprocess="to-pixdata">assets/icons/emblems/server-online.svg</file>
 
         <!-- Status -->
-        <file alias="icons/barium-online.svg" preprocess="to-pixdata">assets/icons/status/barium-online.svg</file>
-        <file alias="icons/barium-clock.svg" preprocess="to-pixdata">assets/icons/status/barium-clock.svg</file>
-        <file alias="icons/barium-dnd.svg" preprocess="to-pixdata">assets/icons/status/barium-dnd.svg</file>
-        <file alias="icons/barium-offline.svg" preprocess="to-pixdata">assets/icons/status/barium-offline.svg</file>
+        <file alias="icons/user-online.svg" preprocess="to-pixdata">assets/icons/status/user-online.svg</file>
+        <file alias="icons/user-away.svg" preprocess="to-pixdata">assets/icons/status/user-away.svg</file>
+        <file alias="icons/user-dnd.svg" preprocess="to-pixdata">assets/icons/status/user-dnd.svg</file>
+        <file alias="icons/user-offline.svg" preprocess="to-pixdata">assets/icons/status/user-offline.svg</file>
     </gresource>
 </gresources>

@@ -92,8 +92,8 @@ Author: Edwin Svensson
   </object>
   <object class="GtkApplicationWindow" id="main-window">
     <property name="can_focus">False</property>
-    <property name="default_width">1200</property>
-    <property name="default_height">800</property>
+    <property name="default_width">900</property>
+    <property name="default_height">600</property>
     <property name="icon_name">net.olback.Barium</property>
     <child>
       <object class="GtkStack" id="main_stack">
@@ -690,7 +690,6 @@ Recomended key size is 4096.</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkPaned">
-                    <property name="width_request">100</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="orientation">vertical</property>
@@ -736,7 +735,7 @@ Recomended key size is 4096.</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="halign">start</property>
                                                 <property name="valign">center</property>
-                                                <property name="icon_name">accessories-calculator</property>
+                                                <property name="resource">/net/olback/barium/icons/server-online.svg</property>
                                                 <property name="icon_size">3</property>
                                               </object>
                                               <packing>
@@ -825,7 +824,7 @@ Recomended key size is 4096.</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="halign">start</property>
                                                 <property name="valign">center</property>
-                                                <property name="icon_name">emblem-default</property>
+                                                <property name="resource">/net/olback/barium/icons/user-online.svg</property>
                                                 <property name="icon_size">3</property>
                                               </object>
                                               <packing>
@@ -871,7 +870,7 @@ Recomended key size is 4096.</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="halign">start</property>
                                                 <property name="valign">center</property>
-                                                <property name="icon_name">emblem-default</property>
+                                                <property name="resource">/net/olback/barium/icons/user-away.svg</property>
                                                 <property name="icon_size">3</property>
                                               </object>
                                               <packing>
@@ -917,7 +916,7 @@ Recomended key size is 4096.</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="halign">start</property>
                                                 <property name="valign">center</property>
-                                                <property name="icon_name">emblem-default</property>
+                                                <property name="resource">/net/olback/barium/icons/user-dnd.svg</property>
                                                 <property name="icon_size">3</property>
                                               </object>
                                               <packing>
@@ -931,6 +930,52 @@ Recomended key size is 4096.</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="label" translatable="yes">Friend 3</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkListBoxRow">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="valign">start</property>
+                                        <child>
+                                          <object class="GtkBox">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="valign">start</property>
+                                            <property name="margin_start">6</property>
+                                            <property name="margin_end">6</property>
+                                            <property name="margin_top">6</property>
+                                            <property name="margin_bottom">6</property>
+                                            <property name="spacing">6</property>
+                                            <child>
+                                              <object class="GtkImage">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="halign">start</property>
+                                                <property name="valign">center</property>
+                                                <property name="resource">/net/olback/barium/icons/user-offline.svg</property>
+                                                <property name="icon_size">3</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkLabel">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">Friend 4</property>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -982,6 +1027,7 @@ Recomended key size is 4096.</property>
                     <property name="spacing">18</property>
                     <child>
                       <object class="GtkComboBoxText">
+                        <property name="height_request">30</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="active">0</property>
@@ -1000,6 +1046,7 @@ Recomended key size is 4096.</property>
                     </child>
                     <child>
                       <object class="GtkButton">
+                        <property name="height_request">30</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -1224,6 +1271,7 @@ Recomended key size is 4096.</property>
                     <child>
                       <object class="GtkButton">
                         <property name="label" translatable="yes">👉</property>
+                        <property name="height_request">30</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -1237,12 +1285,13 @@ Recomended key size is 4096.</property>
                     </child>
                     <child>
                       <object class="GtkEntry">
+                        <property name="height_request">30</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="hexpand">True</property>
                         <property name="placeholder_text" translatable="yes">Message...</property>
+                        <property name="input_hints">GTK_INPUT_HINT_EMOJI | GTK_INPUT_HINT_NONE</property>
                         <property name="show_emoji_icon">True</property>
-                        <property name="enable_emoji_completion">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1253,6 +1302,7 @@ Recomended key size is 4096.</property>
                     <child>
                       <object class="GtkButton">
                         <property name="label" translatable="yes">Send</property>
+                        <property name="height_request">30</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -1291,7 +1341,6 @@ Recomended key size is 4096.</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="title" translatable="yes">Barium</property>
-        <property name="subtitle" translatable="yes">barium.chat</property>
         <property name="show_close_button">True</property>
         <property name="decoration_layout">:menu,minimize,maximize,close</property>
         <child>
