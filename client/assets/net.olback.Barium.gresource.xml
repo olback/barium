@@ -17,9 +17,14 @@
         <file alias="icons/net.olback.BariumAttention256.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.BariumAttention256.svg</file>
         <file alias="icons/net.olback.BariumAttention128.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.BariumAttention128.svg</file>
 
+        <!-- Actions -->
+        <file alias="icons/add.svg" preprocess="to-pixdata">assets/icons/actions/add.svg</file>
+        <file alias="icons/back.svg" preprocess="to-pixdata">assets/icons/actions/back.svg</file>
+
         <!-- Emblems -->
         <file alias="icons/barium-user.svg" preprocess="to-pixdata">assets/icons/emblems/barium-user.svg</file>
         <file alias="icons/server-online.svg" preprocess="to-pixdata">assets/icons/emblems/server-online.svg</file>
+        <file alias="icons/server-offline.svg" preprocess="to-pixdata">assets/icons/emblems/server-offline.svg</file>
 
         <!-- Status -->
         <file alias="icons/user-online.svg" preprocess="to-pixdata">assets/icons/status/user-online.svg</file>

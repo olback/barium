@@ -1,5 +1,7 @@
-use gio;
-use glib;
+use {
+    gio,
+    glib
+};
 
 // Load & regiser resources
 pub fn load() {

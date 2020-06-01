@@ -1,26 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.2 -->
+<!-- Generated with glade 3.36.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <object class="GtkAboutDialog" id="about_dialog">
     <property name="can_focus">False</property>
+    <property name="icon_name">net.olback.Barium</property>
     <property name="type_hint">dialog</property>
-    <property name="transient_for">main_window</property>
     <property name="program_name">Barium</property>
     <property name="version">{version}</property>
     <property name="copyright" translatable="yes">Edwin Svensson</property>
     <property name="website">http://github.com/olback/barium</property>
+    <property name="website_label" translatable="yes">github.com/olback/barium</property>
     <property name="license" translatable="yes">This program comes with absolutely no warranty.
 See the &lt;a href="https://www.gnu.org/licenses/gpl-3.0.html"&gt;GNU General Public License, version 3 or later&lt;/a&gt; for details.</property>
     <property name="authors">{authors}</property>
-    <property name="artists">FontAwesome
-Edwin Svensson</property>
+    <property name="artists">Carlgo11
+Edwin Svensson
+FontAwesome</property>
     <property name="logo_icon_name">net.olback.Barium</property>
     <property name="wrap_license">True</property>
     <property name="license_type">gpl-3-0</property>
-    <child type="titlebar">
-      <placeholder/>
-    </child>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
@@ -47,6 +46,9 @@ Edwin Svensson</property>
           <placeholder/>
         </child>
       </object>
+    </child>
+    <child type="titlebar">
+      <placeholder/>
     </child>
   </object>
 </interface>

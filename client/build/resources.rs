@@ -39,8 +39,8 @@ impl ToString for ResourceFile {
 
 pub fn generate_xml(glade_files: &Vec<PathBuf>) {
 
-    const INPUT: &str = "assets/barium.gresource.xml";
-    const TARGET: &str = "out/barium.gresource.xml";
+    const INPUT: &str = "assets/net.olback.Barium.gresource.xml";
+    const TARGET: &str = "out/net.olback.Barium.gresource.xml";
 
     let mut glade_resources = Vec::<ResourceFile>::new();
 
@@ -70,7 +70,7 @@ pub fn generate_xml(glade_files: &Vec<PathBuf>) {
 pub fn generate_resources() {
 
     const COMMAND: &str = "glib-compile-resources";
-    const INPUT: &str = "out/barium.gresource.xml";
+    const INPUT: &str = "out/net.olback.Barium.gresource.xml";
     const TARGET: &str = "barium.gresource";
 
     let exists = Command::new("which").arg(COMMAND).output().unwrap();
