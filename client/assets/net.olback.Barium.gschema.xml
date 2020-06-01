@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schemalist gettext-domain="barium">
+
+    <schema path="/net/olback/barium/" id="net.olback.barium">
+
+        <key type="b" name="message-notifications">
+            <default>true</default>
+            <summary>Message Notifications</summary>
+            <description>
+                Get a notification when a message is recieved.
+            </description>
+        </key>
+
+        <key type="b" name="poke-notifications">
+            <default>true</default>
+            <summary>Pole Notifications</summary>
+            <description>
+                Get a notification when someone pokes you.
+            </description>
+        </key>
+
+        <key type="b" name="quit-on-close">
+            <default>false</default>
+            <summary>Quit</summary>
+            <description>
+                Quit Barium completley when closing.
+            </description>
+        </key>
+
+        <!-- <key type="b" name="autostart">
+            <default>false</default>
+            <summary>Autostart</summary>
+            <description>
+                Start Barium when your computer starts.
+            </description>
+        </key> -->
+
+    </schema>
+
+</schemalist>
