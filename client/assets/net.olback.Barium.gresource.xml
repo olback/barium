@@ -8,6 +8,7 @@
         <file alias="css/app.css">assets/app.css</file>
 
         <!-- Logo / Icon -->
+        <file alias="icons/barium-about.png" preprocess="to-pixdata">assets/icons/apps/barium-about.png</file>
         <file alias="icons/net.olback.Barium.svg" preprocess="xml-stripblanks">assets/icons/apps/net.olback.Barium512.svg</file>
         <file alias="icons/net.olback.Barium512.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.Barium512.svg</file>
         <file alias="icons/net.olback.Barium256.svg" preprocess="to-pixdata">assets/icons/apps/net.olback.Barium256.svg</file>
@@ -27,6 +28,8 @@
         <file alias="icons/server-offline.svg" preprocess="to-pixdata">assets/icons/emblems/server-offline.svg</file>
 
         <!-- Status -->
+        <file alias="icons/process-working-symbolic.svg" preprocess="to-pixdata">assets/icons/status/process-working-symbolic.svg</file>
+        <file alias="icons/process-working-symbolic-large.svg" preprocess="to-pixdata">assets/icons/status/process-working-symbolic-large.svg</file>
         <file alias="icons/user-online.svg" preprocess="to-pixdata">assets/icons/status/user-online.svg</file>
         <file alias="icons/user-away.svg" preprocess="to-pixdata">assets/icons/status/user-away.svg</file>
         <file alias="icons/user-dnd.svg" preprocess="to-pixdata">assets/icons/status/user-dnd.svg</file>

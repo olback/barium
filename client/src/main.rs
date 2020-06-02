@@ -1,3 +1,6 @@
+// Disable console on windows
+// #![windows_subsystem = "windows"] // TODO: Enable
+
 mod error;
 mod key_pair;
 mod macros;

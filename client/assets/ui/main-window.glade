@@ -28,10 +28,47 @@ Author: Edwin Svensson
   <!-- interface-description Barium is a end-to-end encrypted chat application written in Rust! -->
   <!-- interface-copyright Edwin Svensson -->
   <!-- interface-authors Edwin Svensson -->
-  <object class="GtkImage" id="add">
-    <property name="visible">True</property>
+  <object class="GtkPopoverMenu" id="add_menu">
     <property name="can_focus">False</property>
-    <property name="resource">/net/olback/barium/icons/add.svg</property>
+    <property name="border_width">6</property>
+    <child>
+      <object class="GtkBox">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkModelButton">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="action_name">add.friend</property>
+            <property name="text" translatable="yes">Add Friend</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkModelButton">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="action_name">add.server</property>
+            <property name="text" translatable="yes">Add Server</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="submenu">main</property>
+      </packing>
+    </child>
   </object>
   <object class="GtkPopoverMenu" id="app_menu">
     <property name="can_focus">False</property>
@@ -104,6 +141,8 @@ Author: Edwin Svensson
       <object class="GtkStack" id="main_stack">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="transition_duration">100</property>
+        <property name="transition_type">crossfade</property>
         <child>
           <object class="GtkBox">
             <property name="visible">True</property>
@@ -113,12 +152,13 @@ Author: Edwin Svensson
             <property name="orientation">vertical</property>
             <property name="spacing">18</property>
             <child>
-              <object class="GtkSpinner">
-                <property name="width_request">100</property>
-                <property name="height_request">100</property>
+              <object class="GtkImage">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="active">True</property>
+                <property name="resource">/net/olback/barium/icons/process-working-symbolic-large.svg</property>
+                <style>
+                  <class name="spin"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1050,14 +1090,21 @@ Recomended key size is 4096.</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton">
+                      <object class="GtkMenuButton" id="add_button">
                         <property name="width_request">30</property>
                         <property name="height_request">30</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
-                        <property name="image">add</property>
-                        <property name="always_show_image">True</property>
+                        <property name="popover">add_menu</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="resource">/net/olback/barium/icons/add.svg</property>
+                          </object>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1349,6 +1396,8 @@ Recomended key size is 4096.</property>
             <property name="column_spacing">12</property>
             <child>
               <object class="GtkButton">
+                <property name="width_request">30</property>
+                <property name="height_request">30</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
