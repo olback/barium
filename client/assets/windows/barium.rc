@@ -1,3 +1,6 @@
+#include <winuser.h>
+1 RT_MANIFEST "out/barium-client.exe.manifest"
+
 id ICON "assets/windows/barium.ico"
 net.olback.Barium ICON "assets/windows/barium.ico"
 net.olback.BariumAttention ICON "assets/windows/barium-attention.ico"
@@ -15,7 +18,7 @@ BEGIN
         VALUE "FileVersion", "{version}"
         VALUE "InternalName", "barium"
         VALUE "LegalCopyright", "Edwin Svensson with contributors"
-        VALUE "OriginalFilename", "barium.exe"
+        VALUE "OriginalFilename", "barium-client.exe"
         VALUE "ProductName", "Barium"
         VALUE "ProductVersion", "{version}"
     END

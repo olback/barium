@@ -23,6 +23,7 @@ fn main() {
     resources::generate_resources();
 
     if std::env::var("CARGO_CFG_TARGET_OS").unwrap() == "windows" {
+        windows::generate_manifest();
         windows::generate_rc(&version);
         windows::compile_rc();
     }

@@ -5,6 +5,23 @@ use std::{
     process::Command
 };
 
+pub fn generate_manifest() {
+
+    const MANIFEST_IN: &str = "assets/windows/barium.manifest";
+    const MANIFEST_OUT: &str = "out/barium-client.exe.manifest";
+
+    let manifest_content = fs::read_to_string(MANIFEST_IN).unwrap();
+
+    let new_manifest_content = manifest_content
+        .replace("{description}", env!("CARGO_PKG_DESCRIPTION"))
+        .replace("{version-major}", env!("CARGO_PKG_VERSION_MAJOR"))
+        .replace("{version-minor}", env!("CARGO_PKG_VERSION_MINOR"))
+        .replace("{version-patch}", env!("CARGO_PKG_VERSION_PATCH"));
+
+    fs::write(MANIFEST_OUT, new_manifest_content).unwrap();
+
+}
+
 pub fn generate_rc(version: &String) {
 
     const RC_IN: &str = "assets/windows/barium.rc";
