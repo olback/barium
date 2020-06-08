@@ -26,7 +26,7 @@ use native_tls::{Identity, TlsAcceptor, TlsStream};
 use tokio_runtime_builder::TokioRuntimeBuilder;
 
 lazy_static! {
-    static ref CONF: Config = Config::load(env::args().nth(1).expect("specify config file as the first argument")).unwrap();
+    static ref CONF: Config = Config::load(env::args().nth(1).unwrap_or("config.json".into())).unwrap();
     static ref CLIENT_COUNT: AtomicU16 = AtomicU16::new(0);
     static ref PROPERTIES: ServerProperties = utils::get_server_properties(&CONF);
 }
@@ -276,6 +276,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
     } else {
         debug!("Connection closed without authentication");
     }
+
     debug!("Total clients connected: {}", CLIENT_COUNT.load(Ordering::SeqCst));
 
     Ok(())
