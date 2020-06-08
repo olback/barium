@@ -1,3 +1,4 @@
+/* Chat */
 .message-invalid-fingerprint, .poke-row {
     background-color: #fc0;
     color: #555;
@@ -7,6 +8,7 @@
     background-color: rgba(200, 200, 200, 0.1)
 }
 
+/* No border */
 .no-border {
     border: none;
 }
@@ -20,6 +22,7 @@
     border-bottom: none;
 }
 
+/* Custom spinner */
 @keyframes spin {
     to {
         -gtk-icon-transform: rotate(1turn);

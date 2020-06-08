@@ -6,6 +6,7 @@ mod key_pair;
 mod macros;
 mod resources;
 mod services;
+mod ui;
 
 use {
     error::BariumResult,
@@ -16,10 +17,10 @@ use {
     glib::{self, clone},
     gio::{SimpleAction, SimpleActionGroup, prelude::*},
     gtk::{
-        AboutDialog, Application, ApplicationWindow, Builder, CssProvider, StyleContext,
+        AboutDialog, Application, ApplicationWindow, Builder, CssProvider, Stack, StyleContext,
         Window, STYLE_PROVIDER_PRIORITY_APPLICATION, prelude::*
     },
-    std::env,
+    std::{env, rc::Rc, cell::RefCell},
     tray_item::TrayItem
 };
 
@@ -46,7 +47,7 @@ fn main() -> BariumResult<()> {
 
     let main_builder = Builder::new_from_resource("/net/olback/barium/ui/main-window");
     let about_builder = Builder::new_from_resource("/net/olback/barium/ui/about-dialog");
-    let main_window: ApplicationWindow = get_obj!(main_builder, "main-window");
+    let main_window: ApplicationWindow = get_obj!(main_builder, "main_window");
     let about_dialog: AboutDialog = get_obj!(about_builder, "about_dialog");
     about_dialog.set_transient_for(Some(&main_window));
 
@@ -82,9 +83,22 @@ fn main() -> BariumResult<()> {
     main_window.insert_action_group("app", Some(&actions));
 
     // Settings
+    let main_stack: Stack = get_obj!(main_builder, "main_stack");
+    let main_stack_current_view = Rc::new(RefCell::new(String::new()));
     let open_settings_action = SimpleAction::new("open-settings", None);
-    // open_settings_action.connect_activate(clone!(@strong ???? => move |_, _| { }));
+    let close_settings_action = SimpleAction::new("close-settings", None);
+    open_settings_action.connect_activate(clone!(@strong main_stack, @strong main_stack_current_view => move |_, _| {
+        let current_view = main_stack.get_visible_child_name().unwrap().to_string();
+        if current_view != "settings" {
+            main_stack_current_view.replace(current_view);
+            main_stack.set_visible_child_name("settings");
+        }
+    }));
+    close_settings_action.connect_activate(clone!(@strong main_stack, @strong main_stack_current_view => move |_, _| {
+        main_stack.set_visible_child_name(main_stack_current_view.borrow().as_str());
+    }));
     actions.add_action(&open_settings_action);
+    actions.add_action(&close_settings_action);
 
     // About dialog
     let open_about_action = SimpleAction::new("open-about", None);
@@ -97,23 +111,18 @@ fn main() -> BariumResult<()> {
 
     // Quit action
     let quit_action = SimpleAction::new("quit", None);
-    quit_action.connect_activate(clone!(@strong application => move |_, _| {
-        application.quit();
-    }));
+    quit_action.connect_activate(clone!(@strong application => move |_, _| application.quit()));
     actions.add_action(&quit_action);
+    application.set_accels_for_action("app.quit", &["<CTRL>Q", "<CTRL>W"]);
 
     // Tray item
     let mut tray = TrayItem::new("Barium", "net.olback.Barium")?;
     tray.add_label("Barium")?;
-    tray.add_menu_item("Show", clone!(@strong mwe => move || {
-        mwe.show();
-    }))?;
-    tray.add_menu_item("Hide", clone!(@strong mwe => move || {
-        mwe.hide();
-    }))?;
-    tray.add_menu_item("Quit", clone!(@strong mwe => move || {
-        mwe.quit();
-    }))?;
+    tray.add_menu_item("Show", clone!(@strong mwe => move || mwe.show()))?;
+    tray.add_menu_item("Hide", clone!(@strong mwe => move || mwe.hide()))?;
+    tray.add_menu_item("Quit", clone!(@strong mwe => move || mwe.quit()))?;
+
+    let ui_ref = ui::Ui::build()?;
 
     // Connect on activate
     application.connect_activate(move |app| {
@@ -123,6 +132,8 @@ fn main() -> BariumResult<()> {
 
     // Run the application
     application.run(&env::args().collect::<Vec<String>>());
+
+    println!("Closing...");
 
     Ok(())
 

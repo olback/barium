@@ -8,7 +8,7 @@
     <property name="type_hint">dialog</property>
     <property name="program_name">Barium</property>
     <property name="version">{version}</property>
-    <property name="copyright" translatable="yes">Edwin Svensson</property>
+    <property name="copyright" translatable="yes">Copyright © The Barium Team</property>
     <property name="website">http://github.com/olback/barium</property>
     <property name="website_label" translatable="yes">github.com/olback/barium</property>
     <property name="authors">{authors}</property>
