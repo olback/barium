@@ -7,6 +7,8 @@ mod macros;
 mod resources;
 mod services;
 mod ui;
+mod utils;
+mod consts;
 
 use {
     error::BariumResult,
@@ -35,7 +37,7 @@ fn main() -> BariumResult<()> {
 
     // Load CSS
     let provider = CssProvider::new();
-    provider.load_from_resource("/net/olback/barium/css/app.css");
+    provider.load_from_resource(resource!("css/app.css"));
     StyleContext::add_provider_for_screen(
         &gdk::Screen::get_default().expect("Error initializing gtk css provider."),
         &provider,
@@ -45,8 +47,8 @@ fn main() -> BariumResult<()> {
     glib::set_application_name("barium");
     glib::set_prgname(Some("barium"));
 
-    let main_builder = Builder::new_from_resource("/net/olback/barium/ui/main-window");
-    let about_builder = Builder::new_from_resource("/net/olback/barium/ui/about-dialog");
+    let main_builder = Builder::new_from_resource(resource!("ui/main-window"));
+    let about_builder = Builder::new_from_resource(resource!("ui/about-dialog"));
     let main_window: ApplicationWindow = get_obj!(main_builder, "main_window");
     let about_dialog: AboutDialog = get_obj!(about_builder, "about_dialog");
     about_dialog.set_transient_for(Some(&main_window));
@@ -122,7 +124,8 @@ fn main() -> BariumResult<()> {
     tray.add_menu_item("Hide", clone!(@strong mwe => move || mwe.hide()))?;
     tray.add_menu_item("Quit", clone!(@strong mwe => move || mwe.quit()))?;
 
-    let ui_ref = ui::Ui::build()?;
+    let ui_ref = ui::Ui::build(&main_builder)?;
+    println!("{:#?}", ui_ref.chat_input);
 
     // Connect on activate
     application.connect_activate(move |app| {

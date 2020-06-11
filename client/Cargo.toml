@@ -17,7 +17,7 @@ serde_json = "1.0"
 dirs = "2.0"
 barium-shared = { path = "../shared" }
 gtk = { version = "0.8", features = [ "v3_22_30" ] }
-gtk_resources = "0.1.5"
+# gtk_resources = "0.1.5"
 gdk = "0.12"
 gio = "0.8"
 glib = "0.9"

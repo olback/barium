@@ -1,19 +1,29 @@
 use {
-    crate::error::BariumResult,
-    gtk_resources::UIResource
+    crate::{get_obj, error::BariumResult},
+    gtk::Builder
 };
 
-#[derive(Clone, UIResource)]
-#[resource = "/net/olback/barium/ui/main-window"]
+mod initial_setup;
+mod chat_input;
+
+#[derive(Debug)]
 pub struct Ui {
-    main_window: gtk::ApplicationWindow
+    pub main_window: gtk::ApplicationWindow,
+    pub initial_setup: initial_setup::InitialSetup,
+    pub chat_input: chat_input::ChatInput
 }
 
 impl Ui {
 
-    pub fn build() -> BariumResult<Self> {
+    pub fn build(builder: &Builder) -> BariumResult<Self> {
 
-        Ok(Self::load()?)
+        let inner = Self {
+            main_window: get_obj!(builder, "main_window"),
+            initial_setup: initial_setup::InitialSetup::build(&builder)?,
+            chat_input: chat_input::ChatInput::build(&builder)?
+        };
+
+        Ok(inner)
 
     }
 

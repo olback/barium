@@ -1,7 +1,7 @@
 /* Chat */
-.message-invalid-fingerprint, .poke-row {
-    background-color: #fc0;
-    color: #555;
+.poke-row {
+    background-color: @warning_color;
+    color: @selected_fg_color;
 }
 
 .light-gray-bg:not(:hover) {
@@ -32,3 +32,39 @@
 .spin {
     animation: spin 1s linear infinite;
 }
+
+/* Define our own success entry class since GTK does not provide one */
+entry.success {
+    color: @selected_fg_color;
+    border-color: @success_color;
+    border-image: none;
+    outline-color: @success_color;
+    box-shadow: none;
+}
+
+entry.success:focus {
+    background-color: @success_color;
+}
+
+/* Get rid of dashed outline on ListBoxRows */
+list > row {
+    outline: none;
+}
+
+/* Custom fade */
+@keyframes fade {
+    0% {
+        color: @warning_color;
+    }
+    50% {
+        color: transparent;
+    }
+    100% {
+        color: @warning_color;
+    }
+}
+
+.fade-2s {
+    animation: fade 2s linear infinite;
+}
+
