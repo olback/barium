@@ -9,7 +9,8 @@ build = "build/build.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-base64 = "0.12"
+# base64 = "0.12"
+base62 = { version = "0.1", package = "base-62" }
 rand = "0.7"
 rsa = { version = "0.2", features = [ "serde1" ] }
 serde = { version = "1.0", features = [ "derive" ] }
