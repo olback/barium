@@ -9,6 +9,8 @@ mod services;
 mod ui;
 mod utils;
 mod consts;
+mod fs;
+mod panic_handler;
 
 use {
     error::BariumResult,
@@ -27,6 +29,10 @@ use {
 };
 
 fn main() -> BariumResult<()> {
+
+    // Attempt to show an error when someting panics
+    #[cfg(not(debug_assertions))]
+    std::panic::set_hook(Box::new(panic_handler::panic_handler));
 
     // Load resources
     resources::load();
@@ -125,7 +131,7 @@ fn main() -> BariumResult<()> {
     tray.add_menu_item("Quit", clone!(@strong mwe => move || mwe.quit()))?;
 
     let ui_ref = ui::Ui::build(&main_builder)?;
-    println!("{:#?}", ui_ref.chat_input);
+    println!("{:#?}", ui_ref);
 
     // Connect on activate
     application.connect_activate(move |app| {
