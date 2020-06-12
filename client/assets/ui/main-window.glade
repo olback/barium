@@ -1768,7 +1768,6 @@ Recomended key size is 4096.</property>
         <property name="can_focus">False</property>
         <property name="title" translatable="yes">Barium</property>
         <property name="show_close_button">True</property>
-        <property name="decoration_layout">:menu,minimize,maximize,close</property>
         <child>
           <object class="GtkStackSwitcher">
             <property name="visible">True</property>
