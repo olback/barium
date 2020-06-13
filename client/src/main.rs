@@ -1,155 +1,148 @@
-// use std::{
-//     net::{
-//         TcpStream,
-//         Shutdown
-//     },
-//     io::{
-//         Read,
-//         Write
-//     },
-//     sync::Arc
-// };
-// use rsa::{PublicKey, RSAPrivateKey, PaddingScheme};
-// use bincode;
-// use barium_shared::{AfkStatus, ToClient, ToServer};
-// use rand::Rng;
+// Disable console on windows
+// #![windows_subsystem = "windows"] // TODO: Enable
 
-// mod data;
-// mod error;
-// mod macros;
-// mod message;
-
-// use error::BariumResult;
-// use message::Message;
-
-// fn main() -> BariumResult<()> {
-
-    // let message = Message::text("Hello gais! d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d d");
-    // let key_size = 4096;
-    // let max_data_len = u32::pow(2, (f32::log2(key_size as f32) - 3f32) as u32);
-
-    // println!("Key size: {}, Max data len: {}", key_size, max_data_len - 11);
-
-    // let mut rng = rand::thread_rng();
-
-    // // rsa key
-    // let priv_key = RSAPrivateKey::new(&mut rng, key_size)?;
-    // let pub_key = priv_key.to_public_key();
-
-    // let message_bytes = bincode::serialize(&message)?;
-    // println!("Pub key len: {}, Bytes len: {}", pub_key.size(), message_bytes.len());
-    // let encrypted = pub_key.encrypt(&mut rng, PaddingScheme::PKCS1v15, &message_bytes)?;
-    // println!("[{}] {:?}", encrypted.len(), encrypted);
-
-    // let mut stream = TcpStream::connect(("0.0.0.0", 8080))?;
-    // stream.write_all(&encrypted[..])?;
-
-    // let mut buf = [0u8; 4096];
-    // let len = stream.read(&mut buf[..])?;
-
-    // let decrypted = priv_key.decrypt(PaddingScheme::PKCS1v15, &buf[0..len])?;
-    // let recv_message: Message = bincode::deserialize(&decrypted[..])?;
-    // println!("{:?}", recv_message);
-
-    // stream.shutdown(Shutdown::Both)?;
-
-    // Ok(())
-
-// }
-
-use gtk::prelude::*;
-use gio::prelude::*;
-use std::env::args;
-use libappindicator::{AppIndicator, AppIndicatorStatus};
-use std::sync::{Arc, RwLock};
-use padlock;
-
-mod data;
 mod error;
+mod key_pair;
 mod macros;
-mod keys;
 mod resources;
+mod services;
 mod ui;
-mod notification;
-use ui::{
-    Ui,
-    startup_keygen::StartupKeygenStatus
+mod utils;
+mod consts;
+mod fs;
+mod panic_handler;
+
+use {
+    error::BariumResult,
+    services::{MainWindowEvent, MainWindowEvents}
 };
 
-fn main() -> error::BariumResult<()> {
+use {
+    glib::{self, clone},
+    gio::{SimpleAction, SimpleActionGroup, prelude::*},
+    gtk::{
+        AboutDialog, Application, ApplicationWindow, Builder, CssProvider, Stack, StyleContext,
+        Window, STYLE_PROVIDER_PRIORITY_APPLICATION, prelude::*
+    },
+    std::{env, rc::Rc, cell::RefCell},
+    tray_item::TrayItem
+};
 
-    let config = Arc::new(RwLock::new(data::Config::load()?));
-    let keys = Arc::new(RwLock::new(keys::KeyStore::new()));
-    println!("{:#?}", config);
-    println!("{:#?}", keys);
+fn main() -> BariumResult<()> {
+
+    // Attempt to show an error when someting panics
+    #[cfg(not(debug_assertions))]
+    std::panic::set_hook(Box::new(panic_handler::panic_handler));
 
     // Load resources
     resources::load();
 
     // Create application
-    let application = gtk::Application::new(Some("net.olback.barium"), Default::default())?;
+    let application = Application::new(Some("net.olback.barium"), Default::default())?;
+    Window::set_default_icon_name("net.olback.Barium");
 
-    // Create tray indicator
-    let mut tray = AppIndicator::new("Barium", "net.olback.Barium");
-    tray.set_status(AppIndicatorStatus::Active);
-    let mut menu = gtk::Menu::new();
-    let show_action = gtk::MenuItem::new_with_label("Show");
-    let quit_action = gtk::MenuItem::new_with_label("Quit");
-    menu.append(&show_action);
-    menu.append(&quit_action);
-    menu.show_all();
-    tray.set_menu(&mut menu);
+    // Load CSS
+    let provider = CssProvider::new();
+    provider.load_from_resource(resource!("css/app.css"));
+    StyleContext::add_provider_for_screen(
+        &gdk::Screen::get_default().expect("Error initializing gtk css provider."),
+        &provider,
+        STYLE_PROVIDER_PRIORITY_APPLICATION,
+    );
 
-    // Set default icon
-    gtk::Window::set_default_icon_name("net.olback.Barium");
+    glib::set_application_name("barium");
+    glib::set_prgname(Some("barium"));
 
-    // Create builder
-    let builder = gtk::Builder::new_from_resource("/net/olback/barium/ui");
+    let main_builder = Builder::new_from_resource(resource!("ui/main-window"));
+    let about_builder = Builder::new_from_resource(resource!("ui/about-dialog"));
+    let main_window: ApplicationWindow = get_obj!(main_builder, "main_window");
+    let about_dialog: AboutDialog = get_obj!(about_builder, "about_dialog");
+    about_dialog.set_transient_for(Some(&main_window));
 
-    let config_clone = Arc::clone(&config);
+    let (mwe, mwe_rx) = MainWindowEvents::new();
+    mwe_rx.attach(None, clone!(@strong application => move |msg| {
+
+        match msg {
+            MainWindowEvent::Show => {
+                let windows = application.get_windows();
+                if windows.len() > 0 {
+                    // Probably not ideal to assume that the first entry is the main window
+                    windows[0].show();
+                    windows[0].present();
+                }
+            },
+            MainWindowEvent::Hide => {
+                let windows = application.get_windows();
+                if windows.len() > 0 {
+                    windows[0].hide();
+                }
+            },
+            MainWindowEvent::Quit => {
+                application.quit();
+            }
+        }
+
+        glib::Continue(true)
+
+    }));
+
+    // Top-level actions
+    let actions = SimpleActionGroup::new();
+    main_window.insert_action_group("app", Some(&actions));
+
+    // Settings
+    let main_stack: Stack = get_obj!(main_builder, "main_stack");
+    let main_stack_current_view = Rc::new(RefCell::new(String::new()));
+    let open_settings_action = SimpleAction::new("open-settings", None);
+    let close_settings_action = SimpleAction::new("close-settings", None);
+    open_settings_action.connect_activate(clone!(@strong main_stack, @strong main_stack_current_view => move |_, _| {
+        let current_view = main_stack.get_visible_child_name().unwrap().to_string();
+        if current_view != "settings" {
+            main_stack_current_view.replace(current_view);
+            main_stack.set_visible_child_name("settings");
+        }
+    }));
+    close_settings_action.connect_activate(clone!(@strong main_stack, @strong main_stack_current_view => move |_, _| {
+        main_stack.set_visible_child_name(main_stack_current_view.borrow().as_str());
+    }));
+    actions.add_action(&open_settings_action);
+    actions.add_action(&close_settings_action);
+
+    // About dialog
+    let open_about_action = SimpleAction::new("open-about", None);
+    open_about_action.connect_activate(clone!(@strong about_dialog => move |_, _| {
+        match about_dialog.run() {
+            _ => about_dialog.hide()
+        }
+    }));
+    actions.add_action(&open_about_action);
+
+    // Quit action
+    let quit_action = SimpleAction::new("quit", None);
+    quit_action.connect_activate(clone!(@strong application => move |_, _| application.quit()));
+    actions.add_action(&quit_action);
+    application.set_accels_for_action("app.quit", &["<CTRL>Q", "<CTRL>W"]);
+
+    // Tray item
+    let mut tray = TrayItem::new("Barium", "net.olback.Barium")?;
+    tray.add_label("Barium")?;
+    tray.add_menu_item("Show", clone!(@strong mwe => move || mwe.show()))?;
+    tray.add_menu_item("Hide", clone!(@strong mwe => move || mwe.hide()))?;
+    tray.add_menu_item("Quit", clone!(@strong mwe => move || mwe.quit()))?;
+
+    let ui_ref = ui::Ui::build(&main_builder)?;
+    println!("{:#?}", ui_ref);
+
+    // Connect on activate
     application.connect_activate(move |app| {
-
-        // Show action
-        let app_clone = app.clone();
-        show_action.connect_activate(move |_| {
-            let windows = app_clone.get_windows();
-            if windows.len() > 0 {
-                // Probably not ideal to assume that the first entry is the main window
-                windows[0].show();
-                windows[0].present();
-            }
-        });
-
-        // Quit action
-        let app_clone = app.clone();
-        quit_action.connect_activate(move |_| {
-            app_clone.quit();
-        });
-
-        // Build Ui
-        let ui = Ui::build(&app, &builder);
-
-        // Generate keys
-        let keys_clone = Arc::clone(&keys);
-        let servers_clone = padlock::rw_read_lock(&config_clone, |lock| { lock.servers().clone() });
-        let tx = ui.startup_keygen.get_tx();
-        std::thread::spawn(move || {
-            for s in servers_clone {
-                padlock::rw_write_lock(&keys_clone, |lock| {
-                    tx.send(StartupKeygenStatus::Generating(s.key_size, format!("{}:{}", s.address, s.port))).unwrap();
-                    lock.add(&s).unwrap();
-                })
-            }
-            tx.send(StartupKeygenStatus::Done).unwrap();
-        });
-
+        main_window.set_application(Some(app));
+        main_window.show_all();
     });
 
-    application.run(&args().collect::<Vec<String>>());
+    // Run the application
+    application.run(&env::args().collect::<Vec<String>>());
 
-    padlock::rw_read_lock(&config, |lock| {
-        lock.save()
-    })?;
+    println!("Closing...");
 
     Ok(())
 

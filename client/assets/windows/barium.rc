@@ -1,0 +1,30 @@
+#include <winuser.h>
+1 RT_MANIFEST "out/barium-client.exe.manifest"
+
+id ICON "assets/windows/barium.ico"
+net.olback.Barium ICON "assets/windows/barium.ico"
+net.olback.BariumAttention ICON "assets/windows/barium-attention.ico"
+
+1 VERSIONINFO
+FILEVERSION     {version-major},{version-minor},{version-patch},0
+PRODUCTVERSION  {version-major},{version-minor},{version-patch},0
+BEGIN
+BLOCK "StringFileInfo"
+BEGIN
+    BLOCK "040904E4"
+    BEGIN
+        VALUE "CompanyName", "github.com/olback/barium"
+        VALUE "FileDescription", "{description}"
+        VALUE "FileVersion", "{version}"
+        VALUE "InternalName", "barium"
+        VALUE "LegalCopyright", "Edwin Svensson with contributors"
+        VALUE "OriginalFilename", "barium-client.exe"
+        VALUE "ProductName", "Barium"
+        VALUE "ProductVersion", "{version}"
+    END
+END
+BLOCK "VarFileInfo"
+BEGIN
+    VALUE "Translation", 0x409, 1252
+END
+END

@@ -40,7 +40,9 @@ impl std::fmt::Display for BariumError {
 // impl_from!(std::option::NoneError);
 impl_from!(std::io::Error);
 impl_from!(serde_json::error::Error);
-impl_from!(base64::DecodeError);
+// impl_from!(base64::DecodeError);
 // impl_from!(Box<bincode::ErrorKind>);
 impl_from!(rsa::errors::Error);
 impl_from!(glib::error::BoolError);
+impl_from!(tray_item::TIError);
+impl_from!(std::string::String);

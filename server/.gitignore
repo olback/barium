@@ -1,0 +1,7 @@
+# Cert files
+cert/*.pem
+cert/*.pfx
+cert/*.p12
+
+# Build files
+windows/barium-server.rc

@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -9,13 +7,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="128"
-   height="128"
-   viewBox="0 0 33.866666 33.866668"
+   width="16"
+   height="16"
+   viewBox="0 0 4.2333332 4.2333335"
    version="1.1"
    id="svg8"
-   inkscape:version="0.92.4 5da689c313, 2019-01-14"
-   sodipodi:docname="barium-dnd.svg">
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="add.svg">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -25,17 +23,18 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.6"
-     inkscape:cx="36.255926"
-     inkscape:cy="63.699083"
+     inkscape:zoom="32"
+     inkscape:cx="9.4382229"
+     inkscape:cy="7.3944429"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
      showgrid="false"
      units="px"
      inkscape:window-width="1920"
-     inkscape:window-height="1050"
-     inkscape:window-x="1920"
-     inkscape:window-y="0"
+     inkscape:window-height="1016"
+     inkscape:window-x="1680"
+     inkscape:window-y="34"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata5">
@@ -45,20 +44,17 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(0,-263.13332)">
-    <circle
-       style="fill:#ff2a2a;stroke-width:0.7980541;fill-opacity:1"
-       id="path10"
-       cx="16.933332"
-       cy="280.06665"
-       r="16.933332" />
+     id="layer1">
+    <path
+       id="path109"
+       d="m 0.52916727,1.7991667 v 0.635 H 1.7991666 l -1e-7,1.2699995 H 2.4341663 V 2.4341667 h 1.2699998 v -0.635 H 2.4341663 V 0.52916727 H 1.7991665 l 1e-7,1.26999943 z"
+       style="fill:#000000;fill-opacity:0.533333;stroke:#000000;stroke-width:0;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>

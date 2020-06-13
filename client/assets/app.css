@@ -1,0 +1,70 @@
+/* Chat */
+.poke-row {
+    background-color: @warning_color;
+    color: @selected_fg_color;
+}
+
+.light-gray-bg:not(:hover) {
+    background-color: rgba(200, 200, 200, 0.1)
+}
+
+/* No border */
+.no-border {
+    border: none;
+}
+
+.no-border-sides {
+    border-left: none;
+    border-right: none;
+}
+
+.no-border-bottom {
+    border-bottom: none;
+}
+
+/* Custom spinner */
+@keyframes spin {
+    to {
+        -gtk-icon-transform: rotate(1turn);
+    }
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Define our own success entry class since GTK does not provide one */
+entry.success {
+    color: @selected_fg_color;
+    border-color: @success_color;
+    border-image: none;
+    outline-color: @success_color;
+    box-shadow: none;
+}
+
+entry.success:focus {
+    background-color: @success_color;
+}
+
+/* Get rid of dashed outline on ListBoxRows */
+list > row {
+    outline: none;
+}
+
+/* Custom fade */
+@keyframes fade {
+    0% {
+        color: @warning_color;
+    }
+    50% {
+        color: transparent;
+    }
+    100% {
+        color: @warning_color;
+    }
+}
+
+.fade-2s {
+    animation: fade 2s linear infinite;
+}
+
