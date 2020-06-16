@@ -29,6 +29,15 @@ Author: Edwin Svensson
   <!-- interface-description Barium is a end-to-end encrypted chat application written in Rust! -->
   <!-- interface-copyright Edwin Svensson -->
   <!-- interface-authors Edwin Svensson -->
+  <object class="GtkWindow">
+    <property name="can_focus">False</property>
+    <child>
+      <placeholder/>
+    </child>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
+  </object>
   <object class="GtkPopoverMenu" id="add_menu">
     <property name="can_focus">False</property>
     <property name="border_width">6</property>
@@ -204,127 +213,36 @@ Author: Edwin Svensson
           </packing>
         </child>
         <child>
-          <object class="GtkStack" id="setup_stack">
+          <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="transition_duration">100</property>
-            <property name="transition_type">crossfade</property>
+            <property name="halign">center</property>
+            <property name="valign">center</property>
+            <property name="orientation">vertical</property>
             <child>
-              <object class="GtkBox">
+              <object class="GtkStack" id="setup_stack">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="halign">center</property>
                 <property name="valign">center</property>
-                <property name="border_width">18</property>
-                <property name="orientation">vertical</property>
-                <property name="spacing">30</property>
-                <child>
-                  <object class="GtkImage">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="pixel_size">192</property>
-                    <property name="resource">/net/olback/barium/icons/net.olback.Barium256.svg</property>
-                    <property name="icon_size">6</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Welcome to Barium</property>
-                    <attributes>
-                      <attribute name="weight" value="ultrabold"/>
-                      <attribute name="scale" value="2"/>
-                    </attributes>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="orientation">vertical</property>
-                    <property name="spacing">18</property>
-                    <child>
-                      <object class="GtkButton" id="welcome_continue1">
-                        <property name="label" translatable="yes">Continue</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <style>
-                          <class name="suggested-action"/>
-                        </style>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">{version}</property>
-                        <attributes>
-                          <attribute name="foreground" value="#88888a8a8585"/>
-                        </attributes>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="name">page0</property>
-                <property name="title" translatable="yes">page0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">center</property>
-                <property name="valign">center</property>
-                <property name="border_width">18</property>
-                <property name="orientation">vertical</property>
-                <property name="spacing">18</property>
+                <property name="transition_duration">100</property>
+                <property name="transition_type">crossfade</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="halign">center</property>
                     <property name="valign">center</property>
+                    <property name="border_width">18</property>
                     <property name="orientation">vertical</property>
-                    <property name="spacing">18</property>
+                    <property name="spacing">30</property>
                     <child>
-                      <object class="GtkLabel">
+                      <object class="GtkImage">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">Create identity</property>
-                        <attributes>
-                          <attribute name="weight" value="bold"/>
-                          <attribute name="scale" value="2"/>
-                        </attributes>
+                        <property name="pixel_size">192</property>
+                        <property name="resource">/net/olback/barium/icons/net.olback.Barium256.svg</property>
+                        <property name="icon_size">6</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -333,67 +251,14 @@ Author: Edwin Svensson
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkGrid">
+                      <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="row_spacing">6</property>
-                        <property name="column_spacing">12</property>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="tooltip_text" translatable="yes">This is how you and others will see you.
-Sharing your identity will use this name by default.</property>
-                            <property name="label" translatable="yes">Username</property>
-                            <property name="xalign">1</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">0</property>
-                            <property name="top_attach">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="tooltip_text" translatable="yes">Generating large keys may take a few seconds.
-Recomended key size is 4096.</property>
-                            <property name="label" translatable="yes">Key size</property>
-                            <property name="xalign">1</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">0</property>
-                            <property name="top_attach">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="identity_username1">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="max_length">32</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="top_attach">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkComboBoxText" id="identity_key_size1">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="active">1</property>
-                            <items>
-                              <item translatable="yes">4096</item>
-                              <item translatable="yes">8192</item>
-                              <item translatable="yes">16384</item>
-                              <item translatable="yes">32768</item>
-                            </items>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="top_attach">1</property>
-                          </packing>
-                        </child>
+                        <property name="label" translatable="yes">Welcome to Barium</property>
+                        <attributes>
+                          <attribute name="weight" value="ultrabold"/>
+                          <attribute name="scale" value="2"/>
+                        </attributes>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -402,16 +267,43 @@ Recomended key size is 4096.</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="identity_continue1">
-                        <property name="label" translatable="yes">Continue</property>
-                        <property name="height_request">48</property>
+                      <object class="GtkBox">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <style>
-                          <class name="suggested-action"/>
-                        </style>
+                        <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">18</property>
+                        <child>
+                          <object class="GtkButton" id="setup_continue_button">
+                            <property name="label" translatable="yes">Continue</property>
+                            <property name="height_request">48</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">{version}</property>
+                            <attributes>
+                              <attribute name="foreground" value="#88888a8a8585"/>
+                            </attributes>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -421,92 +313,10 @@ Recomended key size is 4096.</property>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
+                    <property name="name">page0</property>
+                    <property name="title" translatable="yes">page0</property>
                   </packing>
                 </child>
-                <child>
-                  <object class="GtkInfoBar" id="identity_error1">
-                    <property name="can_focus">False</property>
-                    <property name="no_show_all">True</property>
-                    <property name="message_type">error</property>
-                    <child internal-child="action_area">
-                      <object class="GtkButtonBox">
-                        <property name="can_focus">False</property>
-                        <property name="spacing">6</property>
-                        <property name="layout_style">end</property>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child internal-child="content_area">
-                      <object class="GtkBox">
-                        <property name="can_focus">False</property>
-                        <property name="spacing">16</property>
-                        <child>
-                          <object class="GtkLabel" id="identity_error_label1">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">&lt;error-label&gt;</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="name">page1</property>
-                <property name="title" translatable="yes">page1</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">center</property>
-                <property name="valign">center</property>
-                <property name="border_width">18</property>
-                <property name="orientation">vertical</property>
-                <property name="spacing">18</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
@@ -538,29 +348,29 @@ Recomended key size is 4096.</property>
                         <property name="row_spacing">6</property>
                         <property name="column_spacing">12</property>
                         <child>
-                          <object class="GtkEntry" id="connect_server_address1">
+                          <object class="GtkSwitch" id="setup_allow_invalid_cert_switch">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="hexpand">True</property>
-                            <property name="max_length">255</property>
-                            <property name="text" translatable="yes">barium.chat</property>
-                            <property name="placeholder_text" translatable="yes">barium.chat</property>
+                            <property name="halign">end</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">0</property>
+                            <property name="top_attach">3</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">Address</property>
+                            <property name="tooltip_text" translatable="yes">Allow invalid certificates. This is discouraged.
+
+Required if connecting via TOR.</property>
+                            <property name="label" translatable="yes">Allow Invalid Cert</property>
                             <property name="xalign">1</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">0</property>
+                            <property name="top_attach">3</property>
                           </packing>
                         </child>
                         <child>
@@ -572,18 +382,46 @@ Recomended key size is 4096.</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
+                            <property name="top_attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">Address</property>
+                            <property name="xalign">1</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">0</property>
                             <property name="top_attach">1</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEntry" id="connect_server_port1">
+                          <object class="GtkEntry" id="setup_port_entry">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="hexpand">True</property>
                             <property name="max_length">5</property>
                             <property name="text" translatable="yes">13337</property>
+                            <property name="truncate_multiline">True</property>
+                            <property name="caps_lock_warning">False</property>
                             <property name="placeholder_text" translatable="yes">13337</property>
                             <property name="input_purpose">number</property>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="top_attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="setup_address_entry">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="hexpand">True</property>
+                            <property name="max_length">255</property>
+                            <property name="text" translatable="yes">barium.chat</property>
+                            <property name="placeholder_text" translatable="yes">barium.chat</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -594,27 +432,24 @@ Recomended key size is 4096.</property>
                           <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">Password</property>
+                            <property name="label" translatable="yes">Name</property>
                             <property name="xalign">1</property>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
-                            <property name="top_attach">2</property>
+                            <property name="top_attach">0</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEntry" id="connect_server_password1">
+                          <object class="GtkEntry" id="setup_server_name_entry">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="hexpand">True</property>
-                            <property name="visibility">False</property>
-                            <property name="invisible_char">●</property>
-                            <property name="caps_lock_warning">False</property>
-                            <property name="secondary_icon_name">dialog-password</property>
+                            <property name="max_length">32</property>
+                            <property name="text" translatable="yes">Barium Official</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
-                            <property name="top_attach">2</property>
+                            <property name="top_attach">0</property>
                           </packing>
                         </child>
                       </object>
@@ -625,7 +460,7 @@ Recomended key size is 4096.</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="connect_connect1">
+                      <object class="GtkButton" id="setup_connect_button">
                         <property name="label" translatable="yes">Connect</property>
                         <property name="height_request">48</property>
                         <property name="visible">True</property>
@@ -644,46 +479,45 @@ Recomended key size is 4096.</property>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
+                    <property name="name">setup_connect_main_view</property>
+                    <property name="title" translatable="yes">page1</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkInfoBar" id="connect_error1">
+                  <object class="GtkBox">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="message_type">error</property>
-                    <child internal-child="action_area">
-                      <object class="GtkButtonBox">
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">18</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">6</property>
-                        <property name="layout_style">end</property>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
+                        <property name="label" translatable="yes">Authentication</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                          <attribute name="scale" value="2"/>
+                        </attributes>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
+                        <property name="fill">True</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
-                    <child internal-child="content_area">
+                    <child>
                       <object class="GtkBox">
+                        <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="spacing">16</property>
+                        <property name="spacing">12</property>
                         <child>
-                          <object class="GtkLabel" id="connect_error_label1">
+                          <object class="GtkLabel">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">label</property>
+                            <property name="label" translatable="yes">Password</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -692,17 +526,76 @@ Recomended key size is 4096.</property>
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
+                          <object class="GtkEntry" id="setup_password_entry">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="hexpand">True</property>
+                            <property name="max_length">100</property>
+                            <property name="visibility">False</property>
+                            <property name="invisible_char">●</property>
+                            <property name="secondary_icon_name">dialog-password</property>
+                            <property name="input_purpose">password</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
                       </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="setup_password_connect_button">
+                        <property name="label" translatable="yes">Connect</property>
+                        <property name="height_request">48</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <style>
+                          <class name="suggested-action"/>
+                        </style>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="name">setup_connect_password_view</property>
+                    <property name="title" translatable="yes">page1</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkInfoBar" id="setup_infobar">
+                <property name="can_focus">False</property>
+                <property name="no_show_all">True</property>
+                <property name="message_type">error</property>
+                <property name="show_close_button">True</property>
+                <child internal-child="action_area">
+                  <object class="GtkButtonBox">
+                    <property name="can_focus">False</property>
+                    <property name="spacing">6</property>
+                    <property name="layout_style">end</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                     <child>
                       <placeholder/>
@@ -710,15 +603,47 @@ Recomended key size is 4096.</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
                   </packing>
+                </child>
+                <child internal-child="content_area">
+                  <object class="GtkBox">
+                    <property name="can_focus">False</property>
+                    <property name="spacing">16</property>
+                    <child>
+                      <object class="GtkLabel" id="setup_infobar_label">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">label</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
               </object>
               <packing>
-                <property name="name">page2</property>
-                <property name="title" translatable="yes">page2</property>
-                <property name="position">2</property>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
               </packing>
             </child>
           </object>
@@ -1249,7 +1174,7 @@ Recomended key size is 4096.</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkListBox">
+                          <object class="GtkListBox" id="chat_feed">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="selection_mode">none</property>
@@ -1274,9 +1199,6 @@ Recomended key size is 4096.</property>
                                         <property name="can_focus">False</property>
                                         <property name="label" translatable="yes">Friend 1</property>
                                         <property name="xalign">0</property>
-                                        <attributes>
-                                          <attribute name="weight" value="bold"/>
-                                        </attributes>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1325,9 +1247,6 @@ Recomended key size is 4096.</property>
                                         <property name="can_focus">False</property>
                                         <property name="label" translatable="yes">Me</property>
                                         <property name="xalign">1</property>
-                                        <attributes>
-                                          <attribute name="weight" value="bold"/>
-                                        </attributes>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1375,9 +1294,6 @@ Recomended key size is 4096.</property>
                                     <property name="margin_bottom">12</property>
                                     <property name="label" translatable="yes">Friend 1 poked you 👀️</property>
                                     <property name="xalign">0</property>
-                                    <attributes>
-                                      <attribute name="weight" value="bold"/>
-                                    </attributes>
                                   </object>
                                 </child>
                                 <style>
@@ -1385,6 +1301,9 @@ Recomended key size is 4096.</property>
                                 </style>
                               </object>
                             </child>
+                            <style>
+                              <class name="chat-feed"/>
+                            </style>
                           </object>
                         </child>
                       </object>
@@ -1770,8 +1689,8 @@ Recomended key size is 4096.</property>
         <property name="show_close_button">True</property>
         <child>
           <object class="GtkStackSwitcher">
-            <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="no_show_all">True</property>
             <property name="stack">main_stack</property>
           </object>
         </child>

@@ -14,19 +14,25 @@ mod panic_handler;
 
 use {
     error::BariumResult,
-    services::{MainWindowEvent, MainWindowEvents}
-};
-
-use {
-    glib::{self, clone},
+    fs::{Identity, Servers},
+    key_pair::KeyPair,
+    services::{MainWindowEvent, MainWindowEvents},
+    glib::{self, clone, MainContext, Priority},
     gio::{SimpleAction, SimpleActionGroup, prelude::*},
     gtk::{
         AboutDialog, Application, ApplicationWindow, Builder, CssProvider, Stack, StyleContext,
         Window, STYLE_PROVIDER_PRIORITY_APPLICATION, prelude::*
     },
-    std::{env, rc::Rc, cell::RefCell},
-    tray_item::TrayItem
+    std::{env, rc::Rc, cell::RefCell, sync::{Arc, Mutex}},
+    tray_item::TrayItem,
+    lazy_static::lazy_static,
+    padlock
 };
+
+lazy_static! {
+    pub static ref IDENTITY: Identity = Identity::load().unwrap();
+    pub static ref KEY_PAIR: KeyPair = KeyPair::new(consts::KEY_SIZE).unwrap();
+}
 
 fn main() -> BariumResult<()> {
 
@@ -97,7 +103,7 @@ fn main() -> BariumResult<()> {
     let close_settings_action = SimpleAction::new("close-settings", None);
     open_settings_action.connect_activate(clone!(@strong main_stack, @strong main_stack_current_view => move |_, _| {
         let current_view = main_stack.get_visible_child_name().unwrap().to_string();
-        if current_view != "settings" {
+        if current_view != "settings" && current_view != "keygen" {
             main_stack_current_view.replace(current_view);
             main_stack.set_visible_child_name("settings");
         }
@@ -123,6 +129,29 @@ fn main() -> BariumResult<()> {
     actions.add_action(&quit_action);
     application.set_accels_for_action("app.quit", &["<CTRL>Q", "<CTRL>W"]);
 
+    // Load server list
+    // let servers = Rc::new(RefCell::new(Servers::load()?));
+    let servers = Arc::new(Mutex::new(Servers::load()?));
+
+    // Load identity
+    let _ = &IDENTITY.id;
+
+    // Generate key pair
+    let (tx, rx) = MainContext::channel::<()>(Priority::default());
+    rx.attach(None, clone!(@strong main_stack, @strong servers => move |_| {
+        let len = padlock::mutex_lock(&servers, |s| s.len());
+        if len > 0 {
+            main_stack.set_visible_child_name("chat")
+        } else {
+            main_stack.set_visible_child_name("setup")
+        }
+        Continue(false)
+    }));
+    std::thread::spawn(move || {
+        let _ = &KEY_PAIR.public_key();
+        tx.send(()).unwrap();
+    });
+
     // Tray item
     let mut tray = TrayItem::new("Barium", "net.olback.Barium")?;
     tray.add_label("Barium")?;
@@ -130,7 +159,7 @@ fn main() -> BariumResult<()> {
     tray.add_menu_item("Hide", clone!(@strong mwe => move || mwe.hide()))?;
     tray.add_menu_item("Quit", clone!(@strong mwe => move || mwe.quit()))?;
 
-    let ui_ref = ui::Ui::build(&main_builder)?;
+    let ui_ref = ui::Ui::build(&main_builder, Arc::clone(&servers))?;
     println!("{:#?}", ui_ref);
 
     // Connect on activate
@@ -141,6 +170,8 @@ fn main() -> BariumResult<()> {
 
     // Run the application
     application.run(&env::args().collect::<Vec<String>>());
+
+    padlock::mutex_lock(&servers, |s| s.save())?;
 
     println!("Closing...");
 

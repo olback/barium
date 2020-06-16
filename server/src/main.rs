@@ -91,6 +91,15 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                             },
 
+                            ToServer::VerifyPassword(password) => {
+
+                                let password_ok = ToClient::PasswordOk(Some(password) == CONF.server.password);
+                                let data = rmp_serde::to_vec(&password_ok)?;
+
+                                stream.write_all(&data[..])?;
+
+                            },
+
                             ToServer::GetPublicKey(sender, user) => {
 
                                 let hash = sha3_256(&sender);

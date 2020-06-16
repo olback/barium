@@ -92,7 +92,7 @@ dependencies = [
 
 [[package]]
 name = "barium-client"
-version = "0.1.0-dev"
+version = "0.1.0"
 dependencies = [
  "barium-shared 0.1.0",
  "base-62 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -102,6 +102,7 @@ dependencies = [
  "glib 0.9.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "gtk 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "last-git-commit 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "native-tls 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "padlock 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",

@@ -1,6 +1,6 @@
 [package]
 name = "barium-client"
-version = "0.1.0-dev"
+version = "0.1.0"
 authors = ["Edwin Svensson <barium@olback.net>"]
 description = "An end-to-end encrypted chat app without user accounts"
 edition = "2018"
@@ -27,6 +27,7 @@ rmp-serde = "0.14"
 native-tls = "0.2"
 # openssl = "0.10" # Used to inspect certificate, not yet implemented
 tray-item = "0.4.0-alpha"
+lazy_static = "1.4"
 
 [build-dependencies]
 regex = "1.3"

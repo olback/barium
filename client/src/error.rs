@@ -46,3 +46,8 @@ impl_from!(rsa::errors::Error);
 impl_from!(glib::error::BoolError);
 impl_from!(tray_item::TIError);
 impl_from!(std::string::String);
+impl_from!(std::net::AddrParseError);
+impl_from!(native_tls::Error);
+impl_from!(native_tls::HandshakeError<std::net::TcpStream>);
+impl_from!(rmp_serde::encode::Error);
+impl_from!(rmp_serde::decode::Error);

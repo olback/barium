@@ -2,10 +2,15 @@
 .poke-row {
     background-color: @warning_color;
     color: @selected_fg_color;
+    font-weight: bold;
+}
+
+list.chat-feed > row > box > label:nth-child(1) {
+    font-weight: bold;
 }
 
 .light-gray-bg:not(:hover) {
-    background-color: rgba(200, 200, 200, 0.1)
+    background-color: rgba(200, 200, 200, 0.15)
 }
 
 /* No border */

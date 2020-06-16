@@ -4,6 +4,6 @@ mod servers;
 
 pub use {
     identity::Identity,
-    servers::Servers,
+    servers::{Server, Servers},
     // friend::Friend
 };

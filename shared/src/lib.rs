@@ -18,6 +18,7 @@ pub enum AfkStatus {
 pub enum ToServer {
     Ping,
     GetProperties,
+    VerifyPassword(String),
     GetPublicKey(UserId, UserHash),
     Hello(UserId, rsa::RSAPublicKey, Option<String>), // My ID, Public Key, Server Password
     KeepAlive(UserId, Vec<UserHash>, AfkStatus), // My ID, Vec<Friend hash>
@@ -28,6 +29,7 @@ pub enum ToServer {
 pub enum ToClient {
     Pong,
     Properties(ServerProperties),
+    PasswordOk(bool),
     PublicKey(UserHash, rsa::RSAPublicKey),
     FriendsOnline(Vec<(UserHash, AfkStatus)>), // Vec<(Freind Hash, AFK Status)>
     Message(Vec<u8>)

@@ -1,5 +1,7 @@
-use rsa::{RSAPublicKey, RSAPrivateKey};
-use crate::error::BariumResult;
+use {
+    rsa::{RSAPublicKey, RSAPrivateKey},
+    crate::error::BariumResult
+};
 
 #[derive(Debug)]
 pub struct KeyPair {
@@ -23,15 +25,15 @@ impl KeyPair {
 
     }
 
-    pub fn public_key(&self) -> RSAPublicKey {
+    pub fn public_key(&self) -> &RSAPublicKey {
 
-        self.public.clone()
+        &self.public
 
     }
 
-    pub fn private_key(&self) -> RSAPrivateKey {
+    pub fn private_key(&self) -> &RSAPrivateKey {
 
-        self.private.clone()
+        &self.private
 
     }
 

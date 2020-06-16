@@ -13,7 +13,7 @@ use {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Identity {
     #[serde(serialize_with="serialize_u8_32_arr", deserialize_with="deserialize_u8_32_arr")]
-    id: UserId
+    pub id: UserId
 }
 
 impl Identity {

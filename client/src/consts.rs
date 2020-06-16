@@ -8,3 +8,12 @@ pub const MESSAGE_ERROR_LENGHT: usize = (MAX_MESSAGE_TEXT_LENGTH as f64 * 0.95) 
 
 // Conf dir
 pub const CONFIG_DIR: &'static str = "barium";
+
+// Key Size
+pub const KEY_SIZE: usize = 4096;
+
+// Default port
+pub const DEFAULT_PORT: u16 = 13337;
+
+// TCP timeout in seconds
+pub const TCP_TIMEOUT: u64 = 10;

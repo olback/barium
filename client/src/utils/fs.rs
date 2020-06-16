@@ -1,14 +1,14 @@
 use {
     std::{fs, path::PathBuf},
-    crate::{consts, error::{BariumError, BariumResult}},
+    crate::{new_err, consts::CONFIG_DIR, error::{BariumResult}},
     dirs
 };
 
 pub fn conf_dir() -> BariumResult<PathBuf> {
 
     let dir = dirs::config_dir().ok_or(
-        BariumError::new("could not determine config dir", std::file!(), std::line!())
-    )?.join(consts::CONFIG_DIR);
+        new_err!("could not determine config dir")
+    )?.join(CONFIG_DIR);
 
     if !dir.is_dir() {
         fs::create_dir_all(&dir)?;
