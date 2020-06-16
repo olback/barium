@@ -19,7 +19,7 @@ use std::{
     sync::{Arc, RwLock, mpsc, atomic::{AtomicU16, Ordering}}
 };
 use padlock;
-use barium_shared::{AfkStatus, ToClient, ToServer, ServerProperties, ToHex, hash::sha3_256};
+use barium_shared::{AfkStatus, ToClient, ToServer, ServerProperties, UserHash, KeyBust, ToHex, hash::sha3_256};
 use log::{debug, info, warn};
 use lazy_static::lazy_static;
 use native_tls::{Identity, TlsAcceptor, TlsStream};
@@ -36,7 +36,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
     CLIENT_COUNT.fetch_add(1, Ordering::SeqCst);
 
     let mut buf = [0u8; 8192];
-    let mut client_hash: Option<[u8; 32]> = None;
+    let mut client_hash: Option<UserHash> = None;
 
     let (tx, rx) = mpsc::channel::<Vec<u8>>();
 
@@ -138,7 +138,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                             },
 
-                            ToServer::Hello(sender, user_public_key, password) => {
+                            ToServer::Hello(sender, user_public_key, key_bust, password) => {
 
                                 if password != CONF.server.password {
                                     break;
@@ -167,7 +167,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                                     debug!("New client: hash:{} id:{}", client_hash.unwrap().to_hex(), sender.to_hex());
 
-                                    let new_client = Client::new(&tx, user_public_key, AfkStatus::Away(None));
+                                    let new_client = Client::new(&tx, user_public_key, key_bust, AfkStatus::Away(None));
 
                                     padlock::rw_write_lock(&clients, |lock| {
                                         lock.insert(hash, new_client);
@@ -189,10 +189,10 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                                             user.set_idle(status);
 
-                                            let mut friends_online = Vec::<([u8; 32], AfkStatus)>::new();
+                                            let mut friends_online = Vec::<(UserHash, KeyBust, AfkStatus)>::new();
                                             for friend in &friends {
                                                 match lock.get(friend) {
-                                                    Some(fc) => friends_online.push((friend.clone(), fc.get_idle())),
+                                                    Some(fc) => friends_online.push((friend.clone(), fc.get_key_bust(), fc.get_idle())),
                                                     None => ()
                                                 }
                                             }

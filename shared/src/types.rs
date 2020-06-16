@@ -1,5 +1,6 @@
 pub type UserHash = [u8; 32];
 pub type UserId = [u8; 32];
+pub type KeyBust = u32;
 
 pub trait ToHex {
     fn to_hex(&self) -> String;

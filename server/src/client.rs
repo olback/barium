@@ -8,7 +8,7 @@ use std::{
     }
 };
 use padlock;
-use barium_shared::{AfkStatus, ToClient, UserHash};
+use barium_shared::{AfkStatus, KeyBust, ToClient, UserHash};
 use crate::error::BariumResult;
 use rmp_serde;
 use rsa;
@@ -19,16 +19,23 @@ pub type Clients = Arc<RwLock<HashMap<UserHash, Client>>>;
 pub struct Client {
     stream: Mutex<mpsc::Sender<Vec<u8>>>,
     key: rsa::RSAPublicKey,
+    key_bust: KeyBust,
     idle: RwLock<AfkStatus>
 }
 
 impl Client {
 
-    pub fn new(stream: &mpsc::Sender<Vec<u8>>, key: rsa::RSAPublicKey, idle: AfkStatus) -> Self {
+    pub fn new(
+        stream: &mpsc::Sender<Vec<u8>>,
+        key: rsa::RSAPublicKey,
+        key_bust: u32,
+        idle: AfkStatus
+    ) -> Self {
 
         Self {
             stream: Mutex::new(stream.clone()),
-            key: key,
+            key,
+            key_bust,
             idle: RwLock::new(idle)
         }
 
@@ -59,6 +66,12 @@ impl Client {
         })?;
 
         Ok(())
+
+    }
+
+    pub fn get_key_bust(&self) -> KeyBust {
+
+        self.key_bust
 
     }
 
