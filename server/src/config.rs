@@ -35,10 +35,18 @@ pub struct Runtime {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct HttpApi {
+    pub enabled: bool,
+    pub address: String,
+    pub port: u16
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Config {
     pub cert: Cert,
     pub server: Server,
     pub runtime: Runtime,
+    pub http_api: HttpApi,
     #[serde(deserialize_with = "deserialize_blacklist")]
     pub blacklist: Blacklist,
     #[serde(deserialize_with = "deserialize_log_level")]
@@ -74,7 +82,12 @@ impl Config {
     pub fn log(&self) {
 
         // Server address/port
-        info!("Listening on {}:{}", self.server.address, self.server.port);
+        info!("Barium Server Listening on {}:{}", self.server.address, self.server.port);
+
+        // HTTP API
+        if self.http_api.enabled {
+            info!("Barium HTTP Server Listening on {}:{}", self.http_api.address, self.http_api.port);
+        }
 
         // Cert info
         match self.cert.path.canonicalize() {

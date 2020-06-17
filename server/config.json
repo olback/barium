@@ -12,6 +12,11 @@
         "core_threads": null,
         "max_threads": null
     },
+    "http_api": {
+        "enabled": true,
+        "address": "0.0.0.0",
+        "port": 5000
+    },
     "blacklist": [
         "10.8.0.0/24",
         "187.63.59.237"
