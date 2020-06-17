@@ -2,7 +2,7 @@ use {
     std::{fs, path::PathBuf},
     serde::{Serialize, Deserialize},
     serde_json,
-    barium_shared::UserHash,
+    barium_shared::{UserId, UserHash},
     crate::{
         new_err, error::BariumResult,
         utils::{conf_dir, serialize_u8_32_arr, deserialize_u8_32_arr}
@@ -18,6 +18,8 @@ pub struct Friend {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Server {
+    #[serde(serialize_with="serialize_u8_32_arr", deserialize_with="deserialize_u8_32_arr")]
+    pub user_id: UserId,
     pub name: String,
     pub address: String,
     pub port: u16,

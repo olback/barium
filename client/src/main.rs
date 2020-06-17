@@ -9,12 +9,12 @@ mod services;
 mod ui;
 mod utils;
 mod consts;
-mod fs;
 mod panic_handler;
+mod servers;
 
 use {
     error::BariumResult,
-    fs::{Identity, Servers},
+    servers::Servers,
     key_pair::KeyPair,
     services::{MainWindowEvent, MainWindowEvents},
     glib::{self, clone, MainContext, Priority},
@@ -30,15 +30,10 @@ use {
 };
 
 lazy_static! {
-    pub static ref IDENTITY: Identity = Identity::load().unwrap();
     pub static ref KEY_PAIR: KeyPair = KeyPair::new(consts::KEY_SIZE).unwrap();
 }
 
-fn main() -> BariumResult<()> {
-
-    // Attempt to show an error when someting panics
-    #[cfg(not(debug_assertions))]
-    std::panic::set_hook(Box::new(panic_handler::panic_handler));
+fn run_app() -> BariumResult<()> {
 
     // Load resources
     resources::load();
@@ -130,11 +125,7 @@ fn main() -> BariumResult<()> {
     application.set_accels_for_action("app.quit", &["<CTRL>Q", "<CTRL>W"]);
 
     // Load server list
-    // let servers = Rc::new(RefCell::new(Servers::load()?));
     let servers = Arc::new(Mutex::new(Servers::load()?));
-
-    // Load identity
-    let _ = &IDENTITY.id;
 
     // Generate key pair
     let (tx, rx) = MainContext::channel::<()>(Priority::default());
@@ -176,5 +167,15 @@ fn main() -> BariumResult<()> {
     println!("Closing...");
 
     Ok(())
+
+}
+
+fn main() {
+
+    // Attempt to show an error when someting panics
+    #[cfg(not(debug_assertions))]
+    std::panic::set_hook(Box::new(panic_handler::panic_handler));
+
+    run_app().unwrap();
 
 }

@@ -1,12 +1,15 @@
 use {
+    rand::{self, Rng},
     rsa::{RSAPublicKey, RSAPrivateKey},
-    crate::error::BariumResult
+    crate::error::BariumResult,
+    barium_shared::KeyBust
 };
 
 #[derive(Debug)]
 pub struct KeyPair {
     public: RSAPublicKey,
-    private: RSAPrivateKey
+    private: RSAPrivateKey,
+    key_bust: KeyBust
 }
 
 impl KeyPair {
@@ -15,13 +18,11 @@ impl KeyPair {
 
         let mut rng = rand::thread_rng();
 
-        let private_key = rsa::RSAPrivateKey::new(&mut rng, size)?;
-        let public_key = private_key.to_public_key();
+        let private = rsa::RSAPrivateKey::new(&mut rng, size)?;
+        let public = private.to_public_key();
+        let key_bust = rng.gen::<KeyBust>();
 
-        Ok(Self {
-            public: public_key,
-            private: private_key
-        })
+        Ok(Self { public, private, key_bust })
 
     }
 
@@ -34,6 +35,12 @@ impl KeyPair {
     pub fn private_key(&self) -> &RSAPrivateKey {
 
         &self.private
+
+    }
+
+    pub fn key_bust(&self) -> KeyBust {
+
+        self.key_bust.clone()
 
     }
 

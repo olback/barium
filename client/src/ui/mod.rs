@@ -1,6 +1,6 @@
 use {
     std::sync::{Arc, Mutex},
-    crate::{get_obj, error::BariumResult, fs::Servers},
+    crate::{get_obj, error::BariumResult, servers::Servers},
     gtk::Builder
 };
 

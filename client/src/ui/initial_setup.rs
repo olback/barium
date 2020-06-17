@@ -1,16 +1,16 @@
 use {
     crate::{
         get_obj,
-        fs::{Server, Servers},
-        utils::{entry_get_text, get_server_properties, verify_server_password},
+        servers::{Server, Servers},
+        utils::{entry_get_text, new_user_id, add_server},
+        services::{get_server_properties, verify_server_password},
         error::BariumResult,
         consts::DEFAULT_PORT
     },
     std::sync::{Arc, Mutex},
     gtk::{Builder, Button, Stack, Entry, EntryIconPosition, Label, Switch, InfoBar, prelude::*},
     glib::clone,
-    barium_shared::ServerProperties,
-    padlock
+    barium_shared::ServerProperties
 };
 
 #[derive(Debug, Clone)]
@@ -125,6 +125,7 @@ impl InitialSetup {
                             setup_stack.set_visible_child_name("setup_connect_password_view");
                         } else {
                             let server = Server {
+                                user_id: new_user_id(),
                                 name: name.clone(),
                                 address: address.clone(),
                                 port,
@@ -202,6 +203,7 @@ impl InitialSetup {
                     Ok(valid) => {
                         if valid {
                             let server = Server {
+                                user_id: new_user_id(),
                                 name: name.clone(),
                                 address: address.clone(),
                                 port,
@@ -237,13 +239,5 @@ impl InitialSetup {
         });
 
     }
-
-}
-
-fn add_server(servers: &Arc<Mutex<Servers>>, server: Server) -> BariumResult<()> {
-
-    padlock::mutex_lock(&servers, move |servers| servers.add(server))?;
-
-    Ok(())
 
 }
