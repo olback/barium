@@ -1,5 +1,7 @@
-use barium_shared::ServerProperties;
-use super::config::Config;
+use {
+    barium_shared::ServerProperties,
+    crate::config::Config
+};
 
 pub fn get_server_properties(conf: &Config) -> ServerProperties {
 

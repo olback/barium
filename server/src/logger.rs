@@ -1,12 +1,7 @@
-use fern::{
-    Dispatch,
-    InitError,
-    colors::{
-        Color,
-        ColoredLevelConfig
-    }
+use {
+    fern::{Dispatch, InitError, colors::{Color, ColoredLevelConfig}},
+    crate::is_debug
 };
-use crate::is_debug;
 
 fn get_log_level(log_level: Option<log::LevelFilter>) -> log::LevelFilter {
 

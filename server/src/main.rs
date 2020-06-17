@@ -7,24 +7,26 @@ mod tokio_runtime_builder;
 mod utils;
 mod http;
 
-use tokio;
-use config::Config;
-use error::BariumResult;
-use client::{Client, Clients};
-use std::{
-    env,
-    time::Duration,
-    net::{Shutdown, TcpStream, TcpListener},
-    io::{Read, Write},
-    collections::HashMap,
-    sync::{Arc, RwLock, mpsc, atomic::{AtomicU16, Ordering}}
+use {
+    tokio,
+    config::Config,
+    error::BariumResult,
+    client::{Client, Clients},
+    std::{
+        env, time::Duration, net::{TcpListener, TcpStream, Shutdown},
+        sync::{Arc, RwLock, mpsc, atomic::{AtomicU16, Ordering}},
+        io::{Read, Write}, collections::HashMap
+    },
+    barium_shared::{
+        AfkStatus, ToClient, ToServer, ServerProperties, UserHash,
+        KeyBust, ToHex, hash::sha3_256
+    },
+    padlock,
+    log::{debug, info, warn},
+    lazy_static::lazy_static,
+    native_tls::{Identity, TlsAcceptor, TlsStream},
+    tokio_runtime_builder::TokioRuntimeBuilder
 };
-use padlock;
-use barium_shared::{AfkStatus, ToClient, ToServer, ServerProperties, UserHash, KeyBust, ToHex, hash::sha3_256};
-use log::{debug, info, warn};
-use lazy_static::lazy_static;
-use native_tls::{Identity, TlsAcceptor, TlsStream};
-use tokio_runtime_builder::TokioRuntimeBuilder;
 
 lazy_static! {
     pub static ref CONF: Config = Config::load(env::args().nth(1).unwrap_or("config.json".into())).unwrap();

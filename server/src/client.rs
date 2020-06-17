@@ -1,17 +1,11 @@
-use std::{
-    collections::HashMap,
-    sync::{
-        Arc,
-        Mutex,
-        RwLock,
-        mpsc
-    }
+use {
+    std::{collections::HashMap, sync::{Arc, Mutex, RwLock, mpsc}},
+    padlock,
+    barium_shared::{AfkStatus, KeyBust, ToClient, UserHash},
+    crate::error::BariumResult,
+    rmp_serde,
+    rsa,
 };
-use padlock;
-use barium_shared::{AfkStatus, KeyBust, ToClient, UserHash};
-use crate::error::BariumResult;
-use rmp_serde;
-use rsa;
 
 pub type Clients = Arc<RwLock<HashMap<UserHash, Client>>>;
 

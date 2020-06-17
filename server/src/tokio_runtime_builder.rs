@@ -1,6 +1,8 @@
-use tokio::runtime;
-use crate::{error::BariumResult, config::Config, is_debug};
-use log::trace;
+use {
+    tokio::runtime,
+    crate::{error::BariumResult, config::Config, is_debug},
+    log::trace
+};
 
 pub struct TokioRuntimeBuilder(runtime::Builder);
 

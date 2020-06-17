@@ -1,14 +1,12 @@
-use serde::Deserialize;
-use serde_json;
-use crate::error::BariumResult;
-use log::info;
-use std::{
-    path::PathBuf,
-    net::IpAddr,
-    str::FromStr
+use {
+    serde::Deserialize,
+    serde_json,
+    crate::error::BariumResult,
+    log::info,
+    std::{path::PathBuf, net::IpAddr, str::FromStr},
+    ipnet::IpNet,
+    either::Either
 };
-use ipnet::IpNet;
-use either::Either;
 
 type BlacklistEntry = Either<IpAddr, IpNet>;
 type Blacklist = Vec<BlacklistEntry>;
