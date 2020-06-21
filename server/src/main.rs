@@ -19,7 +19,7 @@ use {
     },
     barium_shared::{
         AfkStatus, ToClient, ToServer, ServerProperties, UserHash,
-        KeyBust, ToHex, hash::sha3_256
+        KeyBust, hash::sha3_256
     },
     padlock,
     log::{debug, info, warn},
@@ -38,7 +38,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
     CLIENT_COUNT.fetch_add(1, Ordering::SeqCst);
 
-    let mut buf = [0u8; 8192];
+    let mut buf = [0u8; 4096];
     let mut client_hash: Option<UserHash> = None;
 
     let (tx, rx) = mpsc::channel::<Vec<u8>>();
@@ -103,7 +103,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                             },
 
-                            ToServer::GetPublicKey(sender, user) => {
+                            ToServer::GetPublicKeys(sender, users) => {
 
                                 let hash = sha3_256(&sender);
 
@@ -113,24 +113,24 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                                 if authenticated {
 
-                                    let pubkey = padlock::rw_read_lock(&clients, |lock| {
-                                        match lock.get(&user) {
-                                            Some(u) => Some(u.get_public_key()),
-                                            None => None
+                                    let mut keys = Vec::<(UserHash, rsa::RSAPublicKey)>::new();
+
+                                    padlock::rw_read_lock(&clients, |lock| {
+
+                                        for user in users {
+
+                                            match lock.get(&user) {
+                                                Some(u) => keys.push((user, u.get_public_key())),
+                                                None => {}
+                                            }
+
                                         }
+
                                     });
 
-                                    match pubkey {
-
-                                        Some(key) => {
-                                            let pubkey = ToClient::PublicKey(user, key);
-                                            let mut data = rmp_serde::to_vec(&pubkey)?;
-                                            stream.write_all(&mut data[..])?;
-                                        },
-
-                                        None => {} // TODO: What happens here?
-
-                                    }
+                                    let pubkey = ToClient::PublicKeys(keys);
+                                    let data = rmp_serde::to_vec(&pubkey)?;
+                                    stream.write_all(&data[..])?;
 
                                 } else {
 
@@ -168,7 +168,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                                     client_hash = Some(hash);
 
-                                    debug!("New client: hash:{} id:{}", client_hash.unwrap().to_hex(), sender.to_hex());
+                                    debug!("New client: hash:{} id:{}", base62::encode(&client_hash.unwrap()), base62::encode(&sender));
 
                                     let new_client = Client::new(&tx, user_public_key, key_bust, AfkStatus::Away(None));
 

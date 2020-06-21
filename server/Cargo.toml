@@ -18,7 +18,7 @@ rmp-serde = "0.14"
 log = "0.4"
 fern = { version = "0.6", features = [ "colored" ] }
 chrono = "0.4"
-rsa = "0.2"
+rsa = "0.3"
 lazy_static = "1.4"
 native-tls = "0.2"
 ipnet = { version = "2.3", features = [ "serde" ] }
@@ -26,6 +26,9 @@ either = { version = "1.5", features = [ "serde" ] }
 # HTTP Api
 iron = "0.6"
 router = "0.6"
+
+# Only used to print user hash/id
+base62 = { version = "0.1", package = "base-62" }
 
 [build-dependencies]
 last-git-commit = "0.2"

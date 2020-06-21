@@ -686,7 +686,7 @@ Required if connecting via TOR.</property>
                                 <property name="hexpand">True</property>
                                 <property name="vexpand">True</property>
                                 <child>
-                                  <object class="GtkListBox">
+                                  <object class="GtkListBox" id="server_list">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child>
@@ -724,9 +724,6 @@ Required if connecting via TOR.</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="label" translatable="yes">Server 1</property>
-                                                <attributes>
-                                                  <attribute name="weight" value="bold"/>
-                                                </attributes>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -741,6 +738,7 @@ Required if connecting via TOR.</property>
                                                 <property name="label" translatable="yes">●</property>
                                                 <style>
                                                   <class name="fade-2s"/>
+                                                  <class name="unread-dot"/>
                                                 </style>
                                               </object>
                                               <packing>
@@ -795,10 +793,29 @@ Required if connecting via TOR.</property>
                                                 <property name="position">1</property>
                                               </packing>
                                             </child>
+                                            <child>
+                                              <object class="GtkLabel">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">●</property>
+                                                <style>
+                                                  <class name="fade-2s"/>
+                                                  <class name="unread-dot"/>
+                                                </style>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">2</property>
+                                              </packing>
+                                            </child>
                                           </object>
                                         </child>
                                       </object>
                                     </child>
+                                    <style>
+                                      <class name="server-list"/>
+                                    </style>
                                   </object>
                                 </child>
                               </object>
@@ -839,7 +856,7 @@ Required if connecting via TOR.</property>
                                 <property name="hexpand">True</property>
                                 <property name="vexpand">True</property>
                                 <child>
-                                  <object class="GtkListBox">
+                                  <object class="GtkListBox" id="friends_list">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child>
@@ -873,13 +890,39 @@ Required if connecting via TOR.</property>
                                               </packing>
                                             </child>
                                             <child>
-                                              <object class="GtkLabel">
+                                              <object class="GtkBox">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="label" translatable="yes">Friend 1</property>
-                                                <attributes>
-                                                  <attribute name="weight" value="bold"/>
-                                                </attributes>
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                  <object class="GtkLabel">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="halign">start</property>
+                                                    <property name="label" translatable="yes">Friend 1</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkLabel">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="halign">start</property>
+                                                    <property name="label" translatable="yes">Away 1h 42m </property>
+                                                    <attributes>
+                                                      <attribute name="scale" value="0.69999999999999996"/>
+                                                    </attributes>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">True</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -894,6 +937,7 @@ Required if connecting via TOR.</property>
                                                 <property name="label" translatable="yes">●</property>
                                                 <style>
                                                   <class name="fade-2s"/>
+                                                  <class name="unread-dot"/>
                                                 </style>
                                               </object>
                                               <packing>
@@ -948,6 +992,22 @@ Required if connecting via TOR.</property>
                                                 <property name="position">1</property>
                                               </packing>
                                             </child>
+                                            <child>
+                                              <object class="GtkLabel">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">●</property>
+                                                <style>
+                                                  <class name="fade-2s"/>
+                                                  <class name="unread-dot"/>
+                                                </style>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">2</property>
+                                              </packing>
+                                            </child>
                                           </object>
                                         </child>
                                       </object>
@@ -992,6 +1052,22 @@ Required if connecting via TOR.</property>
                                                 <property name="expand">False</property>
                                                 <property name="fill">True</property>
                                                 <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkLabel">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">●</property>
+                                                <style>
+                                                  <class name="fade-2s"/>
+                                                  <class name="unread-dot"/>
+                                                </style>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">2</property>
                                               </packing>
                                             </child>
                                           </object>
@@ -1040,10 +1116,29 @@ Required if connecting via TOR.</property>
                                                 <property name="position">1</property>
                                               </packing>
                                             </child>
+                                            <child>
+                                              <object class="GtkLabel">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">●</property>
+                                                <style>
+                                                  <class name="fade-2s"/>
+                                                  <class name="unread-dot"/>
+                                                </style>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">2</property>
+                                              </packing>
+                                            </child>
                                           </object>
                                         </child>
                                       </object>
                                     </child>
+                                    <style>
+                                      <class name="friends-list"/>
+                                    </style>
                                   </object>
                                 </child>
                               </object>
@@ -1689,6 +1784,7 @@ Required if connecting via TOR.</property>
         <property name="show_close_button">True</property>
         <child>
           <object class="GtkStackSwitcher">
+            <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="no_show_all">True</property>
             <property name="stack">main_stack</property>

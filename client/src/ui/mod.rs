@@ -7,6 +7,8 @@ use {
 mod initial_setup;
 mod chat_input;
 mod chat_feed;
+mod friends_list;
+mod server_list;
 
 #[derive(Debug)]
 pub struct Ui {
@@ -32,6 +34,7 @@ impl Ui {
         inner.chat_feed.add_row(chat_feed::ChatTypes::IncommingMessage("Friend 2".into(), "This is a <b>bold</b> body!".into()));
         inner.chat_feed.add_row(chat_feed::ChatTypes::OutgoingPoke("Friend 2".into()));
         inner.chat_feed.add_row(chat_feed::ChatTypes::OutgoingMessage("This is a link <a href=\"https://olback.net\">https://olback.net</a> body!".into()));
+        inner.chat_feed.add_row(chat_feed::ChatTypes::Error("Friend 2 is offline".into()));
 
         Ok(inner)
 

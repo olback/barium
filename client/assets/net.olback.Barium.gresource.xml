@@ -5,7 +5,8 @@
         {ui-files}
 
         <!-- CSS -->
-        <file alias="css/app.css">assets/app.css</file>
+        <file alias="css/app.css">assets/css/app.css</file>
+        <file alias="css/windows.css">assets/css/windows.css</file>
 
         <!-- Logo / Icon -->
         <file alias="icons/barium-about.png" preprocess="to-pixdata">assets/icons/apps/barium-about.png</file>

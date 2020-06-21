@@ -8,7 +8,8 @@ pub enum ChatTypes {
     IncommingPoke(String),
     OutgoingPoke(String),
     IncommingMessage(String, String),
-    OutgoingMessage(String)
+    OutgoingMessage(String),
+    Error(String)
 }
 
 #[derive(Clone, Debug)]
@@ -42,7 +43,8 @@ impl ChatFeed {
             ChatTypes::IncommingPoke(from) => Self::incomming_poke(from),
             ChatTypes::OutgoingPoke(to) => Self::outgoing_poke(to),
             ChatTypes::IncommingMessage(from, body) => Self::incomming_message(from, body),
-            ChatTypes::OutgoingMessage(body) => Self::outgoing_message(body)
+            ChatTypes::OutgoingMessage(body) => Self::outgoing_message(body),
+            ChatTypes::Error(body) => Self::error(body)
         };
 
         self.chat_feed.insert(&new_row, -1);
@@ -104,14 +106,35 @@ impl ChatFeed {
 
     }
 
-    fn poke_row(text: String, align: Align) -> ListBoxRow {
+    fn error(body: String) -> ListBoxRow {
+
+        let row = ListBoxRow::new();
+
+        let ctx = row.get_style_context();
+        ctx.add_class("error-row");
+
+        let body = Label::new(Some(format!("Error: {}", body).as_str()));
+        body.set_halign(Align::Start);
+        body.set_margin_top(12);
+        body.set_margin_bottom(12);
+        body.set_margin_start(12);
+        body.set_margin_end(12);
+
+        row.add(&body);
+        row.show_all();
+
+        row
+
+    }
+
+    fn poke_row(body: String, align: Align) -> ListBoxRow {
 
         let row = ListBoxRow::new();
 
         let ctx = row.get_style_context();
         ctx.add_class("poke-row");
 
-        let body = Label::new(Some(text.as_str()));
+        let body = Label::new(Some(body.as_str()));
         body.set_halign(align);
         body.set_margin_top(12);
         body.set_margin_bottom(12);

@@ -5,6 +5,29 @@
     font-weight: bold;
 }
 
+.error-row {
+    background-color: @error_color;
+    color: @selected_fg_color;
+    font-weight: bold;
+}
+
+/* Server & Friends list */
+list.server-list > row.unread > box > label,
+list.friends-list > row.unread > box > box > label:nth-child(1) {
+    font-weight: bold;
+}
+
+list.server-list > row.unread > box > label.unread-dot,
+list.friends-list > row.unread > box > label.unread-dot {
+    opacity: 1;
+}
+
+list.server-list > row > box > label.unread-dot,
+list.friends-list > row > box > label.unread-dot {
+    opacity: 0;
+}
+
+/* Chat feed */
 list.chat-feed > row > box > label:nth-child(1) {
     font-weight: bold;
 }

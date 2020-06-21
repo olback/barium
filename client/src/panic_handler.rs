@@ -1,11 +1,12 @@
 use {
     std::panic::PanicInfo,
-    gtk::{Align, Dialog, DialogFlags, Label, ResponseType, Window, prelude::*}
+    gtk::{Align, Dialog, DialogFlags, Label, ResponseType, Window, prelude::*},
+    log::error
 };
 
 pub fn panic_handler(panic_info: &PanicInfo) {
 
-    println!("Panic info: {:#?}", panic_info);
+    error!("Panic info: {:#?}", panic_info);
 
     drop(gtk::init());
 

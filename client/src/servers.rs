@@ -3,10 +3,7 @@ use {
     serde::{Serialize, Deserialize},
     serde_json,
     barium_shared::{UserId, UserHash},
-    crate::{
-        new_err, error::BariumResult,
-        utils::{conf_dir, serialize_u8_32_arr, deserialize_u8_32_arr}
-    },
+    crate::{new_err, error::BariumResult, utils::conf_dir},
 };
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -47,7 +44,7 @@ impl Servers {
 
         } else {
 
-            let servers = Self { server_list: Vec::new() };
+            let servers = Self::default();
             let json = serde_json::to_string_pretty(&servers.server_list)?;
             fs::write(&path, &json)?;
 
@@ -134,5 +131,38 @@ impl Servers {
         Ok(conf_dir()?.join("servers.json"))
 
     }
+
+}
+
+impl Default for Servers {
+
+    fn default() -> Self {
+
+        Self {
+            server_list: Vec::new()
+        }
+
+    }
+
+}
+
+fn serialize_u8_32_arr<S>(u8_32_arr: &[u8; 32], serializer: S) -> Result<S::Ok, S::Error>
+    where S: serde::Serializer {
+
+    let b62 = base62::encode(u8_32_arr);
+
+    serializer.serialize_str(b62.as_str())
+
+}
+
+fn deserialize_u8_32_arr<'de, D>(de: D) -> Result<[u8; 32], D::Error>
+    where D: serde::Deserializer<'de> {
+
+    use std::convert::TryInto;
+
+    let u8_32_arr_str: &str = serde::de::Deserialize::deserialize(de)?;
+    let u8_32_arr = base62::decode(u8_32_arr_str).map_err(serde::de::Error::custom)?;
+
+    u8_32_arr.as_slice().try_into().map_err(serde::de::Error::custom)
 
 }

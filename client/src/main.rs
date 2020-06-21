@@ -11,6 +11,8 @@ mod utils;
 mod consts;
 mod panic_handler;
 mod servers;
+mod logger;
+mod config;
 
 use {
     error::BariumResult,
@@ -26,14 +28,19 @@ use {
     std::{env, rc::Rc, cell::RefCell, sync::{Arc, Mutex}},
     tray_item::TrayItem,
     lazy_static::lazy_static,
-    padlock
+    padlock,
+    log::info,
+    config::Config
 };
 
 lazy_static! {
     pub static ref KEY_PAIR: KeyPair = KeyPair::new(consts::KEY_SIZE).unwrap();
+    pub static ref CONFIG: Config = Config::load().unwrap();
 }
 
 fn run_app() -> BariumResult<()> {
+
+    info!("Starting...");
 
     // Load resources
     resources::load();
@@ -44,7 +51,10 @@ fn run_app() -> BariumResult<()> {
 
     // Load CSS
     let provider = CssProvider::new();
+    #[cfg(not(target_os = "windows"))]
     provider.load_from_resource(resource!("css/app.css"));
+    #[cfg(target_os = "windows")]
+    provider.load_from_resource(resource!("css/windows.css"));
     StyleContext::add_provider_for_screen(
         &gdk::Screen::get_default().expect("Error initializing gtk css provider."),
         &provider,
@@ -164,7 +174,7 @@ fn run_app() -> BariumResult<()> {
 
     padlock::mutex_lock(&servers, |s| s.save())?;
 
-    println!("Closing...");
+    info!("Closing...");
 
     Ok(())
 
@@ -175,6 +185,8 @@ fn main() {
     // Attempt to show an error when someting panics
     #[cfg(not(debug_assertions))]
     std::panic::set_hook(Box::new(panic_handler::panic_handler));
+
+    logger::configure(Some(CONFIG.log_level)).unwrap();
 
     run_app().unwrap();
 
