@@ -1,6 +1,7 @@
 use {
     crate::{get_obj, consts, utils, error::BariumResult},
-    gtk::{Builder, Entry, prelude::*}
+    gtk::{Builder, Entry, prelude::*},
+    log::info
 };
 
 #[derive(Debug, Clone)]
@@ -69,7 +70,7 @@ impl ChatInput {
 
             }
 
-            println!("{} / {} / {} / {}", text.len(), consts::MESSAGE_WARNING_LENGHT, consts::MESSAGE_ERROR_LENGHT, consts::MAX_MESSAGE_TEXT_LENGTH);
+            info!("{} / {} / {} / {}", text.len(), consts::MESSAGE_WARNING_LENGHT, consts::MESSAGE_ERROR_LENGHT, consts::MAX_MESSAGE_TEXT_LENGTH);
 
         });
 
@@ -79,7 +80,7 @@ impl ChatInput {
 
         self.send_button.connect_clicked(|_| {
 
-            println!("Send");
+            info!("Send");
 
         });
 
@@ -89,7 +90,7 @@ impl ChatInput {
 
         self.poke_button.connect_clicked(move |_| {
 
-            println!("Poke");
+            info!("Poke");
 
         });
 

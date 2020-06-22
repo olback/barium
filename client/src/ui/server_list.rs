@@ -1,48 +1,241 @@
 use {
-    crate::{get_obj, servers::{Server, Servers}},
-    gtk::{Builder, ListBox, ListBoxRow, prelude::*},
+    crate::{get_obj, resource, servers::{Server, Servers}, error::BariumResult,
+    services::{connect, ServerStatus}},
+    super::{friends_list::FriendsList, certificate_window::CertificateWindow},
+    std::{rc::Rc, cell::RefCell},
+    gtk::{Builder, Label, ListBox, Image, Box as gBox, ListBoxRow, Widget,
+    Orientation, EventBox, Menu, MenuItem, prelude::*},
+    gdk::prelude::*,
     glib::clone,
-    barium_shared::EncryptedMessage,
-    std::sync::mpsc
+    barium_shared::{ToClient, ToServer, EncryptedMessage},
+    std::sync::mpsc,
+    log::{debug, info}
 };
 
+#[derive(Debug)]
 pub struct ServerRow {
     row: ListBoxRow,
-    name: String,
+    status: Rc<RefCell<ServerStatus>>,
     address: String,
     port: u16,
-    cert: Option<Vec<u8>>,
-    cert_rx: glib::Receiver<Vec<u8>>,
-    status_rx: glib::Receiver<()>,
-    msg_rx: glib::Receiver<EncryptedMessage>,
-    msg_tx: mpsc::Sender<EncryptedMessage>
+    friends_list: FriendsList,
+    certificate_window: CertificateWindow,
+    cert: Rc<RefCell<Option<Vec<u8>>>>,
+    msg_rx: glib::Receiver<ToClient>,
+    msg_tx: mpsc::Sender<ToServer>
 }
 
+impl ServerRow {
+
+    pub fn new(
+        friends_list_box: ListBox,
+        certificate_window: CertificateWindow,
+        server: Server
+    ) -> Self {
+
+        let status_icon = Image::new_from_resource(resource!("icons/server-offline.svg"));
+        let name = Label::new(Some(&server.name));
+        let unread = Label::new(Some("●"));
+        let unread_ctx = unread.get_style_context();
+        unread_ctx.add_class("fade-2s");
+        unread_ctx.add_class("unread-dot");
+        let hbox = gBox::new(Orientation::Horizontal, 6);
+        hbox.set_margin_top(6);
+        hbox.set_margin_bottom(6);
+        hbox.set_margin_start(6);
+        hbox.set_margin_end(6);
+        hbox.add(&status_icon);
+        hbox.add(&name);
+        hbox.add(&unread);
+        let evt_box = EventBox::new();
+        evt_box.add(&hbox);
+        let row = ListBoxRow::new();
+        row.add(&evt_box);
+
+        let connection = connect(
+            server.address.clone(),
+            server.port,
+            server.allow_invalid_cert,
+            server.user_id, server.password
+        );
+
+        let inner = Self {
+            row: row,
+            status: Rc::new(RefCell::new(ServerStatus::Offline)),
+            address: server.address,
+            port: server.port,
+            friends_list: FriendsList::new(friends_list_box), // TODO:
+            certificate_window: certificate_window,
+            cert: Rc::new(RefCell::new(None)),
+            msg_rx: connection.msg_rx,
+            msg_tx: connection.msg_tx
+        };
+
+        evt_box.connect_button_press_event(clone!(
+            @strong inner.cert as cert,
+            @strong inner.certificate_window as cw
+        => move |_, evt_btn| {
+
+            let btn_id = evt_btn.get_button();
+
+            if btn_id == 1 { // Left click
+
+            } else if btn_id == 3 { // Right click
+
+                let view_cert_item = MenuItem::new_with_label("View Certificate");
+                if cert.borrow().is_none() {
+                    view_cert_item.set_sensitive(false);
+                } else {
+                    view_cert_item.connect_activate(clone!(@strong cert, @strong cw => move |_| {
+                        cw.show(&cert.borrow().clone().unwrap());
+                    }));
+                }
+
+                let edit_server_item = MenuItem::new_with_label("Edit");
+
+
+                let menu = Menu::new();
+                menu.add(&view_cert_item);
+                menu.add(&edit_server_item);
+
+                menu.show_all();
+                menu.popup_at_pointer(None);
+
+            }
+
+            Inhibit(false)
+
+        }));
+
+        connection.server_status_rx.attach(None, clone!(
+            @strong inner.status as status,
+            @strong status_icon
+        => move |server_status| {
+
+            match server_status {
+                ServerStatus::Online => status_icon.set_from_resource(Some(resource!("icons/server-online.svg"))),
+                ServerStatus::Offline => status_icon.set_from_resource(Some(resource!("icons/server-offline.svg"))),
+            }
+
+            status.replace(server_status);
+
+            Continue(true)
+
+        }));
+
+        connection.cert_rx.attach(None, clone!(@strong inner.cert as cert => move |der_bytes| {
+
+            debug!("Got cert");
+
+            cert.replace(Some(der_bytes));
+            Continue(true)
+
+        }));
+
+        inner
+
+    }
+
+}
+
+#[derive(Debug)]
 pub struct ServerList {
-    pub list_box: ListBox,
-    pub servers: Vec<ServerRow>
+    pub keys_ready: Rc<RefCell<bool>>,
+    pub certificate_window: CertificateWindow,
+    pub servers_list_box: ListBox,
+    pub friends_list_box: ListBox,
+    pub servers: RefCell<Vec<ServerRow>>
 }
 
 impl ServerList {
 
-    pub fn new(builder: &Builder) -> Self {
+    pub fn build(builder: &Builder, keys_ready: Rc<RefCell<bool>>) -> BariumResult<Self> {
 
-        Self {
-            list_box: get_obj!(builder, "server_list"),
-            servers: Vec::new()
-        }
+        let inner = Self {
+            keys_ready: keys_ready,
+            certificate_window: CertificateWindow::build(get_obj!(builder, "main_window"))?,
+            servers_list_box: get_obj!(builder, "server_list"),
+            friends_list_box: get_obj!(builder, "friends_list"),
+            servers: RefCell::new(Vec::new())
+        };
+
+        inner.clear();
+
+        Ok(inner)
+
+    }
+
+    pub fn clear(&self) {
+
+        self.servers_list_box.foreach(clone!(@strong self.servers_list_box as servers_list_box => move |element: &Widget| {
+            servers_list_box.remove(element);
+        }));
 
     }
 
     pub fn update(&self, servers: Servers) {
 
+        if *self.keys_ready.borrow() {
+
+            // info!("Updating Ui");
+
+            // Add added servers
+            for server in servers.iter() {
+
+                if !self.exists(&server.address, &server.port) {
+
+                    self.add(server.clone());
+                    self.servers_list_box.show_all();
+
+                }
+
+            }
+
+            // Remove removed servers
+            for server in &*self.servers.borrow() {
+
+                if servers.find(&server.address, &server.port).is_err() {
+
+                    self.remove(&server.address, &server.port);
+                    self.servers_list_box.show_all();
+
+                }
+
+            }
+
+        }
+
     }
 
     fn add(&self, server: Server) {
 
+        info!("Adding server");
+
+        let row = ServerRow::new(
+            self.friends_list_box.clone(),
+            self.certificate_window.clone(),
+            server
+        );
+        self.servers_list_box.add(&row.row);
+        self.servers.borrow_mut().push(row);
+
     }
 
-    fn remove(&self, server: Server) {
+    fn remove(&self, address: &String, port: &u16) {
+
+    }
+
+    fn exists(&self, address: &String, port: &u16) -> bool {
+
+        for server in &*self.servers.borrow() {
+
+            if &server.address == address && &server.port == port {
+                return true
+            }
+
+        }
+
+        false
 
     }
 

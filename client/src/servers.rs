@@ -132,6 +132,12 @@ impl Servers {
 
     }
 
+    pub fn iter<'s>(&'s self) -> std::slice::Iter<'s, Server> {
+
+        self.server_list.iter()
+
+    }
+
 }
 
 impl Default for Servers {

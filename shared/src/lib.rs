@@ -11,7 +11,8 @@ pub use structs::*;
 pub enum AfkStatus {
     Available,
     Away(Option<u32>),
-    DoNotDisturb
+    DoNotDisturb,
+    Offline
 }
 
 #[derive(Debug, Serialize, Deserialize)]

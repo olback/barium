@@ -139,7 +139,9 @@ fn run_app() -> BariumResult<()> {
 
     // Generate key pair
     let (tx, rx) = MainContext::channel::<()>(Priority::default());
-    rx.attach(None, clone!(@strong main_stack, @strong servers => move |_| {
+    let keys_ready = Rc::new(RefCell::new(false));
+    rx.attach(None, clone!(@strong main_stack, @strong servers, @strong keys_ready => move |_| {
+        keys_ready.replace(true);
         let len = padlock::mutex_lock(&servers, |s| s.len());
         if len > 0 {
             main_stack.set_visible_child_name("chat")
@@ -160,8 +162,8 @@ fn run_app() -> BariumResult<()> {
     tray.add_menu_item("Hide", clone!(@strong mwe => move || mwe.hide()))?;
     tray.add_menu_item("Quit", clone!(@strong mwe => move || mwe.quit()))?;
 
-    let ui_ref = ui::Ui::build(&main_builder, Arc::clone(&servers))?;
-    println!("{:#?}", ui_ref);
+    let ui_ref = ui::Ui::build(&main_builder, keys_ready, Arc::clone(&servers))?;
+    info!("{:#?}", ui_ref);
 
     // Connect on activate
     application.connect_activate(move |app| {

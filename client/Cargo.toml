@@ -17,14 +17,14 @@ serde_json = "1.0"
 dirs = "2.0"
 barium-shared = { path = "../shared" }
 gtk = { version = "0.8", features = [ "v3_22_30" ] }
-# gtk_resources = "0.1.5"
+gtk_resources = "0.1.5"
 gdk = "0.12"
 gio = "0.8"
 glib = "0.9"
 padlock = "0.2"
 rmp-serde = "0.14"
 native-tls = "0.2"
-# openssl = "0.10" # Used to inspect certificate
+openssl = { version = "0.10", features = ["vendored"] } # Used to inspect certificate
 tray-item = "0.4.0-alpha"
 lazy_static = "1.4"
 trust-dns-client = "0.19" # SRV lookup

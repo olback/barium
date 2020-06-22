@@ -5,5 +5,5 @@ mod server;
 pub use {
     main_window_events::{MainWindowEvent, MainWindowEvents},
     server::{get_server_properties, verify_server_password},
-    connection::{}
+    connection::{connect, ServerStatus}
 };

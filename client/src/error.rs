@@ -53,4 +53,4 @@ impl_from!(rmp_serde::encode::Error);
 impl_from!(rmp_serde::decode::Error);
 impl_from!(trust_dns_client::error::ClientError);
 impl_from!(trust_dns_client::proto::error::ProtoError);
-
+impl_from!(openssl::error::ErrorStack);

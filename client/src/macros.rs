@@ -49,3 +49,15 @@ macro_rules! resource {
     };
 }
 
+#[macro_export]
+macro_rules! extract_cert_field_value {
+    ($input:expr, $part:expr) => {
+        $input.entries_by_nid($part)
+        .nth(0)
+        .map(|d| d.data())
+        .map(|d| d.as_utf8())
+        .map(|d| d.unwrap())
+        .map(|d| d.to_string())
+        .unwrap_or("<Not Part Of Certificate>".into())
+    };
+}

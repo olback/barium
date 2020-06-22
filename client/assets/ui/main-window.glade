@@ -29,15 +29,6 @@ Author: Edwin Svensson
   <!-- interface-description Barium is a end-to-end encrypted chat application written in Rust! -->
   <!-- interface-copyright Edwin Svensson -->
   <!-- interface-authors Edwin Svensson -->
-  <object class="GtkWindow">
-    <property name="can_focus">False</property>
-    <child>
-      <placeholder/>
-    </child>
-    <child type="titlebar">
-      <placeholder/>
-    </child>
-  </object>
   <object class="GtkPopoverMenu" id="add_menu">
     <property name="can_focus">False</property>
     <property name="border_width">6</property>
