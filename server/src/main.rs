@@ -38,7 +38,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
     CLIENT_COUNT.fetch_add(1, Ordering::SeqCst);
 
-    let mut buf = [0u8; 4096];
+    let mut buf = vec![0u8; 8192].into_boxed_slice(); // Make sure buffer is heap-allocated
     let mut client_hash: Option<UserHash> = None;
 
     let (tx, rx) = mpsc::channel::<Vec<u8>>();
@@ -143,7 +143,14 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                             ToServer::Hello(sender, user_public_key, key_bust, password) => {
 
-                                if password != CONF.server.password {
+                                if password == CONF.server.password {
+                                    let ok = ToClient::PasswordOk(true);
+                                    let ok_data = rmp_serde::to_vec(&ok).unwrap();
+                                    drop(stream.write_all(&ok_data));
+                                } else {
+                                    let ok = ToClient::PasswordOk(false);
+                                    let ok_data = rmp_serde::to_vec(&ok).unwrap();
+                                    drop(stream.write_all(&ok_data));
                                     break;
                                 }
 
@@ -170,7 +177,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                                     debug!("New client: hash:{} id:{}", base62::encode(&client_hash.unwrap()), base62::encode(&sender));
 
-                                    let new_client = Client::new(&tx, user_public_key, key_bust, AfkStatus::Away(None));
+                                    let new_client = Client::new(&tx, user_public_key, key_bust, AfkStatus::Offline);
 
                                     padlock::rw_write_lock(&clients, |lock| {
                                         lock.insert(hash, new_client);
