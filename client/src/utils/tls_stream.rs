@@ -12,6 +12,8 @@ pub fn new_tls_stream(address: String, port: u16, allow_invalid_cert: bool) -> B
     let addr = format!("{}:{}", host, port).to_socket_addrs()?.nth(0).unwrap();
 
     let stream = TcpStream::connect_timeout(&addr, Duration::from_secs(TCP_TIMEOUT))?;
+    stream.set_read_timeout(Some(Duration::from_secs(TCP_TIMEOUT)))?;
+    stream.set_write_timeout(Some(Duration::from_secs(TCP_TIMEOUT)))?;
     let tls_connector = TlsConnector::builder()
         .min_protocol_version(Some(Protocol::Tlsv12)) // TODO Tlsv13
         .danger_accept_invalid_certs(allow_invalid_cert)
