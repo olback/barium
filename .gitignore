@@ -16,6 +16,7 @@ target/
 ### Barium ###
 *.log
 dist
+.cargo-cache/
 
 ### Windows ###
 Thumbs.db
