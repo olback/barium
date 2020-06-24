@@ -1,5 +1,7 @@
 use {
+    std::rc::Rc,
     gtk::{Label, Image, Box as gBox, ListBox, prelude::*},
+    crate::servers::Friend,
     glib::clone
 };
 
@@ -8,19 +10,32 @@ pub struct FriendRow {
 
 }
 
+impl FriendRow {
+
+    pub fn new(friend: Friend) -> Self {
+
+        todo!()
+
+    }
+
+}
+
 #[derive(Debug)]
 pub struct FriendsList {
-    // friends: Vec<FriendRow>,
-    // pub list_box: ListBox,
+    pub list_box: ListBox,
+    friends: Vec<FriendRow>
 }
 
 impl FriendsList {
 
     pub fn new(friends_list_box: ListBox) -> Self {
 
-        // todo!()
+        // TODO:
 
-        Self { }
+        Self {
+            list_box: friends_list_box,
+            friends: Vec::new()
+        }
 
     }
 

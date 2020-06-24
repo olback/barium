@@ -1,7 +1,8 @@
 use {
     std::{rc::Rc, cell::RefCell, sync::{Arc, Mutex}},
     crate::{get_obj, error::BariumResult, servers::Servers},
-    gtk::Builder,
+    gtk::{Builder, prelude::*},
+    gio::{SimpleAction, SimpleActionGroup, prelude::*},
     glib::{clone, Continue},
     padlock
 };
@@ -12,6 +13,8 @@ mod chat_feed;
 mod friends_list;
 mod server_list;
 mod certificate_window;
+mod add_friend_dialog;
+mod add_server_dialog;
 
 #[derive(Debug)]
 pub struct Ui {
@@ -19,7 +22,9 @@ pub struct Ui {
     pub initial_setup: initial_setup::InitialSetup,
     pub chat_input: chat_input::ChatInput,
     pub chat_feed: chat_feed::ChatFeed,
-    pub server_list: Rc<server_list::ServerList>
+    pub server_list: Rc<server_list::ServerList>,
+    pub add_friend_dialog: Rc<add_friend_dialog::AddFriendDialog>,
+    // pub add_server_dialog: Rc<add_server_dialog::AddServerDialog>,
 }
 
 impl Ui {
@@ -31,7 +36,9 @@ impl Ui {
             initial_setup: initial_setup::InitialSetup::build(&builder, Arc::clone(&servers))?,
             chat_input: chat_input::ChatInput::build(&builder)?,
             chat_feed: chat_feed::ChatFeed::build(&builder)?,
-            server_list: Rc::new(server_list::ServerList::build(&builder, keys_ready)?)
+            server_list: Rc::new(server_list::ServerList::build(&builder, keys_ready)?),
+            add_friend_dialog: Rc::new(add_friend_dialog::AddFriendDialog::build(&builder, Arc::clone(&servers))?),
+            // add_server_dialog: Rc::new(add_server_dialog::AddServerDialog::build()?)
         };
 
         inner.chat_feed.clear();
@@ -41,22 +48,48 @@ impl Ui {
         inner.chat_feed.add_row(chat_feed::ChatTypes::OutgoingMessage("This is a link <a href=\"https://olback.net\">https://olback.net</a> body!".into()));
         inner.chat_feed.add_row(chat_feed::ChatTypes::Error("Friend 2 is offline".into()));
 
+        // 'Add' action group
+        let add_actions = SimpleActionGroup::new();
+        inner.main_window.insert_action_group("add", Some(&add_actions));
+        inner.connect_add_friend_dialog(&add_actions, Arc::clone(&servers));
+        inner.connect_add_server_dialog(&add_actions);
+
+
+        // Clear server list
         inner.server_list.clear();
 
-        // inner.server_list.update(servers: Servers)
+        // Add main loop server sync
         gtk::timeout_add(100, clone!(
             @strong servers,
             @strong inner.server_list as server_list
         => move || {
 
-            let servers_clone = padlock::mutex_lock(&servers, |lock: &mut Servers| lock.clone());
-            server_list.update(servers_clone);
+            padlock::mutex_lock(&servers, |lock| server_list.update(lock));
 
             Continue(true)
 
         }));
 
         Ok(inner)
+
+    }
+
+    fn connect_add_friend_dialog(&self, ac: &SimpleActionGroup, fs_servers: Arc<Mutex<Servers>>) {
+
+        let open_add_friend_dialog = SimpleAction::new("friend", None);
+
+        open_add_friend_dialog.connect_activate(clone!(
+            @strong self.add_friend_dialog as add_friend_dialog
+        => move |_, _| add_friend_dialog.show(Arc::clone(&fs_servers))));
+
+        ac.add_action(&open_add_friend_dialog);
+
+    }
+
+    fn connect_add_server_dialog(&self, ac: &SimpleActionGroup) {
+
+        let open_add_server_dialog = SimpleAction::new("server", None);
+        ac.add_action(&open_add_server_dialog);
 
     }
 

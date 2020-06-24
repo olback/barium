@@ -124,15 +124,14 @@ impl InitialSetup {
                         if props.requires_password {
                             setup_stack.set_visible_child_name("setup_connect_password_view");
                         } else {
-                            let server = Server {
-                                user_id: new_user_id(),
-                                name: name.clone(),
-                                address: address.clone(),
+                            let server = Server::new(
+                                new_user_id(),
+                                name.clone(),
+                                address.clone(),
                                 port,
-                                password: None,
-                                allow_invalid_cert,
-                                friends: Vec::new()
-                            };
+                                None,
+                                allow_invalid_cert
+                            );
                             add_server(&servers, server).unwrap();
                             main_stack.set_visible_child_name("chat");
                         }
@@ -202,15 +201,14 @@ impl InitialSetup {
                 match data {
                     Ok(valid) => {
                         if valid {
-                            let server = Server {
-                                user_id: new_user_id(),
-                                name: name.clone(),
-                                address: address.clone(),
+                            let server = Server::new(
+                                new_user_id(),
+                                name.clone(),
+                                address.clone(),
                                 port,
-                                password: Some(password.clone()),
-                                allow_invalid_cert,
-                                friends: Vec::new()
-                            };
+                                Some(password.clone()),
+                                allow_invalid_cert
+                            );
                             add_server(&servers, server).unwrap();
                             main_stack.set_visible_child_name("chat");
                         } else {

@@ -1,6 +1,6 @@
 use {
     std::{time::Duration, io::{self, Read, Write},
-    sync::mpsc::{self, TryRecvError}, thread},
+    sync::mpsc::{self, TryRecvError}, thread, net::Shutdown},
     glib::{self, MainContext, Priority},
     barium_shared::{UserId, ToClient, ToServer},
     rmp_serde,
@@ -140,7 +140,7 @@ pub fn connect(address: String, port: u16, allow_invalid_cert: bool, id: UserId,
                     // Break here instead of return since we want
                     // to re-connect when a failure happens
                     warn!("Broken pipe: {:#?}", e);
-                    break;
+                    break; // FIXME:
 
                 }
 
@@ -150,10 +150,16 @@ pub fn connect(address: String, port: u16, allow_invalid_cert: bool, id: UserId,
 
         } // loop
 
-        warn!("Connection to {}:{} terminated", address, port);
+        warn!("Terminating connection to {}:{}...", address, port);
 
         drop(server_status_tx.send(ServerStatus::Offline));
         drop(tls_stream.shutdown());
+        drop(tls_stream.get_ref().shutdown(Shutdown::Both));
+        drop(tls_stream);
+
+        warn!("Connection to {}:{} terminated", address, port);
+
+        thread::sleep(Duration::from_secs(1));
 
     }/* loop */);
 

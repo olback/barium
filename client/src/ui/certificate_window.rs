@@ -5,7 +5,7 @@ use {
     openssl::{x509::X509, nid::Nid, hash::MessageDigest}
 };
 
-#[derive(Clone, Debug, UIResource)]
+#[derive(Debug, UIResource)]
 #[resource="/net/olback/barium/ui/cert-info-dialog"]
 pub struct CertificateWindow {
     pub cert_info_dialog: Dialog,

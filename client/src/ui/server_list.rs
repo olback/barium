@@ -7,19 +7,20 @@ use {
     Orientation, EventBox, Menu, MenuItem, prelude::*},
     gdk::prelude::*,
     glib::clone,
-    barium_shared::{ToClient, ToServer, EncryptedMessage},
+    barium_shared::{ToClient, ToServer, UserHash, EncryptedMessage, hash::sha3_256},
     std::sync::mpsc,
     log::{debug, info}
 };
 
 #[derive(Debug)]
 pub struct ServerRow {
+    hash: UserHash,
     row: ListBoxRow,
     status: Rc<RefCell<ServerStatus>>,
     address: String,
     port: u16,
     friends_list: FriendsList,
-    certificate_window: CertificateWindow,
+    certificate_window: Rc<CertificateWindow>,
     cert: Rc<RefCell<Option<Vec<u8>>>>,
     msg_rx: glib::Receiver<ToClient>,
     msg_tx: mpsc::Sender<ToServer>
@@ -29,7 +30,7 @@ impl ServerRow {
 
     pub fn new(
         friends_list_box: ListBox,
-        certificate_window: CertificateWindow,
+        certificate_window: Rc<CertificateWindow>,
         server: Server
     ) -> Self {
 
@@ -56,15 +57,17 @@ impl ServerRow {
             server.address.clone(),
             server.port,
             server.allow_invalid_cert,
-            server.user_id, server.password
+            server.user_id,
+            server.password
         );
 
         let inner = Self {
+            hash: sha3_256(&server.user_id),
             row: row,
             status: Rc::new(RefCell::new(ServerStatus::Offline)),
             address: server.address,
             port: server.port,
-            friends_list: FriendsList::new(friends_list_box), // TODO:
+            friends_list: FriendsList::new(friends_list_box.clone()), // TODO:
             certificate_window: certificate_window,
             cert: Rc::new(RefCell::new(None)),
             msg_rx: connection.msg_rx,
@@ -82,12 +85,19 @@ impl ServerRow {
 
             } else if btn_id == 3 { // Right click
 
+                debug!("0");
                 let view_cert_item = MenuItem::new_with_label("View Certificate");
+                debug!("1");
                 if cert.borrow().is_none() {
                     view_cert_item.set_sensitive(false);
                 } else {
+                    debug!("2");
                     view_cert_item.connect_activate(clone!(@strong cert, @strong cw => move |_| {
-                        cw.show(&cert.borrow().clone().unwrap());
+                        debug!("3");
+                        let b = (*cert.borrow()).clone();
+                        debug!("4");
+                        cw.show(&b.unwrap());
+                        debug!("5");
                     }));
                 }
 
@@ -141,7 +151,7 @@ impl ServerRow {
 #[derive(Debug)]
 pub struct ServerList {
     pub keys_ready: Rc<RefCell<bool>>,
-    pub certificate_window: CertificateWindow,
+    pub certificate_window: Rc<CertificateWindow>,
     pub servers_list_box: ListBox,
     pub friends_list_box: ListBox,
     pub servers: RefCell<Vec<ServerRow>>
@@ -153,7 +163,7 @@ impl ServerList {
 
         let inner = Self {
             keys_ready: keys_ready,
-            certificate_window: CertificateWindow::build(get_obj!(builder, "main_window"))?,
+            certificate_window: Rc::new(CertificateWindow::build(get_obj!(builder, "main_window"))?),
             servers_list_box: get_obj!(builder, "server_list"),
             friends_list_box: get_obj!(builder, "friends_list"),
             servers: RefCell::new(Vec::new())
@@ -173,7 +183,7 @@ impl ServerList {
 
     }
 
-    pub fn update(&self, servers: Servers) {
+    pub fn update(&self, servers: &Servers) {
 
         if *self.keys_ready.borrow() {
 
@@ -213,7 +223,7 @@ impl ServerList {
 
         let row = ServerRow::new(
             self.friends_list_box.clone(),
-            self.certificate_window.clone(),
+            Rc::clone(&self.certificate_window),
             server
         );
         self.servers_list_box.add(&row.row);

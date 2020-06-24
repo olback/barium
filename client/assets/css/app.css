@@ -12,18 +12,19 @@
 }
 
 /* Server & Friends list */
-list.server-list > row.unread > box > label,
-list.friends-list > row.unread > box > box > label:nth-child(1) {
+list.server-list > row.unread > widget > box > label,
+list.friends-list > row.unread > widget > box > box > label:nth-child(1) {
     font-weight: bold;
 }
 
-list.server-list > row.unread > box > label.unread-dot,
-list.friends-list > row.unread > box > label.unread-dot {
+/* GtkEventBox = widget */
+list.server-list > row.unread > widget > box > label.unread-dot,
+list.friends-list > row.unread > widget >box > label.unread-dot {
     opacity: 1;
 }
 
-list.server-list > row > box > label.unread-dot,
-list.friends-list > row > box > label.unread-dot {
+list.server-list > row > widget > box > label.unread-dot,
+list.friends-list > row > widget > box > label.unread-dot {
     opacity: 0;
 }
 

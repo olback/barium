@@ -29,7 +29,7 @@ use {
     tray_item::TrayItem,
     lazy_static::lazy_static,
     padlock,
-    log::info,
+    log::{debug, info},
     config::Config
 };
 

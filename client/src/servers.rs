@@ -1,5 +1,5 @@
 use {
-    std::{fs, path::PathBuf},
+    std::{fs, path::PathBuf, time::{SystemTime, UNIX_EPOCH}},
     serde::{Serialize, Deserialize},
     serde_json,
     barium_shared::{UserId, UserHash},
@@ -10,7 +10,22 @@ use {
 pub struct Friend {
     pub display_name: String,
     #[serde(serialize_with="serialize_u8_32_arr", deserialize_with="deserialize_u8_32_arr")]
-    pub hash: UserHash
+    pub hash: UserHash,
+    pub added_on: u64
+}
+
+impl Friend {
+
+    pub fn new(name: String, hash: UserHash) -> Self {
+
+        Self {
+            display_name: name,
+            hash: hash,
+            added_on: SystemTime::now().duration_since(UNIX_EPOCH).expect("Time went backwards").as_secs()
+        }
+
+    }
+
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -22,10 +37,79 @@ pub struct Server {
     pub port: u16,
     pub password: Option<String>,
     pub allow_invalid_cert: bool,
-    pub friends: Vec<Friend>
+    friends: Vec<Friend>
 }
 
-#[derive(Clone, Debug)]
+impl Server {
+
+    pub fn new(
+        user_id: UserId,
+        name: String,
+        address: String,
+        port: u16,
+        password: Option<String>,
+        allow_invalid_cert: bool
+    ) -> Self {
+
+        Self {
+            user_id,
+            name,
+            address,
+            port,
+            password,
+            allow_invalid_cert,
+            friends: Vec::new()
+        }
+
+    }
+
+    pub fn add_friend(&mut self, new: Friend) -> BariumResult<()> {
+
+        if self.find_friend(&new.hash).is_none() {
+
+            self.friends.push(new);
+            return Ok(())
+
+        }
+
+        Err(new_err!("Friend already added"))
+
+    }
+
+    pub fn remove_friend(&mut self, hash: &UserHash) -> BariumResult<()> {
+
+        for i in 0..self.friends.len() {
+
+            if &self.friends[i].hash == hash {
+
+                self.friends.remove(i);
+                return Ok(())
+
+            }
+
+        }
+
+        Err(new_err!("Friend not found"))
+
+    }
+
+    pub fn find_friend(&self, hash: &UserHash) -> Option<&Friend> {
+
+        for friend in &self.friends {
+
+            if &friend.hash == hash {
+                return Some(friend)
+            }
+
+        }
+
+        None
+
+    }
+
+}
+
+#[derive(Debug)]
 pub struct Servers {
     server_list: Vec<Server>
 }
@@ -135,6 +219,12 @@ impl Servers {
     pub fn iter<'s>(&'s self) -> std::slice::Iter<'s, Server> {
 
         self.server_list.iter()
+
+    }
+
+    pub fn iter_mut<'s>(&'s mut self) -> std::slice::IterMut<'s, Server> {
+
+        self.server_list.iter_mut()
 
     }
 
