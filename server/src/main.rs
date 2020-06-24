@@ -56,15 +56,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
         match stream.read(&mut buf[..]) {
 
-            Ok(len) if len == 0 => {
-                match client_hash {
-                    Some(ref ch) => padlock::rw_write_lock(&clients, |lock| {
-                        lock.remove(ch);
-                    }),
-                    None => ()
-                }
-                break;
-            },
+            Ok(len) if len == 0 => break,
 
             Ok(len) => {
 
@@ -144,14 +136,24 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
                             ToServer::Hello(sender, user_public_key, key_bust, password) => {
 
                                 if password == CONF.server.password {
+
                                     let ok = ToClient::PasswordOk(true);
                                     let ok_data = rmp_serde::to_vec(&ok).unwrap();
                                     drop(stream.write_all(&ok_data));
+
+                                    // It's OK to re-authenticate if it's on the same socket/stream
+                                    if client_hash == Some(sha3_256(&sender)) {
+                                        continue
+                                    }
+
                                 } else {
+
+                                    // Password not OK, drop connection
                                     let ok = ToClient::PasswordOk(false);
                                     let ok_data = rmp_serde::to_vec(&ok).unwrap();
                                     drop(stream.write_all(&ok_data));
                                     break;
+
                                 }
 
                                 let hash = sha3_256(&sender);
@@ -263,7 +265,11 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
                         break;
                     }
 
-                }
+                } // match parse data
+
+                // Continue without delay here to process messages faster
+                // Only sleep when there are no messages
+                continue;
 
             },
 
@@ -290,10 +296,12 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
     stream.shutdown()?;
 
-    if client_hash.is_some() {
-        debug!("Connection closed");
-    } else {
-        debug!("Connection closed without authentication");
+    match client_hash {
+        Some(ref ch) => padlock::rw_write_lock(&clients, |lock| {
+            debug!("Connection closed");
+            lock.remove(ch);
+        }),
+        None => debug!("Connection closed without authentication")
     }
 
     debug!("Total clients connected: {}", CLIENT_COUNT.load(Ordering::SeqCst));
