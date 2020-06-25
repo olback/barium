@@ -6,7 +6,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  clippy:
 
     runs-on: ubuntu-latest
 
