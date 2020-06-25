@@ -24,8 +24,10 @@ pub struct InitialSetup {
     pub setup_port_entry: Entry,
     pub setup_allow_invalid_cert_switch: Switch,
     pub setup_connect_button: Button,
+    pub setup_connect_button_stack: Stack,
     pub setup_password_entry: Entry,
     pub setup_password_connect_button: Button,
+    pub setup_password_connect_button_stack: Stack,
     pub setup_infobar: InfoBar,
     pub setup_infobar_label: Label
 }
@@ -44,8 +46,10 @@ impl InitialSetup {
             setup_port_entry: get_obj!(builder, "setup_port_entry"),
             setup_allow_invalid_cert_switch: get_obj!(builder, "setup_allow_invalid_cert_switch"),
             setup_connect_button: get_obj!(builder, "setup_connect_button"),
+            setup_connect_button_stack: get_obj!(builder, "setup_connect_button_stack"),
             setup_password_entry: get_obj!(builder, "setup_password_entry"),
             setup_password_connect_button: get_obj!(builder, "setup_password_connect_button"),
+            setup_password_connect_button_stack: get_obj!(builder, "setup_password_connect_button_stack"),
             setup_infobar: get_obj!(builder, "setup_infobar"),
             setup_infobar_label: get_obj!(builder, "setup_infobar_label")
         };
@@ -70,6 +74,8 @@ impl InitialSetup {
 
     fn connect_setup_connect_button(&self) {
 
+        self.setup_connect_button_stack.set_visible_child_name("label");
+
         self.setup_connect_button.connect_clicked(clone!(
             @strong self.servers as servers,
             @strong self.main_stack as main_stack,
@@ -79,15 +85,12 @@ impl InitialSetup {
             @strong self.setup_port_entry as setup_port_entry,
             @strong self.setup_infobar as setup_infobar,
             @strong self.setup_infobar_label as setup_infobar_label,
-            @strong self.setup_allow_invalid_cert_switch as setup_allow_invalid_cert_switch
+            @strong self.setup_allow_invalid_cert_switch as setup_allow_invalid_cert_switch,
+            @strong self.setup_connect_button_stack as setup_connect_button_stack
         => move |button: &Button| {
-
-            setup_infobar.set_visible(false);
-            button.set_sensitive(false);
 
             let name = entry_get_text(&setup_server_name_entry);
             if name.trim().is_empty() {
-                button.set_sensitive(true);
                 setup_infobar_label.set_text("Name may not be empty");
                 setup_infobar.set_visible(true);
                 return;
@@ -99,7 +102,6 @@ impl InitialSetup {
                 _ => match port_text.parse::<u16>() {
                     Ok(p) => p,
                     Err(e) => {
-                        button.set_sensitive(true);
                         setup_infobar_label.set_text(format!("{}", e).as_str());
                         setup_infobar.set_visible(true);
                         return
@@ -108,16 +110,22 @@ impl InitialSetup {
             };
             let allow_invalid_cert = setup_allow_invalid_cert_switch.get_active();
 
+            setup_infobar.set_visible(false);
+            button.set_sensitive(false);
+            setup_connect_button_stack.set_visible_child_name("spinner");
+
             get_server_properties(address.clone(), port, allow_invalid_cert).attach(None, clone!(
                 @strong servers,
                 @strong button,
                 @strong setup_stack,
                 @strong main_stack,
                 @strong setup_infobar,
-                @strong setup_infobar_label
+                @strong setup_infobar_label,
+                @strong setup_connect_button_stack
             => move |data: BariumResult<ServerProperties>| {
 
                 button.set_sensitive(true);
+                setup_connect_button_stack.set_visible_child_name("label");
 
                 match data {
                     Ok(props) => {
@@ -168,6 +176,8 @@ impl InitialSetup {
 
     fn connect_setup_password_connect_button(&self) {
 
+        self.setup_password_connect_button_stack.set_visible_child_name("label");
+
         self.setup_password_connect_button.connect_clicked(clone!(
             @strong self.servers as servers,
             @strong self.main_stack as main_stack,
@@ -177,10 +187,12 @@ impl InitialSetup {
             @strong self.setup_port_entry as setup_port_entry,
             @strong self.setup_infobar as setup_infobar,
             @strong self.setup_infobar_label as setup_infobar_label,
-            @strong self.setup_allow_invalid_cert_switch as setup_allow_invalid_cert_switch
+            @strong self.setup_allow_invalid_cert_switch as setup_allow_invalid_cert_switch,
+            @strong self.setup_password_connect_button_stack as setup_password_connect_button_stack
         => move |button: &Button| {
 
             button.set_sensitive(false);
+            setup_password_connect_button_stack.set_visible_child_name("spinner");
 
             let name = entry_get_text(&setup_server_name_entry);
             let password = entry_get_text(&setup_password_entry);
@@ -193,10 +205,12 @@ impl InitialSetup {
                 @strong button,
                 @strong main_stack,
                 @strong setup_infobar,
-                @strong setup_infobar_label
+                @strong setup_infobar_label,
+                @strong setup_password_connect_button_stack
             => move |data: BariumResult<bool>| {
 
                 button.set_sensitive(true);
+                setup_password_connect_button_stack.set_visible_child_name("label");
 
                 match data {
                     Ok(valid) => {

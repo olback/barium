@@ -7,7 +7,7 @@ use {
 
 #[derive(Debug, UIResource)]
 #[resource="/net/olback/barium/ui/cert-info-dialog"]
-pub struct CertificateWindow {
+pub struct CertificateDialog {
     pub cert_info_dialog: Dialog,
     pub stack: Stack,
     pub error_label: Label,
@@ -23,7 +23,7 @@ pub struct CertificateWindow {
     pub fingerprint_sha_1: Label
 }
 
-impl CertificateWindow {
+impl CertificateDialog {
 
     pub fn build(main_window: ApplicationWindow) -> BariumResult<Self> {
 

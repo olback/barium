@@ -75,9 +75,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Common Name (CN)</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -91,9 +91,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">domain.tld</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -107,9 +107,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Organization (O)</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -123,9 +123,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Organizational Unit (OU)</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -139,9 +139,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">&lt;Not Part Of Certificate&gt;</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -155,9 +155,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">&lt;Not Part Of Certificate&gt;</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -210,9 +210,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Common Name (CN)</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -226,9 +226,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Cert Authority</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -242,9 +242,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Organization (O)</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -258,9 +258,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Organizational Unit (OU)</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -274,9 +274,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">CA Org Name</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -290,9 +290,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">&lt;Not Part Of Certificate&gt;</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -345,9 +345,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Issued On</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -361,9 +361,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">valid</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -377,9 +377,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Expires On</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -393,9 +393,9 @@
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">expired</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -449,9 +449,9 @@
                             <property name="valign">start</property>
                             <property name="label" translatable="yes">SHA-256</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -469,9 +469,9 @@
                             <property name="width_chars">37</property>
                             <property name="max_width_chars">37</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -486,9 +486,9 @@
                             <property name="valign">start</property>
                             <property name="label" translatable="yes">SHA-1</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -506,9 +506,9 @@
                             <property name="width_chars">37</property>
                             <property name="max_width_chars">37</property>
                             <property name="xalign">0</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -561,6 +561,9 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">label</property>
+                    <style>
+                      <class name="dim-label"/>
+                    </style>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -585,7 +588,11 @@
       </object>
     </child>
     <child type="titlebar">
-      <placeholder/>
+      <object class="GtkHeaderBar">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="show_close_button">True</property>
+      </object>
     </child>
   </object>
 </interface>

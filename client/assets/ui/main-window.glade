@@ -158,9 +158,10 @@ Author: Edwin Svensson
               <object class="GtkImage">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="resource">/net/olback/barium/icons/process-working-symbolic-large.svg</property>
+                <property name="resource">/net/olback/barium/icons/process-working-symbolic-64.png</property>
                 <style>
                   <class name="spin"/>
+                  <class name="dim-label"/>
                 </style>
               </object>
               <packing>
@@ -190,6 +191,9 @@ Author: Edwin Svensson
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">This shold only take a few seconds</property>
+                <style>
+                  <class name="dim-label"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -285,9 +289,9 @@ Author: Edwin Svensson
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">{version}</property>
-                            <attributes>
-                              <attribute name="foreground" value="#88888a8a8585"/>
-                            </attributes>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -358,6 +362,9 @@ Author: Edwin Svensson
 Required if connecting via TOR.</property>
                             <property name="label" translatable="yes">Allow Invalid Cert</property>
                             <property name="xalign">1</property>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -370,6 +377,9 @@ Required if connecting via TOR.</property>
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">Port</property>
                             <property name="xalign">1</property>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -382,6 +392,9 @@ Required if connecting via TOR.</property>
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">Address</property>
                             <property name="xalign">1</property>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -425,6 +438,9 @@ Required if connecting via TOR.</property>
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">Name</property>
                             <property name="xalign">1</property>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="left_attach">0</property>
@@ -452,12 +468,43 @@ Required if connecting via TOR.</property>
                     </child>
                     <child>
                       <object class="GtkButton" id="setup_connect_button">
-                        <property name="label" translatable="yes">Connect</property>
                         <property name="height_request">48</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
                         <property name="always_show_image">True</property>
+                        <child>
+                          <object class="GtkStack" id="setup_connect_button_stack">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="resource">/net/olback/barium/icons/process-working-symbolic-24.png</property>
+                                <style>
+                                  <class name="spin"/>
+                                </style>
+                              </object>
+                              <packing>
+                                <property name="name">spinner</property>
+                                <property name="title" translatable="yes">page0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Connect</property>
+                              </object>
+                              <packing>
+                                <property name="name">label</property>
+                                <property name="title" translatable="yes">page1</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
                         <style>
                           <class name="suggested-action"/>
                         </style>
@@ -509,6 +556,9 @@ Required if connecting via TOR.</property>
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">Password</property>
+                            <style>
+                              <class name="dim-label"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -542,11 +592,42 @@ Required if connecting via TOR.</property>
                     </child>
                     <child>
                       <object class="GtkButton" id="setup_password_connect_button">
-                        <property name="label" translatable="yes">Connect</property>
                         <property name="height_request">48</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <child>
+                          <object class="GtkStack" id="setup_password_connect_button_stack">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="resource">/net/olback/barium/icons/process-working-symbolic-24.png</property>
+                                <style>
+                                  <class name="spin"/>
+                                </style>
+                              </object>
+                              <packing>
+                                <property name="name">spinner</property>
+                                <property name="title" translatable="yes">page0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="label" translatable="yes">Authenticate</property>
+                              </object>
+                              <packing>
+                                <property name="name">label</property>
+                                <property name="title" translatable="yes">page1</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
                         <style>
                           <class name="suggested-action"/>
                         </style>
@@ -1454,6 +1535,7 @@ Required if connecting via TOR.</property>
                         <property name="tooltip_text" translatable="yes">Send the message</property>
                         <style>
                           <class name="suggested-action"/>
+                          <class name="send-button"/>
                         </style>
                       </object>
                       <packing>

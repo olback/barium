@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
+
     <gresource prefix="/net/olback/barium">
         <!-- UI -->
         {ui-files}
@@ -29,11 +30,12 @@
         <file alias="icons/server-offline.svg" preprocess="to-pixdata">assets/icons/emblems/server-offline.svg</file>
 
         <!-- Status -->
-        <file alias="icons/process-working-symbolic.svg" preprocess="to-pixdata">assets/icons/status/process-working-symbolic.svg</file>
-        <file alias="icons/process-working-symbolic-large.svg" preprocess="to-pixdata">assets/icons/status/process-working-symbolic-large.svg</file>
+        <file alias="icons/process-working-symbolic-24.png" preprocess="to-pixdata">assets/icons/status/process-working-24.symbolic.png</file>
+        <file alias="icons/process-working-symbolic-64.png" preprocess="to-pixdata">assets/icons/status/process-working-64.symbolic.png</file>
         <file alias="icons/user-online.svg" preprocess="to-pixdata">assets/icons/status/user-online.svg</file>
         <file alias="icons/user-away.svg" preprocess="to-pixdata">assets/icons/status/user-away.svg</file>
         <file alias="icons/user-dnd.svg" preprocess="to-pixdata">assets/icons/status/user-dnd.svg</file>
         <file alias="icons/user-offline.svg" preprocess="to-pixdata">assets/icons/status/user-offline.svg</file>
     </gresource>
+
 </gresources>

@@ -12,7 +12,7 @@ mod chat_input;
 mod chat_feed;
 mod friends_list;
 mod server_list;
-mod certificate_window;
+mod certificate_dialog;
 mod add_friend_dialog;
 mod add_server_dialog;
 
@@ -24,7 +24,9 @@ pub struct Ui {
     pub chat_feed: chat_feed::ChatFeed,
     pub server_list: Rc<server_list::ServerList>,
     pub add_friend_dialog: Rc<add_friend_dialog::AddFriendDialog>,
-    // pub add_server_dialog: Rc<add_server_dialog::AddServerDialog>,
+    // pub edit_friend_dialog: Rc<edit_friend_dialog::EditFriendDialog>,
+    pub add_server_dialog: Rc<add_server_dialog::AddServerDialog>,
+    // pub edit_server_dialog: Rc<edit_server_dialog::EditServerDialog>,
 }
 
 impl Ui {
@@ -38,7 +40,9 @@ impl Ui {
             chat_feed: chat_feed::ChatFeed::build(&builder)?,
             server_list: Rc::new(server_list::ServerList::build(&builder, keys_ready)?),
             add_friend_dialog: Rc::new(add_friend_dialog::AddFriendDialog::build(&builder, Arc::clone(&servers))?),
-            // add_server_dialog: Rc::new(add_server_dialog::AddServerDialog::build()?)
+            // edit_friend_dialog: Rc::new(edit_friend_dialog::EditFriendDialog::build(&builder, Arc::clone(&servers))?),
+            add_server_dialog: Rc::new(add_server_dialog::AddServerDialog::build(&builder, Arc::clone(&servers))?),
+            // edit_server_dialog: Rc::new(edit_server_window::AddServerWindow::build()?)
         };
 
         inner.chat_feed.clear();
@@ -54,11 +58,10 @@ impl Ui {
         inner.connect_add_friend_dialog(&add_actions, Arc::clone(&servers));
         inner.connect_add_server_dialog(&add_actions);
 
-
         // Clear server list
         inner.server_list.clear();
 
-        // Add main loop server sync
+        // Add main loop servers sync
         gtk::timeout_add(100, clone!(
             @strong servers,
             @strong inner.server_list as server_list
@@ -89,6 +92,11 @@ impl Ui {
     fn connect_add_server_dialog(&self, ac: &SimpleActionGroup) {
 
         let open_add_server_dialog = SimpleAction::new("server", None);
+
+        open_add_server_dialog.connect_activate(clone!(
+            @strong self.add_server_dialog as add_server_dialog
+        => move |_, _| add_server_dialog.show()));
+
         ac.add_action(&open_add_server_dialog);
 
     }

@@ -3,8 +3,7 @@ use {
     std::{sync::{Arc, Mutex}, convert::TryInto},
     gtk_resources::UIResource,
     gtk::{ApplicationWindow, Builder, Button, ComboBoxText, Dialog, Entry,
-    Label, InfoBar, ResponseType, prelude::*},
-    barium_shared::UserHash,
+    Label, InfoBar, prelude::*},
     base62,
     padlock,
     glib::clone,
@@ -31,10 +30,7 @@ impl AddFriendDialog {
         let main_window: ApplicationWindow = get_obj!(builder, "main_window");
 
         inner.add_friend_dialog.set_transient_for(Some(&main_window));
-
-        inner.info_bar.connect_response(|info_bar, _| {
-            info_bar.hide();
-        });
+        inner.add_friend_dialog.get_content_area().set_border_width(0);
 
         inner.add_button.connect_clicked(clone!(
             @strong inner.add_friend_dialog as add_friend_dialog,
@@ -43,17 +39,15 @@ impl AddFriendDialog {
             @strong inner.identity_entry as identity_entry,
             @strong inner.info_bar as info_bar,
             @strong inner.info_bar_label as info_bar_label,
-            @strong inner.add_button as add_button,
             @strong fs_servers
         => move |_| {
-
-            info_bar.set_visible(false);
 
             let server_idx = match server_chooser.get_active() {
                 Some(idx) => idx,
                 None => {
                     info_bar_label.set_text("Please select a server");
                     info_bar.set_visible(true);
+                    info_bar.set_revealed(true);
                     return
                 }
             };
@@ -62,6 +56,7 @@ impl AddFriendDialog {
             if name.trim().is_empty() {
                 info_bar_label.set_text("Name may not be empty");
                 info_bar.set_visible(true);
+                info_bar.set_revealed(true);
                 return
             }
 
@@ -72,6 +67,7 @@ impl AddFriendDialog {
                         warn!("{}", e);
                         info_bar_label.set_text("Invalid identity");
                         info_bar.set_visible(true);
+                        info_bar.set_revealed(true);
                         return
                     }
                 },
@@ -79,9 +75,13 @@ impl AddFriendDialog {
                     warn!("{}", e);
                     info_bar_label.set_text("Invalid identity");
                     info_bar.set_visible(true);
+                    info_bar.set_revealed(true);
                     return
                 }
             };
+
+            info_bar.set_visible(false);
+            info_bar.set_revealed(false);
 
             padlock::mutex_lock(&fs_servers, |lock| {
 
@@ -100,6 +100,7 @@ impl AddFriendDialog {
                     Err(e) => {
                         info_bar_label.set_text(&e.to_string());
                         info_bar.set_visible(true);
+                        info_bar.set_revealed(true);
                     }
 
                 }
@@ -118,6 +119,7 @@ impl AddFriendDialog {
         self.name_entry.set_text("");
         self.identity_entry.set_text("");
         self.info_bar.set_visible(false);
+        self.info_bar.set_revealed(false);
 
         padlock::mutex_lock(&fs_servers, clone!(
             @strong self.server_chooser as server_chooser

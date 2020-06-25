@@ -2,10 +2,9 @@
 <!-- Generated with glade 3.36.0 -->
 <interface>
   <requires lib="gtk+" version="3.22"/>
-  <object class="GtkDialog" id="add_friend_dialog">
+  <object class="GtkDialog">
     <property name="width_request">400</property>
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">Add friend</property>
     <property name="resizable">False</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
@@ -36,7 +35,8 @@
             <property name="can_focus">False</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkInfoBar" id="info_bar">
+              <object class="GtkInfoBar">
+                <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="message_type">error</property>
                 <child internal-child="action_area">
@@ -44,6 +44,12 @@
                     <property name="can_focus">False</property>
                     <property name="spacing">6</property>
                     <property name="layout_style">end</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
                     <child>
                       <placeholder/>
                     </child>
@@ -59,16 +65,13 @@
                     <property name="can_focus">False</property>
                     <property name="spacing">16</property>
                     <child>
-                      <object class="GtkLabel" id="info_bar_label">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">label</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                   </object>
                   <packing>
@@ -76,6 +79,9 @@
                     <property name="fill">False</property>
                     <property name="position">0</property>
                   </packing>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
               </object>
               <packing>
@@ -95,7 +101,7 @@
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Add a Friend</property>
+                    <property name="label" translatable="yes">Barium Official</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="scale" value="2"/>
@@ -118,21 +124,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="halign">end</property>
-                        <property name="label" translatable="yes">Server</property>
-                        <style>
-                          <class name="dim-label"/>
-                        </style>
-                      </object>
-                      <packing>
-                        <property name="left_attach">0</property>
-                        <property name="top_attach">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="halign">end</property>
                         <property name="label" translatable="yes">Name</property>
                         <style>
                           <class name="dim-label"/>
@@ -140,6 +131,63 @@
                       </object>
                       <packing>
                         <property name="left_attach">0</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="max_length">30</property>
+                        <property name="text" translatable="yes">Barium Official</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry">
+                        <property name="visible">True</property>
+                        <property name="sensitive">False</property>
+                        <property name="can_focus">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="max_length">255</property>
+                        <property name="text" translatable="yes">barium.chat</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry">
+                        <property name="visible">True</property>
+                        <property name="sensitive">False</property>
+                        <property name="can_focus">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="max_length">5</property>
+                        <property name="text" translatable="yes">13337</property>
+                        <property name="input_purpose">digits</property>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="top_attach">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="halign">end</property>
+                        <property name="label" translatable="yes">Address</property>
+                        <style>
+                          <class name="dim-label"/>
+                        </style>
+                      </object>
+                      <packing>
+                        <property name="left_attach">0</property>
                         <property name="top_attach">1</property>
                       </packing>
                     </child>
@@ -148,7 +196,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="halign">end</property>
-                        <property name="label" translatable="yes">Identity</property>
+                        <property name="label" translatable="yes">Port</property>
                         <style>
                           <class name="dim-label"/>
                         </style>
@@ -159,42 +207,34 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkComboBoxText" id="server_chooser">
+                      <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="hexpand">True</property>
-                        <property name="active">0</property>
-                        <items>
-                          <item translatable="yes">Server 1</item>
-                          <item translatable="yes">Server 2</item>
-                        </items>
+                        <property name="halign">end</property>
+                        <property name="label" translatable="yes">Password</property>
+                        <style>
+                          <class name="dim-label"/>
+                        </style>
                       </object>
                       <packing>
-                        <property name="left_attach">1</property>
-                        <property name="top_attach">0</property>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">3</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEntry" id="name_entry">
+                      <object class="GtkCheckButton">
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
-                        <property name="hexpand">True</property>
-                        <property name="max_length">30</property>
+                        <property name="focus_on_click">False</property>
+                        <property name="receives_default">False</property>
+                        <property name="halign">start</property>
+                        <property name="active">True</property>
+                        <property name="draw_indicator">True</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
-                        <property name="top_attach">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="identity_entry">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="hexpand">True</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="top_attach">2</property>
+                        <property name="top_attach">3</property>
                       </packing>
                     </child>
                   </object>
@@ -205,15 +245,59 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="add_button">
-                    <property name="label" translatable="yes">Add</property>
-                    <property name="height_request">48</property>
+                  <object class="GtkButtonBox">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <style>
-                      <class name="suggested-action"/>
-                    </style>
+                    <property name="can_focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="spacing">12</property>
+                    <property name="layout_style">start</property>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="label" translatable="yes">Remove</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <style>
+                          <class name="destructive-action"/>
+                        </style>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="label" translatable="yes">Close</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                        <property name="secondary">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="label" translatable="yes">Save</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <style>
+                          <class name="suggested-action"/>
+                        </style>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                        <property name="secondary">True</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -241,7 +325,7 @@
       <object class="GtkHeaderBar">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="title" translatable="yes">Add a Friend</property>
+        <property name="title" translatable="yes">Edit Server</property>
         <property name="spacing">0</property>
         <property name="show_close_button">True</property>
       </object>

@@ -140,7 +140,7 @@ impl Servers {
 
     pub fn add(&mut self, server: Server) -> BariumResult<()> {
 
-        if self.find(&server.address, &server.port).is_err() {
+        if self.find(&server.address, &server.port).is_none() {
             self.server_list.push(server);
             self.save()?;
             return Ok(())
@@ -166,31 +166,31 @@ impl Servers {
 
     }
 
-    pub fn find(&self, address: &String, port: &u16) -> BariumResult<&Server> {
+    pub fn find(&self, address: &String, port: &u16) -> Option<&Server> {
 
         for server in &self.server_list {
 
             if &server.address == address && &server.port == port {
-                return Ok(server)
+                return Some(server)
             }
 
         }
 
-        Err(new_err!(format!("Server \"{}:{}\" does not exist in server list", address, port)))
+        None
 
     }
 
-    pub fn find_mut(&mut self, address: &String, port: &u16) -> BariumResult<&mut Server> {
+    pub fn find_mut(&mut self, address: &String, port: &u16) -> Option<&mut Server> {
 
         for server in &mut self.server_list {
 
             if &server.address == address && &server.port == port {
-                return Ok(server)
+                return Some(server)
             }
 
         }
 
-        Err(new_err!(format!("Server \"{}:{}\" does not exist in server list", address, port)))
+        None
 
     }
 

@@ -1,26 +1,28 @@
 use {
     crate::{get_obj, resource, servers::{Server, Servers}, error::BariumResult,
-    services::{connect, ServerStatus}},
-    super::{friends_list::FriendsList, certificate_window::CertificateWindow},
-    std::{rc::Rc, cell::RefCell},
+    services::{connect, ServerStatus}, utils::clone_inner},
+    super::{friends_list::FriendsList, certificate_dialog::CertificateDialog},
+    std::{rc::Rc, cell::RefCell, sync::mpsc},
     gtk::{Builder, Label, ListBox, Image, Box as gBox, ListBoxRow, Widget,
     Orientation, EventBox, Menu, MenuItem, prelude::*},
     gdk::prelude::*,
     glib::clone,
     barium_shared::{ToClient, ToServer, UserHash, EncryptedMessage, hash::sha3_256},
-    std::sync::mpsc,
-    log::{debug, info}
+    clipboard::{ClipboardProvider, ClipboardContext},
+    base62,
+    log::{debug, info},
 };
 
 #[derive(Debug)]
 pub struct ServerRow {
     hash: UserHash,
     row: ListBoxRow,
-    status: Rc<RefCell<ServerStatus>>,
+    menu: Menu,
+    status: Rc<RefCell<ServerStatus>>, // TODO: Not needed?
     address: String,
     port: u16,
     friends_list: FriendsList,
-    certificate_window: Rc<CertificateWindow>,
+    certificate_window: Rc<CertificateDialog>, // TODO: Not needed
     cert: Rc<RefCell<Option<Vec<u8>>>>,
     msg_rx: glib::Receiver<ToClient>,
     msg_tx: mpsc::Sender<ToServer>
@@ -30,7 +32,7 @@ impl ServerRow {
 
     pub fn new(
         friends_list_box: ListBox,
-        certificate_window: Rc<CertificateWindow>,
+        certificate_window: Rc<CertificateDialog>,
         server: Server
     ) -> Self {
 
@@ -64,6 +66,7 @@ impl ServerRow {
         let inner = Self {
             hash: sha3_256(&server.user_id),
             row: row,
+            menu: Menu::new(),
             status: Rc::new(RefCell::new(ServerStatus::Offline)),
             address: server.address,
             port: server.port,
@@ -74,9 +77,39 @@ impl ServerRow {
             msg_tx: connection.msg_tx
         };
 
-        evt_box.connect_button_press_event(clone!(
+        // Server right-click menu
+        let copy_identity_item = MenuItem::new_with_label("Copy my Identity");
+        let view_cert_item = MenuItem::new_with_label("View Certificate");
+        let edit_server_item = MenuItem::new_with_label("Edit");
+        inner.menu.add(&copy_identity_item);
+        inner.menu.add(&view_cert_item);
+        inner.menu.add(&edit_server_item);
+        copy_identity_item.connect_activate(clone!(
+            @strong inner.hash as hash
+        => move |_| {
+            let b62_hash = base62::encode(&hash);
+            let mut ctx: ClipboardContext = match ClipboardProvider::new() {
+                Ok(c) => c,
+                Err(_) => return
+            };
+            drop(ctx.set_contents(b62_hash));
+        }));
+        view_cert_item.connect_activate(clone!(
             @strong inner.cert as cert,
             @strong inner.certificate_window as cw
+         => move |_| {
+            let b = clone_inner(&*cert);
+            cw.show(&b.unwrap());
+        }));
+        // edit_server_item.connect_activate(clone!(
+        //     @strong inner.edit_server_dialog as edit_server_dialog
+        // => move |_| {
+
+        // }));
+
+        evt_box.connect_button_press_event(clone!(
+            @strong inner.cert as cert,
+            @strong inner.menu as menu
         => move |_, evt_btn| {
 
             let btn_id = evt_btn.get_button();
@@ -85,28 +118,10 @@ impl ServerRow {
 
             } else if btn_id == 3 { // Right click
 
-                debug!("0");
-                let view_cert_item = MenuItem::new_with_label("View Certificate");
-                debug!("1");
-                if cert.borrow().is_none() {
-                    view_cert_item.set_sensitive(false);
-                } else {
-                    debug!("2");
-                    view_cert_item.connect_activate(clone!(@strong cert, @strong cw => move |_| {
-                        debug!("3");
-                        let b = (*cert.borrow()).clone();
-                        debug!("4");
-                        cw.show(&b.unwrap());
-                        debug!("5");
-                    }));
+                match *cert.borrow() {
+                    Some(_) => view_cert_item.set_sensitive(true),
+                    None => view_cert_item.set_sensitive(false)
                 }
-
-                let edit_server_item = MenuItem::new_with_label("Edit");
-
-
-                let menu = Menu::new();
-                menu.add(&view_cert_item);
-                menu.add(&edit_server_item);
 
                 menu.show_all();
                 menu.popup_at_pointer(None);
@@ -151,7 +166,7 @@ impl ServerRow {
 #[derive(Debug)]
 pub struct ServerList {
     pub keys_ready: Rc<RefCell<bool>>,
-    pub certificate_window: Rc<CertificateWindow>,
+    pub certificate_window: Rc<CertificateDialog>,
     pub servers_list_box: ListBox,
     pub friends_list_box: ListBox,
     pub servers: RefCell<Vec<ServerRow>>
@@ -163,7 +178,7 @@ impl ServerList {
 
         let inner = Self {
             keys_ready: keys_ready,
-            certificate_window: Rc::new(CertificateWindow::build(get_obj!(builder, "main_window"))?),
+            certificate_window: Rc::new(CertificateDialog::build(get_obj!(builder, "main_window"))?),
             servers_list_box: get_obj!(builder, "server_list"),
             friends_list_box: get_obj!(builder, "friends_list"),
             servers: RefCell::new(Vec::new())
@@ -204,7 +219,7 @@ impl ServerList {
             // Remove removed servers
             for server in &*self.servers.borrow() {
 
-                if servers.find(&server.address, &server.port).is_err() {
+                if servers.find(&server.address, &server.port).is_none() {
 
                     self.remove(&server.address, &server.port);
                     self.servers_list_box.show_all();
