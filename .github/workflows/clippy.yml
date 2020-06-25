@@ -30,5 +30,11 @@ jobs:
         sudo apt remove clang-6.0 libclang-common-6.0-dev libclang1-6.0 libllvm6.0 -y
         sudo apt install rustc cargo libcairo2-dev libpango1.0-dev libgtk-3-dev libappindicator3-dev libclang-dev llvm clang -y
 
+    - name: Version Print
+      run: |
+        rustc --version --verbose
+        rustup --version
+        cargo --version --verbose
+
     - name: Clippy
       run: cargo clippy --all-targets --all-features
