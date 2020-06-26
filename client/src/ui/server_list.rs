@@ -220,25 +220,20 @@ impl ServerList {
 
             }
 
-
-            // TODO: FIXME:
             // Remove removed servers
-            let mut to_remove = Vec::<ComparableServer>::new();
-            let borrow = self.servers.borrow();
-            for ui_server in &*borrow {
+            // * SAFETY: This is safe as long as self.remove() loops backwards
+            // * This also has to loop backwards to avoid looping into an index
+            // * that has been removed.
+            let borrow = unsafe { self.servers.try_borrow_unguarded().unwrap() };
+            for ui_server in borrow.iter().rev() {
 
                 if fs_servers.find(&ui_server.server.as_comparable()).is_none() {
 
-                    // self.remove(&ui_server.server.as_comparable());
-                    to_remove.push(ui_server.server.as_comparable());
+                    self.remove(&ui_server.server.as_comparable());
                     self.servers_list_box.show_all();
 
                 }
 
-            }
-
-            for server in to_remove {
-                self.remove(&server);
             }
 
         }
@@ -264,7 +259,9 @@ impl ServerList {
 
         let mut ui_servers = self.servers.borrow_mut();
 
-        for i in 0..ui_servers.len() {
+        // * SAFETY: This has to loop backwards to make
+        // * the unsafe part of self.update() not panic.
+        for i in (0..ui_servers.len()).rev() {
 
             if &ui_servers[i].server.as_comparable() == other {
 
