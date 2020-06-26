@@ -1,7 +1,7 @@
 use {
-    crate::{extract_cert_field_value, error::BariumResult},
+    crate::{get_obj, extract_cert_field_value, error::BariumResult},
     gtk_resources::UIResource,
-    gtk::{ApplicationWindow, Dialog, Label, Stack, ResponseType, prelude::*},
+    gtk::{ApplicationWindow, Builder, Dialog, Label, Stack, ResponseType, prelude::*},
     openssl::{x509::X509, nid::Nid, hash::MessageDigest}
 };
 
@@ -25,9 +25,10 @@ pub struct CertificateDialog {
 
 impl CertificateDialog {
 
-    pub fn build(main_window: ApplicationWindow) -> BariumResult<Self> {
+    pub fn build(builder: &Builder) -> BariumResult<Self> {
 
         let inner = Self::load()?;
+        let main_window: ApplicationWindow = get_obj!(builder, "main_window");
         inner.cert_info_dialog.set_transient_for(Some(&main_window));
         inner.cert_info_dialog.add_button("Ok", ResponseType::Ok);
 

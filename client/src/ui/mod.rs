@@ -15,6 +15,9 @@ mod server_list;
 mod certificate_dialog;
 mod add_friend_dialog;
 mod add_server_dialog;
+mod edit_server_dialog;
+
+pub type ServerIdentity = (String, u16);
 
 #[derive(Debug)]
 pub struct Ui {
@@ -25,8 +28,7 @@ pub struct Ui {
     pub server_list: Rc<server_list::ServerList>,
     pub add_friend_dialog: Rc<add_friend_dialog::AddFriendDialog>,
     // pub edit_friend_dialog: Rc<edit_friend_dialog::EditFriendDialog>,
-    pub add_server_dialog: Rc<add_server_dialog::AddServerDialog>,
-    // pub edit_server_dialog: Rc<edit_server_dialog::EditServerDialog>,
+    pub add_server_dialog: Rc<add_server_dialog::AddServerDialog>
 }
 
 impl Ui {
@@ -38,11 +40,10 @@ impl Ui {
             initial_setup: initial_setup::InitialSetup::build(&builder, Arc::clone(&servers))?,
             chat_input: chat_input::ChatInput::build(&builder)?,
             chat_feed: chat_feed::ChatFeed::build(&builder)?,
-            server_list: Rc::new(server_list::ServerList::build(&builder, keys_ready)?),
+            server_list: Rc::new(server_list::ServerList::build(&builder, keys_ready, Arc::clone(&servers))?),
             add_friend_dialog: Rc::new(add_friend_dialog::AddFriendDialog::build(&builder, Arc::clone(&servers))?),
-            // edit_friend_dialog: Rc::new(edit_friend_dialog::EditFriendDialog::build(&builder, Arc::clone(&servers))?),
-            add_server_dialog: Rc::new(add_server_dialog::AddServerDialog::build(&builder, Arc::clone(&servers))?),
-            // edit_server_dialog: Rc::new(edit_server_window::AddServerWindow::build()?)
+            // ! Remove this line: edit_friend_dialog: Rc::new(edit_friend_dialog::EditFriendDialog::build(&builder, Arc::clone(&servers))?),
+            add_server_dialog: Rc::new(add_server_dialog::AddServerDialog::build(&builder, Arc::clone(&servers))?)
         };
 
         inner.chat_feed.clear();

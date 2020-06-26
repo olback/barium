@@ -85,7 +85,7 @@ impl AddServerDialog {
 
             let allow_invalid_cert = allow_invalid_cert_switch.get_active();
 
-            let exists = padlock::mutex_lock(&servers, |lock| lock.find(&address, &port).is_some());
+            let exists = padlock::mutex_lock(&servers, |lock| lock.find_by_addr(&address, &port).is_some());
 
             if exists {
                 info_bar_label.set_text("Server already added");

@@ -6,7 +6,7 @@
     "server": {
         "address": "0.0.0.0",
         "port": 13337,
-        "password": "hello"
+        "password": null
     },
     "runtime": {
         "core_threads": null,

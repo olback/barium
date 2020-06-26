@@ -28,6 +28,16 @@ impl Friend {
 
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct ComparableServer<'c> {
+    pub user_id: &'c UserId,
+    pub name: &'c String,
+    pub address: &'c String,
+    pub port: &'c u16,
+    pub password: &'c Option<String>,
+    pub allow_invalid_cert: &'c bool
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Server {
     #[serde(serialize_with="serialize_u8_32_arr", deserialize_with="deserialize_u8_32_arr")]
@@ -107,6 +117,19 @@ impl Server {
 
     }
 
+    pub fn as_comparable<'c>(&'c self) -> ComparableServer<'c> {
+
+        ComparableServer {
+            user_id: &self.user_id,
+            name: &self.name,
+            address: &self.address,
+            port: &self.port,
+            password: &self.password,
+            allow_invalid_cert: &self.allow_invalid_cert
+        }
+
+    }
+
 }
 
 #[derive(Debug)]
@@ -140,7 +163,7 @@ impl Servers {
 
     pub fn add(&mut self, server: Server) -> BariumResult<()> {
 
-        if self.find(&server.address, &server.port).is_none() {
+        if self.find(&server.as_comparable()).is_none() {
             self.server_list.push(server);
             self.save()?;
             return Ok(())
@@ -150,11 +173,11 @@ impl Servers {
 
     }
 
-    pub fn remove(&mut self, address: String, port: u16) -> BariumResult<()> {
+    pub fn remove(&mut self, other: &ComparableServer) -> BariumResult<()> {
 
         for i in 0..self.len() {
 
-            if self.server_list[i].address == address && self.server_list[i].port == port {
+            if &self.server_list[i].as_comparable() == other {
                 self.server_list.remove(i);
                 self.save()?;
                 return Ok(())
@@ -162,15 +185,29 @@ impl Servers {
 
         }
 
-        Err(new_err!(format!("Server \"{}:{}\" does not exist in server list", address, port)))
+        Err(new_err!(format!("Server \"{}:{}\" does not exist in server list", other.address, other.port)))
 
     }
 
-    pub fn find(&self, address: &String, port: &u16) -> Option<&Server> {
+    pub fn find(&self, other: &ComparableServer) -> Option<&Server> {
 
         for server in &self.server_list {
 
-            if &server.address == address && &server.port == port {
+            if &server.as_comparable() == other {
+                return Some(&server)
+            }
+
+        }
+
+        None
+
+    }
+
+    pub fn find_mut(&mut self, other: &ComparableServer) -> Option<&mut Server> {
+
+        for server in &mut self.server_list {
+
+            if &server.as_comparable() == other {
                 return Some(server)
             }
 
@@ -180,11 +217,11 @@ impl Servers {
 
     }
 
-    pub fn find_mut(&mut self, address: &String, port: &u16) -> Option<&mut Server> {
+    pub fn find_by_addr(&self, addr: &str, port: &u16) -> Option<&Server> {
 
-        for server in &mut self.server_list {
+        for server in &self.server_list {
 
-            if &server.address == address && &server.port == port {
+            if &server.address == addr && &server.port == port {
                 return Some(server)
             }
 
