@@ -30,6 +30,11 @@ pub fn connect(address: String, port: u16, allow_invalid_cert: bool, id: UserId,
 
     thread::spawn(move || loop {
 
+        match msg_rx.try_recv() {
+            Err(e) if e == TryRecvError::Disconnected => return,
+            _ => {}
+        }
+
         let mut tls_stream = match new_tls_stream(address.clone(), port, allow_invalid_cert) {
             Ok(ts) => ts,
             Err(_) => {

@@ -9,7 +9,7 @@ mod refcell;
 
 pub use {
     self::fs::conf_dir,
-    self::gtk::entry_get_text,
+    self::gtk::{entry_get_text, escape_markdown},
     self::tls_stream::new_tls_stream,
     self::user_id::new_user_id,
     self::servers::add_server,

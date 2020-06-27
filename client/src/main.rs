@@ -18,7 +18,7 @@ use {
     error::BariumResult,
     servers::Servers,
     key_pair::KeyPair,
-    services::{MainWindowEvent, MainWindowEvents},
+    services::{MainWindowEvent, MainWindowEvents, MainStack},
     glib::{self, clone, MainContext, Priority},
     gio::{SimpleAction, SimpleActionGroup, prelude::*},
     gtk::{
@@ -102,19 +102,18 @@ fn run_app() -> BariumResult<()> {
     main_window.insert_action_group("app", Some(&actions));
 
     // Settings
-    let main_stack: Stack = get_obj!(main_builder, "main_stack");
-    let main_stack_current_view = Rc::new(RefCell::new(String::new()));
+    let main_stack = MainStack::build(&main_builder)?;
     let open_settings_action = SimpleAction::new("open-settings", None);
     let close_settings_action = SimpleAction::new("close-settings", None);
-    open_settings_action.connect_activate(clone!(@strong main_stack, @strong main_stack_current_view => move |_, _| {
-        let current_view = main_stack.get_visible_child_name().unwrap().to_string();
-        if current_view != "settings" && current_view != "keygen" {
-            main_stack_current_view.replace(current_view);
-            main_stack.set_visible_child_name("settings");
-        }
+    open_settings_action.connect_activate(clone!(
+        @strong main_stack
+    => move |_, _| {
+        main_stack.show_settings();
     }));
-    close_settings_action.connect_activate(clone!(@strong main_stack, @strong main_stack_current_view => move |_, _| {
-        main_stack.set_visible_child_name(main_stack_current_view.borrow().as_str());
+    close_settings_action.connect_activate(clone!(
+        @strong main_stack
+    => move |_, _| {
+        main_stack.close_settings();
     }));
     actions.add_action(&open_settings_action);
     actions.add_action(&close_settings_action);
@@ -144,9 +143,9 @@ fn run_app() -> BariumResult<()> {
         keys_ready.replace(true);
         let len = padlock::mutex_lock(&servers, |s| s.len());
         if len > 0 {
-            main_stack.set_visible_child_name("chat")
+            main_stack.show_chat()
         } else {
-            main_stack.set_visible_child_name("setup")
+            main_stack.show_setup()
         }
         Continue(false)
     }));
@@ -162,7 +161,11 @@ fn run_app() -> BariumResult<()> {
     tray.add_menu_item("Hide", clone!(@strong mwe => move || mwe.hide()))?;
     tray.add_menu_item("Quit", clone!(@strong mwe => move || mwe.quit()))?;
 
-    let ui_ref = ui::Ui::build(&main_builder, keys_ready, Arc::clone(&servers))?;
+    let ui_ref = ui::Ui::build(
+        &main_builder,
+        keys_ready,
+        Arc::clone(&servers)
+    )?;
     info!("{:#?}", ui_ref);
 
     // Connect on activate

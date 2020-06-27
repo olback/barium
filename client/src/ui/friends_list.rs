@@ -1,5 +1,5 @@
 use {
-    std::rc::Rc,
+    std::{rc::Rc, cell::RefCell},
     gtk::{Label, Image, Box as gBox, ListBox, prelude::*},
     crate::servers::Friend,
     glib::clone
@@ -22,7 +22,8 @@ impl FriendRow {
 
 #[derive(Debug)]
 pub struct FriendsList {
-    pub list_box: ListBox,
+    list_box: ListBox,
+    selected_index: Rc<RefCell<Option<usize>>>,
     friends: Vec<FriendRow>
 }
 
@@ -34,8 +35,15 @@ impl FriendsList {
 
         Self {
             list_box: friends_list_box,
+            selected_index: Rc::new(RefCell::new(None)),
             friends: Vec::new()
         }
+
+    }
+
+    pub fn has_unread(&self) -> bool {
+
+        todo!()
 
     }
 

@@ -10,24 +10,22 @@ use {
 mod initial_setup;
 mod chat_input;
 mod chat_feed;
+mod chat_view;
 mod friends_list;
 mod server_list;
 mod certificate_dialog;
 mod add_friend_dialog;
 mod add_server_dialog;
 mod edit_server_dialog;
-
-pub type ServerIdentity = (String, u16);
+// mod edit_friend_dialog;
 
 #[derive(Debug)]
 pub struct Ui {
     pub main_window: gtk::ApplicationWindow,
     pub initial_setup: initial_setup::InitialSetup,
-    pub chat_input: chat_input::ChatInput,
-    pub chat_feed: chat_feed::ChatFeed,
+    pub chat_view: chat_view::ChatView,
     pub server_list: Rc<server_list::ServerList>,
     pub add_friend_dialog: Rc<add_friend_dialog::AddFriendDialog>,
-    // pub edit_friend_dialog: Rc<edit_friend_dialog::EditFriendDialog>,
     pub add_server_dialog: Rc<add_server_dialog::AddServerDialog>
 }
 
@@ -38,20 +36,11 @@ impl Ui {
         let inner = Self {
             main_window: get_obj!(builder, "main_window"),
             initial_setup: initial_setup::InitialSetup::build(&builder, Arc::clone(&servers))?,
-            chat_input: chat_input::ChatInput::build(&builder)?,
-            chat_feed: chat_feed::ChatFeed::build(&builder)?,
+            chat_view: chat_view::ChatView::build(&builder)?,
             server_list: Rc::new(server_list::ServerList::build(&builder, keys_ready, Arc::clone(&servers))?),
             add_friend_dialog: Rc::new(add_friend_dialog::AddFriendDialog::build(&builder, Arc::clone(&servers))?),
-            // ! Remove this line: edit_friend_dialog: Rc::new(edit_friend_dialog::EditFriendDialog::build(&builder, Arc::clone(&servers))?),
             add_server_dialog: Rc::new(add_server_dialog::AddServerDialog::build(&builder, Arc::clone(&servers))?)
         };
-
-        inner.chat_feed.clear();
-        inner.chat_feed.add_row(chat_feed::ChatTypes::IncommingPoke("Friend 2".into()));
-        inner.chat_feed.add_row(chat_feed::ChatTypes::IncommingMessage("Friend 2".into(), "This is a <b>bold</b> body!".into()));
-        inner.chat_feed.add_row(chat_feed::ChatTypes::OutgoingPoke("Friend 2".into()));
-        inner.chat_feed.add_row(chat_feed::ChatTypes::OutgoingMessage("This is a link <a href=\"https://olback.net\">https://olback.net</a> body!".into()));
-        inner.chat_feed.add_row(chat_feed::ChatTypes::Error("Friend 2 is offline".into()));
 
         // 'Add' action group
         let add_actions = SimpleActionGroup::new();

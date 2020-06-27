@@ -171,6 +171,7 @@ pub struct ServerList {
     pub certificate_window: Rc<CertificateDialog>,
     pub edit_server_dialog: Rc<EditServerDialog>,
     pub servers_list_box: ListBox,
+    pub servers_selected_index: Rc<RefCell<Option<usize>>>,
     pub friends_list_box: ListBox,
     servers: RefCell<Vec<ServerRow>>
 }
@@ -184,9 +185,26 @@ impl ServerList {
             certificate_window: Rc::new(CertificateDialog::build(&builder)?),
             edit_server_dialog: Rc::new(EditServerDialog::build(&builder, fs_servers)?),
             servers_list_box: get_obj!(builder, "server_list"),
+            servers_selected_index: Rc::new(RefCell::new(None)), // TODO:
             friends_list_box: get_obj!(builder, "friends_list"),
             servers: RefCell::new(Vec::new())
         };
+
+        inner.servers_list_box.connect_row_selected(|lbox, row| {
+
+            let lbox_children = lbox.get_children();
+
+            if let Some(row) = row {
+
+                for i in 0..lbox_children.len() {
+                    if lbox_children[i] == row.clone().upcast::<Widget>() {
+                        debug!("Index: {}", i);
+                    }
+                }
+
+            }
+
+        });
 
         inner.clear();
 

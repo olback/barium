@@ -21,6 +21,7 @@ gtk_resources = "0.1.5"
 gdk = "0.12"
 gio = "0.8"
 glib = "0.9"
+pango = "0.8"
 padlock = "0.2"
 rmp-serde = "0.14"
 native-tls = "0.2"
@@ -32,6 +33,7 @@ chrono = "0.4"
 log = "0.4"
 fern = { version = "0.6", features = [ "colored" ] }
 clipboard = "0.5.0"
+regex = "1"
 
 [build-dependencies]
 regex = "1.3"

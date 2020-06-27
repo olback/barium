@@ -190,7 +190,7 @@ Author: Edwin Svensson
               <object class="GtkLabel" id="generate_keys_info1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">This shold only take a few seconds</property>
+                <property name="label" translatable="yes">This should only take a few seconds</property>
                 <style>
                   <class name="dim-label"/>
                 </style>
@@ -1310,7 +1310,7 @@ Required if connecting via TOR.</property>
                 <property name="can_focus">False</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkLabel">
+                  <object class="GtkLabel" id="chat_with_label">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="margin_start">18</property>
@@ -1331,7 +1331,7 @@ Required if connecting via TOR.</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkScrolledWindow">
+                  <object class="GtkScrolledWindow" id="chat_scroll_window">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="hscrollbar_policy">never</property>
@@ -1857,6 +1857,7 @@ Required if connecting via TOR.</property>
         <property name="show_close_button">True</property>
         <child>
           <object class="GtkStackSwitcher">
+            <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="no_show_all">True</property>
             <property name="stack">main_stack</property>

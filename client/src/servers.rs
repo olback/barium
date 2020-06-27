@@ -231,6 +231,20 @@ impl Servers {
 
     }
 
+    pub fn find_mut_by_addr(&mut self, addr: &str, port: &u16) -> Option<&mut Server> {
+
+        for server in &mut self.server_list {
+
+            if &server.address == addr && &server.port == port {
+                return Some(server)
+            }
+
+        }
+
+        None
+
+    }
+
     pub fn len(&self) -> usize {
 
         self.server_list.len()

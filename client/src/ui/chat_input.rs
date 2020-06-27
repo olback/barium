@@ -22,8 +22,6 @@ impl ChatInput {
         };
 
         inner.connect_chat_entry();
-        inner.connect_send_button();
-        inner.connect_poke_button();
 
         Ok(inner)
 
@@ -71,26 +69,6 @@ impl ChatInput {
             }
 
             info!("{} / {} / {} / {}", text.len(), consts::MESSAGE_WARNING_LENGHT, consts::MESSAGE_ERROR_LENGHT, consts::MAX_MESSAGE_TEXT_LENGTH);
-
-        });
-
-    }
-
-    fn connect_send_button(&self) {
-
-        self.send_button.connect_clicked(|_| {
-
-            info!("Send");
-
-        });
-
-    }
-
-    fn connect_poke_button(&self) {
-
-        self.poke_button.connect_clicked(move |_| {
-
-            info!("Poke");
 
         });
 

@@ -1,5 +1,5 @@
 use {
-    crate::{ui::ServerIdentity, get_obj, error::BariumResult, servers::{Server, Servers, ComparableServer}, utils::entry_get_text},
+    crate::{get_obj, error::BariumResult, servers::{Server, Servers, ComparableServer}, utils::entry_get_text},
     std::{sync::{Arc, Mutex}, convert::TryInto},
     gtk_resources::UIResource,
     gtk::{ApplicationWindow, Builder, Button, ToggleButton, Dialog, Entry,
@@ -94,6 +94,135 @@ impl EditServerDialog {
                         info_bar.set_revealed(true);
                     }
                 }
+
+            });
+
+        }));
+
+        inner.save_button.connect_clicked(clone!(
+            @strong inner.edit_server_dialog as edit_server_dialog,
+            @strong inner.info_bar as info_bar,
+            @strong inner.info_bar_label as info_bar_label,
+            @strong inner.name_entry as name_entry,
+            @strong inner.address_entry as address_entry,
+            @strong inner.port_entry as port_entry,
+            @strong inner.password_check as password_check,
+            @strong inner.password_entry as password_entry,
+            @strong inner.allow_invalid_cert_switch as allow_invalid_cert_switch,
+            @strong inner._server_idnentity as _server_idnentity_entry,
+            @strong fs_servers
+        => move |_| {
+
+            let name = entry_get_text(&name_entry);
+            if name.trim().is_empty() {
+                info_bar_label.set_text("Name may not be empty");
+                info_bar.set_visible(true);
+                info_bar.set_revealed(true);
+                return
+            }
+
+            let address = entry_get_text(&address_entry);
+            if address.trim().is_empty() {
+                info_bar_label.set_text("Address may not be empty");
+                info_bar.set_visible(true);
+                info_bar.set_revealed(true);
+                return
+            }
+
+            let port = match entry_get_text(&port_entry).parse::<u16>() {
+                Ok(p) => p,
+                Err(_) => {
+                    info_bar_label.set_text("Invalid port number");
+                    info_bar.set_visible(true);
+                    info_bar.set_revealed(true);
+                    return
+                }
+            };
+
+            let use_password = password_check.get_active();
+            let password = entry_get_text(&password_entry);
+            let allow_invalid_cert = allow_invalid_cert_switch.get_active();
+            let _server_idnentity = entry_get_text(&_server_idnentity_entry);
+
+            padlock::mutex_lock(&fs_servers, |lock| {
+
+                // Server & port not changed
+                if _server_idnentity == format!("{}:{}", address, port) {
+
+                    debug!("addr:port not changed");
+
+                    match lock.find_mut_by_addr(&address, &port) {
+
+                        Some(server) => {
+                            server.name = name;
+                            if use_password {
+                                server.password = Some(password);
+                            } else {
+                                server.password = None;
+                            }
+                            server.allow_invalid_cert = allow_invalid_cert;
+
+                            drop(edit_server_dialog.emit("close", &[]));
+                        },
+
+                        None => {
+                            info_bar_label.set_text("Could not find server");
+                            info_bar.set_visible(true);
+                            info_bar.set_revealed(true);
+                        }
+
+                    }
+
+                } else {
+
+                    match lock.find_by_addr(&address, &port) {
+
+                        Some(server) => {
+                            info_bar_label.set_text(&format!("Server {}:{} already exists", server.address, server.port));
+                            info_bar.set_visible(true);
+                            info_bar.set_revealed(true);
+                        },
+
+                        None => {
+
+                            let server_identity = entry_get_text(&_server_idnentity_entry);
+                            let server_identity_parts = server_identity.split(':').collect::<Vec<&str>>();
+                            let server_identity_addr = server_identity_parts[0];
+                            let server_identity_port = server_identity_parts[1].parse::<u16>().unwrap();
+
+                            match lock.find_mut_by_addr(&server_identity_addr, &server_identity_port) {
+
+                                Some(server) => {
+
+                                    server.name = name;
+                                    server.address = address;
+                                    server.port = port;
+                                    if use_password {
+                                        server.password = Some(password);
+                                    } else {
+                                        server.password = None;
+                                    }
+                                    server.allow_invalid_cert = allow_invalid_cert;
+
+                                    drop(edit_server_dialog.emit("close", &[]));
+
+                                },
+
+                                None => {
+                                    info_bar_label.set_text("Server not found");
+                                    info_bar.set_visible(true);
+                                    info_bar.set_revealed(true);
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                drop(lock.save());
 
             });
 
