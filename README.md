@@ -1,6 +1,7 @@
 # Barium Chat
 
-[![dependency status](https://deps.rs/repo/github/olback/barium/status.svg)](https://deps.rs/repo/github/olback/barium)
+![release](https://img.shields.io/github/v/release/olback/barium?color=blue&sort=semver&style=for-the-badge&include_prereleases)
+![GPL-3.0 License](https://img.shields.io/github/license/olback/barium?style=for-the-badge)
 
 ## Introduction
 
