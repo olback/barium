@@ -1,6 +1,6 @@
 use {
     crate::{get_obj, resource, servers::{Server, Servers, ComparableServer}, error::BariumResult,
-    services::{connect, ServerStatus}, utils::clone_inner},
+    services::{connect, ServerStatus}, utils::clone_inner, MainStack},
     super::{friends_list::FriendsList, certificate_dialog::CertificateDialog, edit_server_dialog::EditServerDialog},
     std::{rc::Rc, cell::RefCell, sync::{Arc, Mutex, mpsc}},
     gtk::{Builder, Label, ListBox, Image, Box as gBox, ListBoxRow, Widget,
@@ -20,7 +20,7 @@ pub struct ServerRow {
     pub row: ListBoxRow,
     pub menu: Menu,
     pub status: Rc<RefCell<ServerStatus>>, // TODO: Not needed?
-    pub friends_list: FriendsList,
+    pub friends_list: Rc<FriendsList>,
     pub certificate_window: Rc<CertificateDialog>, // TODO: Not needed?
     pub edit_server_dialog: Rc<EditServerDialog>,
     pub cert: Rc<RefCell<Option<Vec<u8>>>>,
@@ -70,7 +70,7 @@ impl ServerRow {
             row: row,
             menu: Menu::new(),
             status: Rc::new(RefCell::new(ServerStatus::Offline)),
-            friends_list: FriendsList::new(friends_list_box.clone()), // TODO:
+            friends_list: Rc::new(FriendsList::new(friends_list_box)), // TODO:
             certificate_window: certificate_window,
             edit_server_dialog: edit_server_dialog,
             cert: Rc::new(RefCell::new(None)),
@@ -110,6 +110,8 @@ impl ServerRow {
         }));
 
         evt_box.connect_button_press_event(clone!(
+            @strong inner.server as server,
+            @strong inner.friends_list as friends_list,
             @strong inner.cert as cert,
             @strong inner.menu as menu
         => move |_, evt_btn| {
@@ -117,6 +119,8 @@ impl ServerRow {
             let btn_id = evt_btn.get_button();
 
             if btn_id == 1 { // Left click
+
+                // friends_list.
 
             } else if btn_id == 3 { // Right click
 
@@ -163,6 +167,13 @@ impl ServerRow {
 
     }
 
+    pub fn update_friends(&self) {
+
+        // TODO:
+        // todo!()
+
+    }
+
 }
 
 #[derive(Debug)]
@@ -172,13 +183,17 @@ pub struct ServerList {
     pub edit_server_dialog: Rc<EditServerDialog>,
     pub servers_list_box: ListBox,
     pub servers_selected_index: Rc<RefCell<Option<usize>>>,
-    pub friends_list_box: ListBox,
+    pub friends_list_box: ListBox, // TODO: not needed?
     servers: RefCell<Vec<ServerRow>>
 }
 
 impl ServerList {
 
-    pub fn build(builder: &Builder, keys_ready: Rc<RefCell<bool>>, fs_servers: Arc<Mutex<Servers>>) -> BariumResult<Self> {
+    pub fn build(
+        builder: &Builder,
+        keys_ready: Rc<RefCell<bool>>,
+        fs_servers: Arc<Mutex<Servers>>
+    ) -> BariumResult<Self> {
 
         let inner = Self {
             keys_ready: keys_ready,
@@ -206,13 +221,13 @@ impl ServerList {
 
         });
 
-        inner.clear();
+        inner.clear_servers();
 
         Ok(inner)
 
     }
 
-    pub fn clear(&self) {
+    pub fn clear_servers(&self) {
 
         self.servers_list_box.foreach(clone!(@strong self.servers_list_box as servers_list_box => move |element: &Widget| {
             servers_list_box.remove(element);
@@ -254,6 +269,10 @@ impl ServerList {
 
             }
 
+        }
+
+        for server in &*self.servers.borrow() {
+            server.update_friends();
         }
 
     }

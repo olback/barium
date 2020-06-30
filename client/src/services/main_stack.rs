@@ -4,6 +4,7 @@ use {
     gtk::{Builder, Stack, prelude::*}
 };
 
+#[derive(Debug)]
 pub struct MainStack {
     view: RefCell<String>,
     stack: Stack
