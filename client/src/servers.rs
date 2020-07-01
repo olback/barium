@@ -47,7 +47,7 @@ pub struct Server {
     pub port: u16,
     pub password: Option<String>,
     pub allow_invalid_cert: bool,
-    friends: Vec<Friend>
+    pub friends: Vec<Friend>
 }
 
 impl Server {

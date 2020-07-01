@@ -17,3 +17,6 @@ pub const DEFAULT_PORT: u16 = 13337;
 
 // TCP timeout in seconds
 pub const TCP_TIMEOUT: u64 = 10;
+
+// Keep alive message interval in seconds
+pub const KEEP_ALIVE_INTERVAL: u64 = 20;

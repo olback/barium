@@ -59,7 +59,7 @@ fn main() {
 
     let len = tls_stream.read(&mut buf).unwrap();
     let friend_public_key = match rmp_serde::from_read_ref::<_, ToClient>(&buf[0..len]).unwrap() {
-        ToClient::PublicKeys(keys) => keys[0].1.clone(),
+        ToClient::PublicKeys(keys) => keys[0].2.clone(),
         _ => panic!("Did not get public key")
     };
 
@@ -90,7 +90,7 @@ fn main() {
 
             },
 
-            ToClient::Error(err) => eprintln!("{}", err),
+            ToClient::Error(_, err) => eprintln!("{}", err),
 
             _ => {}
 

@@ -27,6 +27,17 @@ impl ChatInput {
 
     }
 
+    pub fn get_entry(&self) -> String {
+
+        utils::entry_get_text(&self.chat_entry)
+
+    }
+
+    pub fn set_entry(&self, value: &str) {
+
+        self.chat_entry.set_text(value);
+    }
+
     fn connect_chat_entry(&self) {
 
         self.chat_entry.set_max_length(consts::MAX_MESSAGE_TEXT_LENGTH as i32);

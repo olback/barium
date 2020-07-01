@@ -7,6 +7,7 @@ use {
     log::debug
 };
 
+#[derive(Debug)]
 pub enum ChatTypes {
     IncommingPoke(String),
     OutgoingPoke(String),

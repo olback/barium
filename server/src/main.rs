@@ -105,14 +105,14 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                                 if authenticated {
 
-                                    let mut keys = Vec::<(UserHash, rsa::RSAPublicKey)>::new();
+                                    let mut keys = Vec::<(UserHash, KeyBust, rsa::RSAPublicKey)>::new();
 
                                     padlock::rw_read_lock(&clients, |lock| {
 
                                         for user in users {
 
                                             match lock.get(&user) {
-                                                Some(u) => keys.push((user, u.get_public_key())),
+                                                Some(u) => keys.push((user, u.get_key_bust(), u.get_public_key())),
                                                 None => {}
                                             }
 
@@ -126,6 +126,7 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
 
                                 } else {
 
+                                    warn!("User not authenticated");
                                     // Sender not authenticated
                                     // TODO: Drop connection
 
@@ -278,11 +279,10 @@ async fn handle_client(mut stream: TlsStream<TcpStream>, clients: Clients) -> Ba
             Err(e) => {
                 warn!("{:#?}", e);
                 match client_hash {
-                    Some(ref ch) => padlock::rw_write_lock(&clients, |lock| {
-                        lock.remove(ch);
-                    }),
-                    None => ()
-                }
+                    Some(ref ch) => padlock::rw_write_lock(&clients, |lock| lock.remove(ch)),
+                    None => None
+                };
+                debug!("Breaking...");
                 break;
             }
 

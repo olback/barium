@@ -75,41 +75,41 @@ pub fn verify_server_password(address: String, port: u16, allow_invalid_cert: bo
 
 }
 
-pub fn get_public_keys(
-    address: String,
-    port: u16,
-    allow_invalid_cert: bool,
-    id: UserId,
-    user_hashes: Vec<UserHash>
-) -> Receiver<BariumResult<Vec<(UserHash, RSAPublicKey)>>> {
+// pub fn get_public_keys(
+//     address: String,
+//     port: u16,
+//     allow_invalid_cert: bool,
+//     id: UserId,
+//     user_hashes: Vec<UserHash>
+// ) -> Receiver<BariumResult<Vec<(UserHash, RSAPublicKey)>>> {
 
-    let (tx, rx) = MainContext::channel::<BariumResult<Vec<(UserHash, RSAPublicKey)>>>(Priority::default());
+//     let (tx, rx) = MainContext::channel::<BariumResult<Vec<(UserHash, RSAPublicKey)>>>(Priority::default());
 
-    thread::spawn(move || {
+//     thread::spawn(move || {
 
-        let get_public_keys_inner = move || -> BariumResult<Vec<(UserHash, RSAPublicKey)>> {
+//         let get_public_keys_inner = move || -> BariumResult<Vec<(UserHash, RSAPublicKey)>> {
 
-            let mut tls_stream = new_tls_stream(address, port, allow_invalid_cert)?;
-            let request = ToServer::GetPublicKeys(id, user_hashes);
-            let request_data = rmp_serde::to_vec(&request)?;
-            tls_stream.write_all(&request_data)?;
+//             let mut tls_stream = new_tls_stream(address, port, allow_invalid_cert)?;
+//             let request = ToServer::GetPublicKeys(id, user_hashes);
+//             let request_data = rmp_serde::to_vec(&request)?;
+//             tls_stream.write_all(&request_data)?;
 
-            let mut buf = [0u8; 16384];
-            let len = tls_stream.read(&mut buf)?;
-            let probably_keys_vec = rmp_serde::from_read_ref::<_, ToClient>(&buf[0..len])?;
+//             let mut buf = [0u8; 16384];
+//             let len = tls_stream.read(&mut buf)?;
+//             let probably_keys_vec = rmp_serde::from_read_ref::<_, ToClient>(&buf[0..len])?;
 
-            match probably_keys_vec {
-                ToClient::PublicKeys(keys) => Ok(keys),
-                ToClient::Error(e) => Err(new_err!(e)),
-                _ => Err(new_err!("Invalid response from server"))
-            }
+//             match probably_keys_vec {
+//                 ToClient::PublicKeys(keys) => Ok(keys),
+//                 ToClient::Error(_, e) => Err(new_err!(e)),
+//                 _ => Err(new_err!("Invalid response from server"))
+//             }
 
-        };
+//         };
 
-        tx.send(get_public_keys_inner()).unwrap();
+//         tx.send(get_public_keys_inner()).unwrap();
 
-    });
+//     });
 
-    rx
+//     rx
 
-}
+// }

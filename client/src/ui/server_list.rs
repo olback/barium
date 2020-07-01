@@ -1,17 +1,21 @@
 use {
     crate::{get_obj, resource, servers::{Server, Servers, ComparableServer}, error::BariumResult,
-    services::{connect, ServerStatus}, utils::clone_inner, MainStack},
+    services::{connect, ServerStatus, IdleTracker}, utils::clone_inner, MainStack},
     super::{friends_list::FriendsList, certificate_dialog::CertificateDialog, edit_server_dialog::EditServerDialog},
     std::{rc::Rc, cell::RefCell, sync::{Arc, Mutex, mpsc}},
     gtk::{Builder, Label, ListBox, Image, Box as gBox, ListBoxRow, Widget,
     Orientation, EventBox, Menu, MenuItem, prelude::*},
-    gdk::prelude::*,
-    glib::clone,
-    barium_shared::{ToClient, ToServer, UserHash, EncryptedMessage, hash::sha3_256},
+    glib::{clone, MainContext, Priority},
+    barium_shared::{AfkStatus, ToClient, ToServer, UserHash, EncryptedMessage, hash::sha3_256},
     clipboard::{ClipboardProvider, ClipboardContext},
     base62,
-    log::{debug, info},
+    log::{debug, info, warn, error},
+    lazy_static::lazy_static
 };
+
+lazy_static! {
+    pub static ref IDLE_TRACKER: IdleTracker = IdleTracker::new();
+}
 
 #[derive(Debug)]
 pub struct ServerRow {
@@ -24,7 +28,6 @@ pub struct ServerRow {
     pub certificate_window: Rc<CertificateDialog>, // TODO: Not needed?
     pub edit_server_dialog: Rc<EditServerDialog>,
     pub cert: Rc<RefCell<Option<Vec<u8>>>>,
-    pub msg_rx: glib::Receiver<ToClient>,
     pub msg_tx: mpsc::Sender<ToServer>
 }
 
@@ -34,6 +37,8 @@ impl ServerRow {
         friends_list_box: ListBox,
         certificate_window: Rc<CertificateDialog>,
         edit_server_dialog: Rc<EditServerDialog>,
+        // edit_friend_dialog: Rc<EditFriendDialog>,
+        // main_stack: Rc<MainStack>,
         server: Server
     ) -> Self {
 
@@ -74,9 +79,79 @@ impl ServerRow {
             certificate_window: certificate_window,
             edit_server_dialog: edit_server_dialog,
             cert: Rc::new(RefCell::new(None)),
-            msg_rx: connection.msg_rx,
             msg_tx: connection.msg_tx
         };
+
+        let (keep_alive_tx, keep_alive_rx) = MainContext::channel::<u64>(Priority::default());
+        keep_alive_rx.attach(None, clone!(
+            @strong inner.server as server,
+            @strong inner.friends_list as friends_list,
+            @strong inner.msg_tx as msg_tx
+        => move |idle_time| {
+
+            let hashes = friends_list.get_friend_hashes();
+
+            let afk_staus = if idle_time >= 300 {
+                AfkStatus::Away(Some(idle_time))
+            } else {
+                AfkStatus::Available
+            };
+
+            let msg = ToServer::KeepAlive(server.user_id, hashes, afk_staus);
+
+            match msg_tx.send(msg) {
+                Ok(_) => Continue(true),
+                Err(_) => Continue(false)
+            }
+
+        }));
+        drop(keep_alive_tx.send(0));
+        IDLE_TRACKER.add(keep_alive_tx);
+
+        connection.msg_rx.attach(None, clone!(
+            @strong inner.server as server,
+            @strong inner.friends_list as friends_list,
+            @strong inner.msg_tx as msg_tx
+        => move |to_client| {
+
+            match to_client {
+
+                ToClient::Error(user, error) => match user {
+                    Some(u) => friends_list.handle_error(u, error),
+                    None => todo!("{}", error)
+                }
+
+                ToClient::FriendsOnline(users_online) => {
+                    let key_requests = friends_list.handle_friends_online(users_online);
+                    if key_requests.len() > 0 {
+                        debug!("Requesting keys");
+                        match msg_tx.send(ToServer::GetPublicKeys(server.user_id, key_requests)) {
+                            Ok(_) => debug!("Keys requested"),
+                            Err(e) => {
+                                error!("{}", e);
+                                return Continue(false);
+                            }
+                        }
+                    }
+                },
+
+                ToClient::Message(msg) => {
+                    friends_list.handle_message(msg);
+                },
+
+                ToClient::PublicKeys(keys) => {
+                    debug!("Got {} keys", keys.len());
+                    friends_list.handle_keys(keys);
+                    debug!("{:#?}", friends_list);
+                },
+
+                _ => warn!("Invalid message") // Do nothing
+
+            }
+
+            Continue(true)
+
+        }));
 
         // Server right-click menu
         let copy_identity_item = MenuItem::new_with_label("Copy my Identity");
@@ -120,7 +195,7 @@ impl ServerRow {
 
             if btn_id == 1 { // Left click
 
-                // friends_list.
+                friends_list.show()
 
             } else if btn_id == 3 { // Right click
 
@@ -169,8 +244,7 @@ impl ServerRow {
 
     pub fn update_friends(&self) {
 
-        // TODO:
-        // todo!()
+        self.friends_list.update(&self.server);
 
     }
 
@@ -205,23 +279,27 @@ impl ServerList {
             servers: RefCell::new(Vec::new())
         };
 
-        inner.servers_list_box.connect_row_selected(|lbox, row| {
+        // inner.servers_list_box.connect_row_selected(|lbox, row| {
 
-            let lbox_children = lbox.get_children();
+        //     let lbox_children = lbox.get_children();
 
-            if let Some(row) = row {
+        //     if let Some(row) = row {
 
-                for i in 0..lbox_children.len() {
-                    if lbox_children[i] == row.clone().upcast::<Widget>() {
-                        debug!("Index: {}", i);
-                    }
-                }
+        //         for i in 0..lbox_children.len() {
+        //             if lbox_children[i] == row.clone().upcast::<Widget>() {
+        //                 debug!("Index: {}", i);
+        //             }
+        //         }
 
-            }
+        //     }
 
-        });
+        // });
 
         inner.clear_servers();
+
+        inner.friends_list_box.foreach(|widget| {
+            inner.friends_list_box.remove(widget);
+        });
 
         Ok(inner)
 
@@ -269,11 +347,12 @@ impl ServerList {
 
             }
 
+            for server in &*self.servers.borrow() {
+                server.update_friends();
+            }
+
         }
 
-        for server in &*self.servers.borrow() {
-            server.update_friends();
-        }
 
     }
 
@@ -302,8 +381,14 @@ impl ServerList {
 
             if &ui_servers[i].server.as_comparable() == other {
 
+                let select_new = ui_servers[i].row.is_selected() && ui_servers.len() > 1;
+
                 self.servers_list_box.remove(&ui_servers[i].row);
                 ui_servers.remove(i);
+
+                if select_new {
+                    self.servers_list_box.select_row(Some(&ui_servers[0].row));
+                }
 
             }
 

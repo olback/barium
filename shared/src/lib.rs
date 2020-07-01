@@ -10,7 +10,7 @@ pub use structs::*;
 #[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub enum AfkStatus {
     Available,
-    Away(Option<u32>),
+    Away(Option<u64>),
     DoNotDisturb,
     Offline
 }
@@ -31,8 +31,8 @@ pub enum ToClient {
     Pong,
     Properties(ServerProperties),
     PasswordOk(bool),
-    PublicKeys(Vec<(UserHash, rsa::RSAPublicKey)>),
+    PublicKeys(Vec<(UserHash, KeyBust, rsa::RSAPublicKey)>),
     FriendsOnline(Vec<(UserHash, KeyBust, AfkStatus)>), // Vec<(Freind Hash, Key Bust, AFK Status)>
     Message(EncryptedMessage),
-    Error(String)
+    Error(Option<UserHash>, String)
 }
